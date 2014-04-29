@@ -21,11 +21,90 @@ feature -- Initialization
 		local
 			n: separate APPLICATION
 		do
+			print ("%N%N<<<%N")
 			default_create
 			create n
-			test2 (n)
-			print_separate (output)
-			print ("%N")
+--			test (n)
+--			test2 (n)
+--			print_separate (output)
+--			test_future
+--			test_timer (create {separate TEST_AGENTS})
+--			test_worker_pool
+--			test_blocking_agent (create {separate TEST_AGENTS})
+			print ("%N>>>%N%N")
+		end
+
+	test_worker_pool
+		local
+			factory: separate TEST_WORKER_FACTORY
+			pool: separate WORKER_POOL [STRING]
+			env: EXECUTION_ENVIRONMENT
+		do
+			create factory
+			create pool.make (factory)
+			internal_test_worker_pool (pool)
+			create env
+			env.sleep (1000000000)
+			close_pool (pool)
+
+		end
+
+	internal_test_worker_pool (pool: separate WORKER_POOL [STRING])
+		do
+			pool.enlarge (2)
+			pool.submit (create {separate STRING}.make_from_separate ("asdf"))
+			pool.submit (create {separate STRING}.make_from_separate ("jklo"))
+			pool.submit (create {separate STRING}.make_from_separate ("qwert"))
+			pool.submit (create {separate STRING}.make_from_separate ("1234"))
+		end
+
+	close_pool (pool: separate WORKER_POOL [STRING]) do pool.close end
+
+	test_future
+		local
+			task: separate TEST_FUTURE_TASK
+			my_future: separate FUTURE [separate ANY]
+			env: EXECUTION_ENVIRONMENT
+		do
+			create task
+			my_future := future (task)
+
+			from
+				create env
+			until
+				is_available (my_future)
+			loop
+				print ("not_available%N")
+				env.sleep (1000000000)
+			end
+
+			print_separate (get_result (my_future))
+
+		end
+
+	test_timer (ag: separate TEST_AGENTS)
+		local
+			task: separate AGENT_TASK
+			timer: separate TIMER
+		do
+			create task.put (agent ag.timer_tick)
+			timer := new_timer (task, 1000)
+			start_timer (timer)
+		end
+
+	start_timer (timer: separate TIMER)
+		do
+			timer.start
+		end
+
+	is_available (a_future: separate FUTURE [separate ANY]): BOOLEAN
+		do
+			Result := a_future.is_available
+		end
+
+	get_result (a_future: separate FUTURE [separate ANY]): separate ANY
+		do
+			Result := a_future.item
 		end
 
 	test2 (n: separate APPLICATION)
@@ -34,17 +113,19 @@ feature -- Initialization
 			app: separate APPLICATION
 			ag: separate ROUTINE [ANY, TUPLE]
 			task: separate STRING_APPENDER
-			task2: separate AGENT_TASK
+			task2, task3: separate AGENT_TASK
 		do
 			create s.make_from_separate ("external")
-			create task2.make (agent n.append (output, s))
+--			create task2.make (agent n.append (output, s))
+--			create task3.make (agent n.print_separate (output))
 --			create task.make (output, s)
 --			create app
 			append (output, "first")
-			ag := agent n.append (output, s)
---			asynch (ag)
-			asdf (task2)
+			asynch_unordered (agent n.append (output, s), 10000)
+			asynch_unordered (agent n.print_separate (output), 10000)
+--			asdf (task2)
 			append (output, "third")
+--			print_separate(output)
 		end
 
 	asdf (t: separate TASK)
@@ -54,6 +135,10 @@ feature -- Initialization
 
 	append (str1, str2: separate STRING)
 		do
+--			if str2 [1] = 'e' then
+--				across 1 |..| 100000 as thrash loop do_nothing end
+--			end
+
 			across 1 |..| str2.count as i loop
 				str1.extend (str2[i.item])
 			end
@@ -87,6 +172,19 @@ feature -- Initialization
 				create s.make_from_separate (str.out)
 				print (s)
 			end
+			print ("%N")
+		end
+
+	test_blocking_agent (obj: separate TEST_AGENTS)
+		do
+			call (agent obj.delayed_print)
+			print ("non_delayed_nessage%N")
+
+			call (agent obj.delayed_print_with_arg (create {separate STRING}.make_filled (' ', 10)))
+			print ("non_delayed_nessage_2%N")
+
+			call (agent obj.delayed_print_with_arg ("a_local_dependency"))
+			print ("non_delayed_nessage_3%N")
 		end
 
 end

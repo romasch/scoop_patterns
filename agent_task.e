@@ -8,30 +8,30 @@ class
 	AGENT_TASK
 
 inherit
+
 	TASK
 
+	CELL [detachable separate ROUTINE [ANY, TUPLE]]
+
 create
-	make
+	put
 
 feature -- Initialization
 
-	my_agent: separate ROUTINE [ANY, TUPLE]
-
-	make (ag: like my_agent)
-			-- Initialization for `Current'.
-		do
-			my_agent := ag
-		end
-
 	run
+			-- <Precursor>
 		do
-			across 1|..| 1000000 as i loop do_nothing end
-			run_controlled (my_agent)
+			if attached item as my_item then
+				run_controlled (my_item)
+			end
 		end
 
-	run_controlled (ag: like my_agent)
+
+feature {NONE} -- Implementation
+
+	run_controlled (ag: attached like item)
 		do
-			ag.call (Void)
+			ag.apply
 		end
 
 end

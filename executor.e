@@ -19,7 +19,8 @@ feature
 			-- Execute a feature.
 		do
 			across 1 |..| 1000000 as i loop do_nothing end
-			call (a_feature)
+			a_feature.call (Void)
+--			call (a_feature)
 		end
 
 end

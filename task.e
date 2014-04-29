@@ -7,7 +7,7 @@ note
 deferred class
 	TASK
 
-feature
+feature -- Task execution
 
 	run
 			-- Run the current task.
