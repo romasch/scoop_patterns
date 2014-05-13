@@ -20,6 +20,8 @@ feature -- Initialization
 			-- Run application.
 		local
 			n: separate APPLICATION
+			d: PUBLISHER [TUPLE]
+			imp: TUPLE_IMPORTER [TUPLE]
 		do
 			print ("%N%N<<<%N")
 			default_create
@@ -31,6 +33,9 @@ feature -- Initialization
 --			test_timer (create {separate TEST_AGENTS})
 --			test_worker_pool
 --			test_blocking_agent (create {separate TEST_AGENTS})
+
+			create imp
+			imp.test_importer
 			print ("%N>>>%N%N")
 		end
 
