@@ -34,8 +34,11 @@ feature -- Initialization
 --			test_worker_pool
 --			test_blocking_agent (create {separate TEST_AGENTS})
 
-			create imp
-			imp.test_importer
+--			create imp
+--			imp.test_importer
+
+--			test_importer
+			test_worker_pool_new
 			print ("%N>>>%N%N")
 		end
 
@@ -51,7 +54,6 @@ feature -- Initialization
 			create env
 			env.sleep (1000000000)
 			close_pool (pool)
-
 		end
 
 	internal_test_worker_pool (pool: separate WORKER_POOL [STRING])
@@ -191,5 +193,79 @@ feature -- Initialization
 			call (agent obj.delayed_print_with_arg ("a_local_dependency"))
 			print ("non_delayed_nessage_3%N")
 		end
+
+
+	test_importer
+		local
+			factory: separate TEST_WORKER_FACTORY
+			pool: separate IMPORTING_WORKER_POOL [STRING, TEST_IMPORT_FACTORY]
+			env: EXECUTION_ENVIRONMENT
+			i: INTEGER
+		do
+			create factory
+			create pool.make (factory)
+
+			create env
+			from
+				init_pool (pool)
+				i := 1
+			until
+				i > 100
+			loop
+--				env.sleep (1000000000)
+				submit_data (pool)
+				i := i + 1
+			end
+
+			env.sleep (1000000000)
+			close_pool (pool)
+		end
+
+	init_pool (pool: separate WORKER_POOL [STRING])
+		do
+				-- Initial data
+			pool.submit ("a")
+			pool.submit ("b")
+			pool.submit ("c")
+			pool.submit ("d")
+			pool.submit ("e")
+			pool.enlarge (2)
+		end
+
+	submit_data (pool: separate WORKER_POOL [STRING])
+		do
+			pool.submit ("1")
+--			pool.submit ("2")
+--			pool.submit ("3")
+--			pool.submit ("4")
+--			pool.submit ("5")
+		end
+
+feature -- new worker pool
+
+	test_worker_pool_new
+		local
+			factory: separate TEST_WORKER_FACTORY_NEW
+			pool: separate WORKER_POOL_NEW [STRING, TEST_IMPORT_FACTORY]
+			env: EXECUTION_ENVIRONMENT
+		do
+			create factory
+			create pool.make (factory)
+			internal_test_worker_pool_new (pool)
+			create env
+			env.sleep (1000000000)
+			close_pool_new (pool)
+		end
+
+	internal_test_worker_pool_new (pool: separate WORKER_POOL_NEW [STRING, TEST_IMPORT_FACTORY])
+		do
+			pool.enlarge (2)
+			pool.submit ( ("asdf"))
+			pool.submit ( ("jklo"))
+			pool.submit ( ("qwer"))
+			pool.submit ( ("1234"))
+		end
+
+	close_pool_new (pool: separate WORKER_POOL_NEW [STRING, TEST_IMPORT_FACTORY]) do pool.close end
 
 end
