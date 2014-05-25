@@ -19,7 +19,10 @@ feature
 			l_str: STRING
 		do
 			create l_str.make_from_separate (s_str)
-			print (l_str)
+			io.put_string (id.out + ": " + l_str + "%N")
 		end
+
+	id: INTEGER
+	put_id (an_id: INTEGER) do id := an_id end
 
 end

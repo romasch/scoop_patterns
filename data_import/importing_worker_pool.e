@@ -57,6 +57,21 @@ feature
 		end
 
 
+	get_cell: separate DATA_CELL [DATA, IMPORTER]
+		do
+			if free_cells.is_empty then
+				create Result.make
+			else
+				Result := free_cells.item
+				free_cells.remove
+			end
+		end
+
+	put_cell (a_cell: separate DATA_CELL [DATA, IMPORTER])
+		do
+			occupied_cells.extend (a_cell)
+		end
+
 feature {NONE}
 
 	do_import (data: separate DATA; cell: separate DATA_CELL [DATA, IMPORTER])

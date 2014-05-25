@@ -37,8 +37,8 @@ feature -- Initialization
 --			create imp
 --			imp.test_importer
 
---			test_importer
-			test_worker_pool_new
+			test_importer
+--			test_worker_pool_new
 			print ("%N>>>%N%N")
 		end
 
@@ -199,21 +199,29 @@ feature -- Initialization
 		local
 			factory: separate TEST_WORKER_FACTORY
 			pool: separate IMPORTING_WORKER_POOL [STRING, TEST_IMPORT_FACTORY]
+			acc: WORKER_POOL_ACCESS [STRING]
 			env: EXECUTION_ENVIRONMENT
 			i: INTEGER
 		do
 			create factory
 			create pool.make (factory)
+			create acc
 
 			create env
 			from
+				acc.submit (pool, "a")
+				acc.submit (pool, "b")
+				acc.submit (pool, "c")
+				acc.submit (pool, "d")
+				acc.submit (pool, "e")
 				init_pool (pool)
 				i := 1
 			until
 				i > 100
 			loop
 --				env.sleep (1000000000)
-				submit_data (pool)
+				acc.submit (pool, "1")
+--				submit_data (pool)
 				i := i + 1
 			end
 
@@ -224,11 +232,11 @@ feature -- Initialization
 	init_pool (pool: separate WORKER_POOL [STRING])
 		do
 				-- Initial data
-			pool.submit ("a")
-			pool.submit ("b")
-			pool.submit ("c")
-			pool.submit ("d")
-			pool.submit ("e")
+--			pool.submit ("a")
+--			pool.submit ("b")
+--			pool.submit ("c")
+--			pool.submit ("d")
+--			pool.submit ("e")
 			pool.enlarge (2)
 		end
 
