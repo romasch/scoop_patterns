@@ -10,6 +10,7 @@ deferred class
 feature
 
 	new_from_separate (obj: separate DATA): DATA
+	-- api description would be nice to have.
 		deferred
 		end
 

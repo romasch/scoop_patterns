@@ -22,6 +22,10 @@ feature -- Access
 		end
 
 feature -- Status report
+	future_result : FUTURE_RESULT[G]
+	do
+		create Result.from_future(Current)
+	end
 
 	is_available: BOOLEAN
 		-- Has the computation of `item' finished?
@@ -42,5 +46,4 @@ feature {NONE} -- Helper functions
 
 	internal_item: detachable separate G
 			-- The actual storage for `item'.
-
 end

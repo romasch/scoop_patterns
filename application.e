@@ -37,6 +37,9 @@ feature -- Initialization
 --			create imp
 --			imp.test_importer
 
+		--	test_future
+		--	test_future_with_result
+		--	test_blocking_future
 			test_importer
 --			test_worker_pool_new
 			print ("%N>>>%N%N")
@@ -87,6 +90,49 @@ feature -- Initialization
 
 			print_separate (get_result (my_future))
 
+		end
+
+	test_future_with_result
+	-- the same as `test_future', but features a wrapper object, `FUTURE_RESULT',
+	-- so that a client does not need to write wrapper methods.
+	-- However, `FUTURE_RESULT' is an expanded type and cannot be passed to a method.
+	-- instead, the future itself should be used in that case.
+		local
+			task: separate TEST_FUTURE_TASK
+			my_future: separate FUTURE [separate ANY]
+			env: EXECUTION_ENVIRONMENT
+			l_future_result : FUTURE_RESULT[separate ANY]
+		do
+			create task
+			my_future := future (task)
+			create l_future_result.from_future (my_future)
+
+			from
+				create env
+			until
+				l_future_result.is_available
+			loop
+				print ("not_available%N")
+				env.sleep (1000000000)
+			end
+
+			print_separate (l_future_result.item)
+		end
+
+	test_future_of_future
+	do
+
+	end
+
+	test_blocking_future
+		local
+			task: separate TEST_FUTURE_TASK
+			l_future_result : FUTURE_RESULT[separate ANY]
+		do
+			create task
+			create l_future_result.from_future (future (task))
+			-- here, current processor should block until the item is available.
+			print_separate (l_future_result.item)
 		end
 
 	test_timer (ag: separate TEST_AGENTS)
@@ -217,7 +263,7 @@ feature -- Initialization
 				init_pool (pool)
 				i := 1
 			until
-				i > 100
+				i > 1000
 			loop
 --				env.sleep (1000000000)
 				acc.submit (pool, "1")
@@ -231,12 +277,6 @@ feature -- Initialization
 
 	init_pool (pool: separate WORKER_POOL [STRING])
 		do
-				-- Initial data
---			pool.submit ("a")
---			pool.submit ("b")
---			pool.submit ("c")
---			pool.submit ("d")
---			pool.submit ("e")
 			pool.enlarge (2)
 		end
 

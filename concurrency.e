@@ -6,7 +6,7 @@ note
 
 class
 	CONCURRENCY
-
+-- as there is no data, consider to turning it into an expanded class?
 feature
 
 	call (function: separate ROUTINE [ANY, TUPLE])
@@ -33,7 +33,6 @@ feature
 			Result := task.token
 			task.run
 		end
-
 
 	asynch (a_feature: detachable separate ROUTINE [ANY, TUPLE]; milliseconds: INTEGER)
 

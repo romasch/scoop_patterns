@@ -6,7 +6,9 @@ note
 
 class
 	TEST_IMPORT_FACTORY
-
+-- this class works with strings. would be nice to have some other examples of data classes. Something like vectors, matrices,
+-- byte buffers, custom objects (address).
+-- does it have any connection with cloning?
 inherit
 	IMPORT_FACTORY [STRING]
 
