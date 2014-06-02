@@ -21,7 +21,7 @@ feature -- Initialization
 		local
 			n: separate APPLICATION
 			d: PUBLISHER [TUPLE]
-			imp: TUPLE_IMPORTER [TUPLE]
+			imp: separate TUPLE_IMPORTER_TESTS [TUPLE]
 		do
 			print ("%N%N<<<%N")
 			default_create
@@ -34,14 +34,14 @@ feature -- Initialization
 --			test_worker_pool
 --			test_blocking_agent (create {separate TEST_AGENTS})
 
---			create imp
---			imp.test_importer
+--			create imp.test_importer
 
 		--	test_future
 		--	test_future_with_result
 		--	test_blocking_future
-			test_importer
+--			test_importer
 --			test_worker_pool_new
+			(create {AGENT_IMPORTER_TESTS}.make).do_nothing
 			print ("%N>>>%N%N")
 		end
 

@@ -14,6 +14,12 @@ feature
 			print ("timer_tick%N")
 		end
 
+	print_numbers (first, second: INTEGER)
+		do
+			print ("First number: " + first.out + "%N")
+			print ("Second number: " + second.out + "%N")
+		end
+
 	delayed_print
 		local
 			env: EXECUTION_ENVIRONMENT
