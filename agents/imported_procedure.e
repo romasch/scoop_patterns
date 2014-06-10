@@ -29,12 +29,12 @@ feature
 			closed_operands := []
 			operands := Void
 
-			class_id := other.class_id
-			feature_id := other.feature_id
-			is_precompiled := other.is_precompiled
+--			class_id := other.class_id
+--			feature_id := other.feature_id
+--			is_precompiled := other.is_precompiled
 			is_basic := other.is_basic
 			is_target_closed := other.is_target_closed
-			is_inline_agent := other.is_inline_agent
+--			is_inline_agent := other.is_inline_agent
 			open_count := other.open_count
 
 				-- new
