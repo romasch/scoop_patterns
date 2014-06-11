@@ -10,7 +10,7 @@ class
 inherit
 	TASK
 
-create make
+create make, make_from_separate
 
 feature
 
@@ -32,7 +32,16 @@ feature
 
 	timer: separate TIMER
 
-feature {NONE}
+	make_from_separate (a_task: separate TIMER_WORKER)
+			-- Initialize `Current' from `a_task'.
+		do
+
+			task := a_task.task
+			interval := a_task.interval
+			timer := a_task.timer
+		end
+
+feature {TASK}
 
 	task: separate TASK
 

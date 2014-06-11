@@ -11,7 +11,7 @@ inherit
 	TASK
 
 create
-	make
+	make, make_from_separate
 
 feature -- Access
 
@@ -34,6 +34,13 @@ feature
 			end
 		end
 
+	make_from_separate (a_task: separate like Current)
+			-- Initialize `Current' from `a_task'.
+		do
+			target := a_task.target
+			appendix := a_task.appendix
+		end
+
 feature {NONE} -- Initialization
 
 	make (tar, app: separate STRING)
@@ -42,5 +49,7 @@ feature {NONE} -- Initialization
 			target := tar
 			appendix := app
 		end
+
+
 
 end

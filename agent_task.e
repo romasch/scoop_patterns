@@ -14,7 +14,7 @@ inherit
 	CELL [detachable separate ROUTINE [ANY, TUPLE]]
 
 create
-	put
+	put, make_from_separate
 
 feature -- Initialization
 
@@ -26,6 +26,11 @@ feature -- Initialization
 			end
 		end
 
+	make_from_separate (a_task: separate like Current)
+			-- Initialize `Current' from `a_task'.
+		do
+			put (a_task.item)
+		end
 
 feature {NONE} -- Implementation
 
@@ -33,5 +38,7 @@ feature {NONE} -- Implementation
 		do
 			ag.apply
 		end
+
+
 
 end

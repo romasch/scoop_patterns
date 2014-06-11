@@ -1,16 +1,23 @@
 note
-	description: "Summary description for {TASK}."
-	author: ""
+	description: "Operations that can be copied across processor boundaries."
+	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 
 deferred class
 	TASK
 
-feature -- Task execution
+feature -- Basic operations
 
 	run
 			-- Run the current task.
+		deferred
+		end
+
+feature -- Initialization
+
+	make_from_separate (other: separate like Current)
+			-- Initialize `Current' from `other'.
 		deferred
 		end
 

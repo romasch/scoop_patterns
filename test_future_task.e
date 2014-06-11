@@ -23,4 +23,9 @@ feature
 			set_result (token, res)
 		end
 
+	make_from_separate (a_task: separate like Current)
+			-- Initialize `Current' from `a_task'.
+		do
+		end
+
 end
