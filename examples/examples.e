@@ -13,9 +13,12 @@ feature {NONE} -- Initialization
 
 	make
 			-- Run application.
+		local
+			app: APPLICATION
+			buffer: separate CPS_DEFAULT_QUEUE_ACCESS [ANY]
+			asdf: separate CPS_IMPORTING_QUEUE_ACCESS [CPS_IMPORTABLE]
 		do
-			--| Add your code here
-			print ("Hello Eiffel World!%N")
+			create app.make
 		end
 
 end

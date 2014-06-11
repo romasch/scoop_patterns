@@ -10,7 +10,7 @@ inherit
 	CONCURRENCY redefine default_create end
 
 create
-	make, default_create
+	make, default_create, test_expanded
 
 feature -- Initialization
 
@@ -41,7 +41,10 @@ feature -- Initialization
 		--	test_blocking_future
 --			test_importer
 --			test_worker_pool_new
-			(create {AGENT_IMPORTER_TESTS}.make).do_nothing
+
+--			(create {AGENT_IMPORTER_TESTS}.make).do_nothing
+
+			create n.test_expanded
 			print ("%N>>>%N%N")
 		end
 
@@ -315,5 +318,17 @@ feature -- new worker pool
 		end
 
 	close_pool_new (pool: separate WORKER_POOL_NEW [STRING, TEST_IMPORT_FACTORY]) do pool.close end
+
+	test_expanded
+			-- This simple test creates a traitor...
+		local
+			cell: separate CELL [separate ANY]
+			etest: ETEST
+			any: ANY
+		do
+			default_create
+			any := etest
+			create cell.put (any)
+		end
 
 end
