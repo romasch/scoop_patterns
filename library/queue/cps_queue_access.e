@@ -12,58 +12,90 @@ create
 
 feature -- Access
 
-	buffer: separate CPS_QUEUE [G, IMPORTER]
-			-- The separate buffer.
+	queue: separate CPS_QUEUE [G, IMPORTER]
+			-- The separate queue.
 
 	last_consumed_item: detachable like importer.import
 			-- The last consumed item.
 			-- The separate status of the result type may vary depending on the chosen import strategy.
 
+	count: INTEGER
+			-- Number of items in the queue.
+		do
+			Result := utils.queue_count (queue)
+		end
+
+	capacity: INTEGER
+			-- Capacity of `queue'. May be negative if unbounded.
+		do
+			Result := utils.queue_capacity (queue)
+		end
+
+	item: separate G
+			-- Retrieve the oldest item from `queue'.
+			-- Note: blocks if `queue' is empty.
+		do
+			Result := utils.queue_item (queue)
+		end
+
+feature -- Status report
+
+	is_bounded: BOOLEAN
+			-- Is `queue' bounded?
+		do
+			Result := utils.is_queue_bounded (queue)
+		end
+
+	is_full: BOOLEAN
+			-- Is `queue' full?
+		do
+			Result := utils.is_queue_full (queue)
+		end
+
+	is_empty: BOOLEAN
+			-- Is `queue' empty?
+		do
+			Result := utils.is_queue_empty (queue)
+		end
+
 feature -- Basic operations
 
-	put (item: separate G)
-			-- Put `item' into the buffer.
-			-- Note: blocks if `buffer' is full.
+	put (a_item: separate G)
+			-- Insert `a_item' into `queue'.
+			-- Note: blocks if `queue' is full.
 		do
-			put_impl (buffer, item)
+			utils.queue_put (queue, item)
+		end
+
+	remove
+			-- Remove the oldest item from `queue'.
+			-- Note: blocks if `queue' is empty.
+		do
+			utils.queue_remove (queue)
 		end
 
 	consume
-			-- Remove an item from `buffer' and store it in `last_consumed_item'.
-			-- Note: blocks if `buffer' is empty.
+			-- Retrieve and remove the oldest item from `queue'.
+			-- The result is stored in `last_consumed_item'.
+			-- Note: blocks if `queue' is empty.
 		do
-			consume_impl (buffer)
-		end
-
-feature {NONE} -- Implementation
-
-	put_impl (a_buffer: separate CPS_QUEUE [G, IMPORTER]; an_item: separate G)
-			-- Put `an_item' into `a_buffer'
-		require
-			not_full: not a_buffer.is_full
-		do
-			a_buffer.put (an_item)
-		end
-
-	consume_impl (a_buffer: separate CPS_QUEUE [G, IMPORTER])
-			-- Consume an item from `a_buffer'.
-		require
-			not_empty: not a_buffer.is_empty
-		do
-			last_consumed_item := importer.import (a_buffer.item)
-			a_buffer.remove
+			last_consumed_item := utils.queue_consume (queue)
 		end
 
 feature {NONE} -- Initialization
 
-	make (a_separate_buffer: separate CPS_QUEUE [G, IMPORTER])
+	make (a_separate_queue: separate CPS_QUEUE [G, IMPORTER])
 			-- Initialization for `Current'.
 		do
-			buffer := a_separate_buffer
+			queue := a_separate_queue
 			create importer
+			create utils
 		end
 
 	importer: attached IMPORTER
 			-- The selected import strategy.
+
+	utils: CPS_QUEUE_UTILS [G]
+			-- Utility functions to access the separate queue.
 
 end
