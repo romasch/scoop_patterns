@@ -17,8 +17,6 @@ feature {NONE} -- Initialization
 			-- Run application.
 		local
 			app: APPLICATION
-			buffer: separate CPS_DEFAULT_QUEUE_ACCESS [ANY]
-			asdf: separate CPS_IMPORTING_QUEUE_ACCESS [CPS_IMPORTABLE]
 
 			queue: separate CPS_QUEUE [EXAMPLES, CPS_STATIC_TYPE_IMPORTER [EXAMPLES]]
 			acc: CPS_QUEUE_ACCESS [EXAMPLES, CPS_STATIC_TYPE_IMPORTER [EXAMPLES]]
