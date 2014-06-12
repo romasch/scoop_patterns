@@ -24,6 +24,8 @@ feature {NONE} -- Initialization
 			acc: CPS_QUEUE_ACCESS [EXAMPLES, CPS_STATIC_TYPE_IMPORTER [EXAMPLES]]
 
 			ex: EXAMPLES
+
+			imp: CPS_DYNAMIC_TYPE_IMPORTER [EXAMPLES]
 		do
 			--create app.make
 

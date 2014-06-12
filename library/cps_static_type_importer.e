@@ -2,6 +2,7 @@ note
 	description:
 	"[
 		Import strategy: Copy objects to the local processor.
+		
 		Note: The type of the imported object will be the static type G,
 		not the dynamic type of the original object.
 	]"

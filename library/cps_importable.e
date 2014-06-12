@@ -1,6 +1,6 @@
 note
 	description: " Objects that can be imported from a separate object.%
-				 % Always declare `make_from_separate' as a creation procedure."
+				 % Descendants should declare `make_from_separate' as a creation procedure."
 	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"

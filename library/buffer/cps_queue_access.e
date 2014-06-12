@@ -16,6 +16,8 @@ feature -- Access
 			-- The separate buffer.
 
 	last_consumed_item: detachable like importer.import
+			-- The last consumed item.
+			-- The separate status of the result type may vary depending on the chosen import strategy.
 
 feature -- Basic operations
 
@@ -55,11 +57,13 @@ feature {NONE} -- Implementation
 feature {NONE} -- Initialization
 
 	make (a_separate_buffer: separate CPS_QUEUE [G, IMPORTER])
+			-- Initialization for `Current'.
 		do
 			buffer := a_separate_buffer
 			create importer
 		end
 
 	importer: attached IMPORTER
+			-- The selected import strategy.
 
 end
