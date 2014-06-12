@@ -17,50 +17,50 @@ note
 class
 	CPS_DEFAULT_QUEUE [G]
 
-inherit
-	CPS_QUEUE [G]
+--inherit
+--	CPS_QUEUE [G, CPS_NO_IMPORT [G]]
 
-create
-	make_bounded, make_unbounded
+--create
+--	make_bounded, make_unbounded
 
-feature -- Access
+--feature -- Access
 
-	count: INTEGER
-			-- <Precursor>
-		do
-			Result := my_queue.count
-		end
+--	count: INTEGER
+--			-- <Precursor>
+--		do
+--			Result := my_queue.count
+--		end
 
-feature {CPS_DEFAULT_QUEUE_ACCESS}
+--feature {CPS_DEFAULT_QUEUE_ACCESS}
 
-	put (item: separate G)
-		do
-			my_queue.put (item)
-		end
+--	put (item: separate G)
+--		do
+--			my_queue.put (item)
+--		end
 
-	consume: separate G
-		do
-			Result := my_queue.item
-			my_queue.remove
-		end
+--	consume: separate G
+--		do
+--			Result := my_queue.item
+--			my_queue.remove
+--		end
 
 
-feature {NONE} -- Initialization
+--feature {NONE} -- Initialization
 
-	my_queue: ARRAYED_QUEUE [separate G]
+--	my_queue: ARRAYED_QUEUE [separate G]
 
-	make_bounded (a_capacity: INTEGER)
-			-- Create a bounded buffer object with capacity `a_capacity'.
-		do
-			capacity := a_capacity
-			create my_queue.make (a_capacity)
-		end
+--	make_bounded (a_capacity: INTEGER)
+--			-- Create a bounded buffer object with capacity `a_capacity'.
+--		do
+--			capacity := a_capacity
+--			create my_queue.make (a_capacity)
+--		end
 
-	make_unbounded
-			-- Create an unbounded buffer object.
-		do
-			create my_queue.make (2)
-			capacity := -1
-		end
+--	make_unbounded
+--			-- Create an unbounded buffer object.
+--		do
+--			create my_queue.make (2)
+--			capacity := -1
+--		end
 
 end

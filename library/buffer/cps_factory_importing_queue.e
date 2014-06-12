@@ -15,26 +15,26 @@ note
 	revision: "$Revision$"
 
 class
-	CPS_FACTORY_IMPORTING_QUEUE [G]
+	CPS_FACTORY_IMPORTING_QUEUE [G, IMPORTER -> CPS_IMPORT_STRATEGY [G] create default_create end]
 
-inherit
-	CPS_QUEUE [G]
+--inherit
+--	CPS_QUEUE [G, IMPORTER]
 
-create
-	make_bounded, make_unbounded
+--create
+--	make_bounded, make_unbounded
 
-feature
+--feature
 
-	count: INTEGER = 0
+--	count: INTEGER = 0
 
-	make_bounded (a_capacity: INTEGER)
-			do
+--	make_bounded (a_capacity: INTEGER)
+--			do
 
-			end
+--			end
 
-	make_unbounded
-			do
+--	make_unbounded
+--			do
 
-			end
+--			end
 
 end

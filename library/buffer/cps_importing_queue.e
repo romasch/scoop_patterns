@@ -20,23 +20,23 @@ note
 class
 	CPS_IMPORTING_QUEUE [G -> CPS_IMPORTABLE create make_from_separate end]
 
-inherit
-	CPS_QUEUE [G]
+--inherit
+--	CPS_QUEUE [G, CPS_DEFAULT_IMPORTER [G]]
 
-create
-	make_bounded, make_unbounded
+--create
+--	make_bounded, make_unbounded
 
-feature
+--feature
 
-	count: INTEGER = 0
+--	count: INTEGER = 0
 
-	make_bounded (a_capacity: INTEGER)
-			do
+--	make_bounded (a_capacity: INTEGER)
+--			do
 
-			end
+--			end
 
-	make_unbounded
-			do
+--	make_unbounded
+--			do
 
-			end
+--			end
 end

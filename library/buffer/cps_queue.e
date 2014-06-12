@@ -4,8 +4,11 @@ note
 	date: "$Date$"
 	revision: "$Revision$"
 
-deferred class
-	CPS_QUEUE [G]
+class
+	CPS_QUEUE [G, IMPORTER -> CPS_IMPORT_STRATEGY [G] create default_create end]
+
+create
+	make_bounded, make_unbounded
 
 feature -- Access
 
@@ -14,7 +17,8 @@ feature -- Access
 
 	count: INTEGER
 			-- The number of items in `Current'.
-		deferred
+		do
+			Result := store.count
 		end
 
 feature -- Status report
@@ -28,7 +32,7 @@ feature -- Status report
 	is_full: BOOLEAN
 			-- Is `Current' full?
 		do
-			Result := not is_bounded or count = capacity
+			Result := is_bounded and count = capacity
 		end
 
 	is_empty: BOOLEAN
@@ -39,7 +43,20 @@ feature -- Status report
 
 feature -- Basic operations
 
+	put (a_item: separate G)
+		do
+			store.put (importer.import (a_item))
+		end
 
+	item: separate G
+		do
+			Result := store.item
+		end
+
+	remove
+		do
+			store.remove
+		end
 
 feature {NONE} -- Initialization
 
@@ -47,16 +64,27 @@ feature {NONE} -- Initialization
 			-- Create a bounded buffer object with capacity `a_capacity'.
 		require
 			non_negative: a_capacity >= 0
-		deferred
+		do
+			capacity := a_capacity
+			create store.make (a_capacity)
+			create importer
 		ensure
 			capacity = a_capacity
 		end
 
 	make_unbounded
 			-- Create an unbounded buffer object.
-		deferred
+		do
+			capacity := -1
+			create store.make (1)
+			create importer
 		ensure
 			capacity < 0
 		end
+
+	store: ARRAYED_QUEUE [separate G]
+			-- The internal storage for `Current'.
+
+	importer: attached IMPORTER
 
 end
