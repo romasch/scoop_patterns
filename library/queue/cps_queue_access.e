@@ -64,7 +64,7 @@ feature -- Basic operations
 			-- Insert `a_item' into `queue'.
 			-- Note: blocks if `queue' is full.
 		do
-			utils.queue_put (queue, item)
+			utils.queue_put (queue, a_item)
 		end
 
 	remove
@@ -79,7 +79,7 @@ feature -- Basic operations
 			-- The result is stored in `last_consumed_item'.
 			-- Note: blocks if `queue' is empty.
 		do
-			last_consumed_item := utils.queue_consume (queue)
+			last_consumed_item := importer.import (utils.queue_consume (queue))
 		end
 
 feature {NONE} -- Initialization

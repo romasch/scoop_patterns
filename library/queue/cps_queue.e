@@ -61,7 +61,6 @@ feature -- Basic operations
 			store.put (importer.import (a_item))
 		ensure
 			count_correct: count = old count + 1
-			inserted: store.has (a_item)
 		end
 
 	remove
