@@ -10,7 +10,7 @@
 		<library name="base" location="$ISE_LIBRARY\library\base\base-safe.ecf"/>
 		<library name="concurrency" location="..\library\concurrency.ecf" readonly="false"/>
 		<library name="experiments" location="..\experiments\experiments.ecf" readonly="false"/>
-		<cluster name="all_examples" location=".\">
+		<cluster name="all_examples" location=".\" recursive="true">
 			<file_rule>
 				<exclude>/EIFGENs$</exclude>
 				<exclude>/CVS$</exclude>

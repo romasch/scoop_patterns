@@ -16,6 +16,8 @@ feature {NONE} -- Initialization
 	make
 			-- Run application.
 		local
+			example_loader: detachable separate ANY
+
 			app: APPLICATION
 
 			queue: separate CPS_QUEUE [EXAMPLES, CPS_STATIC_TYPE_IMPORTER [EXAMPLES]]
@@ -27,17 +29,19 @@ feature {NONE} -- Initialization
 		do
 			--create app.make
 
-			create queue.make_unbounded
-			create acc.make (queue)
+--			create queue.make_unbounded
+--			create acc.make (queue)
 
-			acc.put (create {EXAMPLES})
-			acc.put (create {separate EXAMPLES})
+--			acc.put (create {EXAMPLES})
+--			acc.put (create {separate EXAMPLES})
 
-			acc.consume
-			if attached acc.last_consumed_item as it then
-				print ("Hello ")
-				ex := it
-			end
+--			acc.consume
+--			if attached acc.last_consumed_item as it then
+--				print ("Hello ")
+--				ex := it
+--			end
+
+			example_loader := create {PRODUCER_CONSUMER}.make
 
 		end
 
