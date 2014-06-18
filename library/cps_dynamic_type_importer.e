@@ -1,12 +1,14 @@
 note
 	description:
 	"[
-		Import strategy: Copy objects to the local processor.
+		Import an object by creating an uninitialized object
+		of the same type using reflection, and then calling
+		{CPS_IMPORTABLE}.make_from_separate on it.
 		
-		Note: The dynamic type of the imported object will be 
-		the same as with the original object. This is done
-		using reflection.
-		To make this safe, all descendants of G must satisfy 
+		Note: The use of reflection guarantees that the dynamic 
+		type of the imported object will be the same as the original
+		object, but it also introduces some problems. To make
+		this import strategy safe, all descendants of G must satisfy 
 		the following two rules:
 		
 		1) They cannot have invariants.
@@ -14,7 +16,7 @@ note
 		2) Feature `make_from_separate' must be a creation
 		   procedure in every non-deferred descendant of G.
 	]"
-	author: ""
+	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 

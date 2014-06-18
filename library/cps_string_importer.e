@@ -1,6 +1,6 @@
 note
-	description: "Summary description for {CPS_STRING_IMPORTER}."
-	author: ""
+	description: "Importer for STRING objects."
+	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 
