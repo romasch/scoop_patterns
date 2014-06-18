@@ -13,22 +13,32 @@ inherit
 	CP_PROCESS_LAUNCHER
 
 create
-	make
+	make_with_factory
 
 feature {NONE} -- Initialization
 
-	make (buffer_size: INTEGER; worker_count: INTEGER; a_worker_factory: separate CP_WORKER_FACTORY [G, IMPORTER])
+	make_with_factory (buffer_size: INTEGER; worker_count: INTEGER; a_worker_factory: separate CP_WORKER_FACTORY [G, IMPORTER])
 			-- Initialization for `Current'.
+		do
+			initialize_buffer (buffer_size)
+			initialize_factory (worker_count, a_worker_factory)
+		end
+
+	initialize_buffer (buffer_size: INTEGER)
+			-- Initialize the buffer.
 		do
 			if buffer_size > 0 then
 				make_bounded (buffer_size)
 			else
 				make_unbounded
 			end
+		end
 
-			worker_factory := a_worker_factory
+	initialize_factory (worker_count: INTEGER; a_factory: separate CP_WORKER_FACTORY [G, IMPORTER])
+			-- Initialize the worker factory and create the first `worker_count' workers.
+		do
 			preset_worker_count := worker_count
-
+			worker_factory := a_factory
 			adjust (worker_factory)
 		end
 

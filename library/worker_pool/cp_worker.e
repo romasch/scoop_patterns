@@ -22,7 +22,6 @@ feature {NONE} -- Initialization
 	importer: IMPORTER
 			-- The import strategy for `Current'.
 
-
 feature -- Access
 
 	pool: separate CP_WORKER_POOL [G, IMPORTER]
