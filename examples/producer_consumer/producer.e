@@ -45,7 +45,6 @@ feature -- Basic operations
 				queue_wrapper.put (item)
 				i := i + 1
 			end
-
 		end
 
 end

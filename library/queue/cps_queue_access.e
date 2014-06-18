@@ -84,7 +84,7 @@ feature -- Basic operations
 
 feature {NONE} -- Initialization
 
-	make (a_separate_queue: separate CPS_QUEUE [G, IMPORTER])
+	make (a_separate_queue: attached separate like queue)
 			-- Initialization for `Current'.
 		do
 			queue := a_separate_queue

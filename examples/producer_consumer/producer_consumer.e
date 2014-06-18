@@ -74,4 +74,6 @@ feature {NONE} -- Implementation
 			a_producer.produce (count)
 		end
 
+invariant
+	equal_values: producer_count * items_per_producer = consumer_count * items_per_consumer
 end

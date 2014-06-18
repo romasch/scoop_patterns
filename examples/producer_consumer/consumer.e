@@ -47,7 +47,6 @@ feature -- Basic operations
 				end
 				i := i + 1
 			end
-
 		end
 
 end
