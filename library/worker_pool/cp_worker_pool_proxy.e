@@ -19,11 +19,11 @@ feature {NONE} -- Initialization
 			create utils
 		end
 
-	utils: CPS_QUEUE_UTILS [G]
+	utils: CP_QUEUE_UTILS [G]
 
 feature -- Access
 
-	worker_pool: separate CP_WORKER_POOL [G, CPS_IMPORT_STRATEGY [G]]
+	worker_pool: separate CP_WORKER_POOL [G, CP_IMPORT_STRATEGY [G]]
 
 	worker_count: INTEGER
 

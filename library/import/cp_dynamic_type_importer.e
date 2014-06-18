@@ -3,7 +3,7 @@ note
 	"[
 		Import an object by creating an uninitialized object
 		of the same type using reflection, and then calling
-		{CPS_IMPORTABLE}.make_from_separate on it.
+		{CP_IMPORTABLE}.make_from_separate on it.
 		
 		Note: The use of reflection guarantees that the dynamic 
 		type of the imported object will be the same as the original
@@ -21,10 +21,10 @@ note
 	revision: "$Revision$"
 
 class
-	CPS_DYNAMIC_TYPE_IMPORTER[G -> CPS_IMPORTABLE]
+	CP_DYNAMIC_TYPE_IMPORTER[G -> CP_IMPORTABLE]
 
 inherit
-	CPS_IMPORTER [G]
+	CP_IMPORT [G]
 
 	REFLECTOR
 		export {NONE}

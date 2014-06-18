@@ -8,7 +8,7 @@ class
 	CPS_STRING_IMPORTER
 
 inherit
-	CPS_IMPORTER [STRING]
+	CP_IMPORT [STRING]
 
 feature
 

@@ -5,14 +5,14 @@ note
 	revision: "$Revision$"
 
 class
-	CPS_QUEUE_ACCESS [G, IMPORTER -> CPS_IMPORT_STRATEGY [G] create default_create end]
+	CP_QUEUE_PROXY [G, IMPORTER -> CP_IMPORT_STRATEGY [G] create default_create end]
 
 create
 	make
 
 feature -- Access
 
-	queue: separate CPS_QUEUE [G, IMPORTER]
+	queue: separate CP_QUEUE [G, IMPORTER]
 			-- The separate queue.
 
 	last_consumed_item: detachable like importer.import
@@ -95,7 +95,7 @@ feature {NONE} -- Initialization
 	importer: attached IMPORTER
 			-- The selected import strategy.
 
-	utils: CPS_QUEUE_UTILS [G]
+	utils: CP_QUEUE_UTILS [G]
 			-- Utility functions to access the separate queue.
 
 end

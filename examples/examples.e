@@ -6,7 +6,7 @@ note
 class
 	EXAMPLES
 
-inherit CPS_IMPORTABLE
+inherit CP_IMPORTABLE
 
 create
 	make, make_from_separate, default_create
@@ -20,12 +20,12 @@ feature {NONE} -- Initialization
 
 			app: APPLICATION
 
-			queue: separate CPS_QUEUE [EXAMPLES, CPS_STATIC_TYPE_IMPORTER [EXAMPLES]]
-			acc: CPS_QUEUE_ACCESS [EXAMPLES, CPS_STATIC_TYPE_IMPORTER [EXAMPLES]]
+			queue: separate CP_QUEUE [EXAMPLES, CP_STATIC_TYPE_IMPORTER [EXAMPLES]]
+			acc: CP_QUEUE_PROXY [EXAMPLES, CP_STATIC_TYPE_IMPORTER [EXAMPLES]]
 
 			ex: EXAMPLES
 
-			imp: CPS_DYNAMIC_TYPE_IMPORTER [EXAMPLES]
+			imp: CP_DYNAMIC_TYPE_IMPORTER [EXAMPLES]
 		do
 			--create app.make
 

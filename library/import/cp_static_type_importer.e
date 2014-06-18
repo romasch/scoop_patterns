@@ -2,7 +2,7 @@ note
 	description:
 	"[
 		Import an object of type G by creating a new object
-		with creation procedure {CPS_IMPORTABLE}.make_from_separate.
+		with creation procedure {CP_IMPORTABLE}.make_from_separate.
 		
 		Note: The type of the imported object will be the static type G,
 		not the dynamic type of the original object.
@@ -12,10 +12,10 @@ note
 	revision: "$Revision$"
 
 class
-	CPS_STATIC_TYPE_IMPORTER [G -> CPS_IMPORTABLE create make_from_separate end]
+	CP_STATIC_TYPE_IMPORTER [G -> CP_IMPORTABLE create make_from_separate end]
 
 inherit
-	CPS_IMPORTER [G]
+	CP_IMPORT [G]
 
 feature
 

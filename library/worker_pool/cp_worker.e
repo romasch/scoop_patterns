@@ -5,7 +5,7 @@ note
 	revision: "$Revision$"
 
 deferred class
-	CP_WORKER [G, IMPORTER -> CPS_IMPORT_STRATEGY [G] create default_create end]
+	CP_WORKER [G, IMPORTER -> CP_IMPORT_STRATEGY [G] create default_create end]
 
 inherit
 	CP_PROCESS

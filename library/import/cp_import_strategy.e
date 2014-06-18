@@ -5,7 +5,7 @@ note
 	revision: "$Revision$"
 
 deferred class
-	CPS_IMPORT_STRATEGY [G]
+	CP_IMPORT_STRATEGY [G]
 
 feature
 

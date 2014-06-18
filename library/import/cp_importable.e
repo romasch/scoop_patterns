@@ -6,7 +6,7 @@ note
 	revision: "$Revision$"
 
 deferred class
-	CPS_IMPORTABLE
+	CP_IMPORTABLE
 
 feature -- Initialization
 

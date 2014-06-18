@@ -13,14 +13,14 @@ create
 
 feature {NONE} -- Initialization
 
-	make (a_queue: separate CPS_QUEUE [STRING, CPS_STRING_IMPORTER]; a_id: INTEGER)
+	make (a_queue: separate CP_QUEUE [STRING, CPS_STRING_IMPORTER]; a_id: INTEGER)
 			-- Initialization for `Current'.
 		do
 			identifier := a_id
 			create queue_wrapper.make (a_queue)
 		end
 
-	queue_wrapper: CPS_QUEUE_ACCESS [STRING, CPS_STRING_IMPORTER]
+	queue_wrapper: CP_QUEUE_PROXY [STRING, CPS_STRING_IMPORTER]
 			-- A wrapper object to a separate queue.
 
 	identifier: INTEGER

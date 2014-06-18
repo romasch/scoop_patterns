@@ -5,7 +5,7 @@ note
 	revision: "$Revision$"
 
 class
-	CPS_QUEUE [G, IMPORTER -> CPS_IMPORT_STRATEGY [G] create default_create end]
+	CP_QUEUE [G, IMPORTER -> CP_IMPORT_STRATEGY [G] create default_create end]
 
 create
 	make_bounded, make_unbounded

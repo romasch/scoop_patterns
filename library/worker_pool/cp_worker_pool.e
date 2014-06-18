@@ -5,10 +5,10 @@ note
 	revision: "$Revision$"
 
 class
-	CP_WORKER_POOL [G, IMPORTER -> CPS_IMPORT_STRATEGY [G] create default_create end]
+	CP_WORKER_POOL [G, IMPORTER -> CP_IMPORT_STRATEGY [G] create default_create end]
 
 inherit
-	CPS_QUEUE [G, IMPORTER]
+	CP_QUEUE [G, IMPORTER]
 
 	CP_PROCESS_LAUNCHER
 

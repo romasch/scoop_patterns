@@ -16,10 +16,10 @@ note
 	revision: "$Revision$"
 
 class
-	CPS_NO_IMPORT [G]
+	CP_NO_IMPORT [G]
 
 inherit
-	CPS_IMPORT_STRATEGY [G]
+	CP_IMPORT_STRATEGY [G]
 
 feature
 

@@ -109,7 +109,7 @@ feature -- Tests
 		local
 			a: STRING
 			b: STRING
-			queue_access: CPS_QUEUE_ACCESS [STRING, CPS_NO_IMPORT[STRING]]
+			queue_access: CP_QUEUE_PROXY [STRING, CP_NO_IMPORT[STRING]]
 			sep_queue: separate like queue
 		do
 			create sep_queue.make_bounded (max_capacity)
@@ -159,7 +159,7 @@ feature {NONE} -- Initialization
 		end
 
 
-	queue: CPS_QUEUE [STRING, CPS_NO_IMPORT [STRING]]
+	queue: CP_QUEUE [STRING, CP_NO_IMPORT [STRING]]
 
 	max_capacity: INTEGER = 10
 

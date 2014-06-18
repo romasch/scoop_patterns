@@ -28,10 +28,10 @@ note
 	revision: "$Revision$"
 
 deferred class
-	CPS_IMPORTER [G]
+	CP_IMPORT [G]
 
 inherit
-	CPS_IMPORT_STRATEGY [G]
+	CP_IMPORT_STRATEGY [G]
 
 feature
 
