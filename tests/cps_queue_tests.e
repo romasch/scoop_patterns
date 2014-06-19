@@ -121,7 +121,7 @@ feature -- Tests
 
 			a := "a"
 			b := "b"
-			
+
 			queue_access.put (a)
 
 			assert ("not_inserted", queue_access.item = a)
@@ -147,6 +147,51 @@ feature -- Tests
 			queue_access.consume
 
 			assert ("wrong_consumed_item", queue_access.last_consumed_item = a)
+			assert ("not_empty", queue_access.is_empty)
+		end
+
+	test_int_queue
+			-- Test put and remove cycles with a queue access object.
+		local
+			one, two: INTEGER
+			queue_access: CP_QUEUE_PROXY [INTEGER, CP_NO_IMPORT [INTEGER]]
+			sep_queue: separate CP_QUEUE [INTEGER, CP_NO_IMPORT [INTEGER]]
+		do
+			create sep_queue.make_bounded (max_capacity)
+			create queue_access.make (sep_queue)
+			assert ("correct_initialization", queue_access.queue = sep_queue)
+			assert ("not_empty", queue_access.is_empty)
+			assert ("full", not queue_access.is_full)
+			assert ("correct_capacity", queue_access.capacity = max_capacity)
+
+			one := 1
+			two := 2
+
+			queue_access.put (one)
+
+			assert ("not_inserted", queue_access.item = one)
+			queue_access.put (two)
+
+			assert ("wrong_count", queue_access.count = 2)
+			assert ("FIFO_violation", queue_access.item = one)
+
+			queue_access.remove
+			assert ("wrong_count", queue_access.count = 1)
+			assert ("not_removed", queue_access.item = two)
+
+			queue_access.put (one)
+			assert ("wrong_count", queue_access.count = 2)
+			assert ("FIFO_violation", queue_access.item = two)
+
+			queue_access.consume
+
+			assert ("wrong_consumed_item", queue_access.last_consumed_item = two)
+			assert ("wrong_item", queue_access.item = one)
+			assert ("wrong_count", queue_access.count = 1)
+
+			queue_access.consume
+
+			assert ("wrong_consumed_item", queue_access.last_consumed_item = one)
 			assert ("not_empty", queue_access.is_empty)
 		end
 

@@ -40,7 +40,7 @@ feature
 			l_clone: detachable ANY
 		do
 				-- Get the type id.
-			l_type_id := a_object.generating_type.type_id
+			l_type_id := {ISE_RUNTIME}.dynamic_type (a_object)
 
 				-- Create an uninitialized clone on the current processor.
 			l_clone := new_instance_of (l_type_id)
