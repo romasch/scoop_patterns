@@ -13,12 +13,12 @@ feature
 			-- Compute `a_computation' asynchronously.
 			-- The result can later be retrieved in {CP_FUTURE}.item.
 		local
-			l_cell: separate CP_RESULT_CELL [G, IMPORTER]
+			l_cell: separate CP_ASYNCH_RESULT [G, IMPORTER]
 		do
 			l_cell := new_cell_on_pool (result_pool)
 			create Result.make (l_cell)
 
-			a_computation.set_future_result (l_cell)
+			a_computation.set_asynch_token (l_cell)
 			worker_pool_proxy.submit (a_computation)
 		end
 
@@ -45,16 +45,16 @@ feature {NONE} -- Data structures
 
 feature {NONE} -- Result cell factory
 
-	new_cell_on_pool (a_pool: like result_pool): separate CP_RESULT_CELL [G, IMPORTER]
+	new_cell_on_pool (a_pool: like result_pool): separate CP_ASYNCH_RESULT [G, IMPORTER]
 		local
-			l_cell: CP_RESULT_CELL [G, IMPORTER]
+			l_cell: CP_ASYNCH_RESULT [G, IMPORTER]
 			l_importable: separate CP_IMPORTABLE
 		do
 			create l_cell.make
 			l_importable := a_pool.import (l_cell)
 
 				-- Check should succeed because we're using the dynamic type importer.
-			check attached {separate CP_RESULT_CELL [G, IMPORTER]} l_importable as l_result then
+			check attached {separate CP_ASYNCH_RESULT [G, IMPORTER]} l_importable as l_result then
 				Result := l_result
 			end
 		end

@@ -45,7 +45,7 @@ feature {NONE} -- Implementation
 	is_imported: BOOLEAN
 			-- Is the future already imported into `Current'?
 
-	result_cell: separate CP_RESULT_CELL [G, IMPORTER]
+	result_cell: separate CP_ASYNCH_RESULT [G, IMPORTER]
 			-- The separate result
 
 	imported_item: detachable like importer.import
@@ -57,13 +57,13 @@ feature {NONE} -- Implementation: SCOOP helpers.
 	sep_is_available (a_res: like result_cell): BOOLEAN
 			-- Check if the result is available.
 		do
-			Result := a_res.is_available
+			Result := a_res.is_finished
 		end
 
-	sep_item (a_res: separate CP_RESULT_CELL [G, IMPORTER])
+	sep_item (a_res: separate CP_ASYNCH_RESULT [G, IMPORTER])
 			-- Get the separate result.
 		require
-			available: a_res.is_available
+			available: a_res.is_finished
 		do
 			if attached a_res.item as it then
 				imported_item := importer.import (it)

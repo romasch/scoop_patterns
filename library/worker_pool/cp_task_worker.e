@@ -18,7 +18,7 @@ feature -- Basic operations
 	do_work (a_item: CP_TASK)
 			-- <Precursor>
 		do
-			a_item.run
+			a_item.start
 		end
 
 end

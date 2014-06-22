@@ -19,7 +19,7 @@ feature -- Initialization
 			-- Initialize `Current' from `other'.
 		do
 			input := other.input
-			future_result := other.future_result
+			asynch_token := other.asynch_token
 		end
 
 	make (a_input: INTEGER)

@@ -9,14 +9,8 @@ deferred class
 
 inherit
 	CP_TASK
-
-feature -- Initialization
-
-	make_from_separate (other: separate like Current)
-			-- Initialize `Current' from `other'.
-		deferred
-		ensure then
-			same_future_result: future_result = other.future_result
+		redefine
+			asynch_token
 		end
 
 feature -- Basic operations
@@ -27,8 +21,8 @@ feature -- Basic operations
 			l_result: RESULT_TYPE
 		do
 			l_result := compute
-			if attached future_result as l_future_result then
-				put_result (l_future_result, l_result)
+			if attached asynch_token as l_token then
+				put_result (l_token, l_result)
 			end
 		end
 
@@ -37,22 +31,15 @@ feature -- Basic operations
 		deferred
 		end
 
-feature {CP_FUTURE_STARTER} -- Implementation
-
-	set_future_result (a_future_result: like future_result)
-			-- Initialize `future_result'.
-		do
-			future_result := a_future_result
-		end
-
 feature {CP_COMPUTATION} -- Implementation
 
-	future_result: detachable separate CP_RESULT_CELL [RESULT_TYPE, CP_IMPORT_STRATEGY[RESULT_TYPE]]
+	asynch_token: detachable separate CP_ASYNCH_RESULT [RESULT_TYPE, CP_IMPORT_STRATEGY[RESULT_TYPE]]
 
-	put_result (a_cell: attached like future_result; a_result: RESULT_TYPE)
+	put_result (a_token: attached like asynch_token; a_result: RESULT_TYPE)
 			-- Put `a_result' into `a_cell'.
 		do
-			a_cell.set_item (a_result)
+			a_token.set_item (a_result)
+			a_token.finish
 		end
 
 end
