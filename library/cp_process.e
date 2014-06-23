@@ -17,18 +17,6 @@ feature -- Status report
 
 feature -- Basic operations
 
-	start
-			-- Start the current process.
-		do
-			from
-				setup
-			until
-				is_stopped
-			loop
-				step
-			end
-		end
-
 	step
 			-- Perform a step in the computation.
 		deferred
@@ -36,6 +24,11 @@ feature -- Basic operations
 
 	setup
 			-- Initialize everything.
+		do
+		end
+
+	finish
+			-- Perform some cleanup.
 		do
 		end
 
