@@ -7,16 +7,24 @@ note
 class
 	CONSUMER
 
+inherit
+	CP_LAUNCHABLE
+
 create
 	make
 
 feature {NONE} -- Initialization
 
-	make (a_queue: separate CP_QUEUE [STRING, CPS_STRING_IMPORTER]; a_id: INTEGER)
+	make (a_queue: separate CP_QUEUE [STRING, CPS_STRING_IMPORTER]; a_identifier: INTEGER; a_item_count: INTEGER)
 			-- Initialization for `Current'.
 		do
-			identifier := a_id
+			identifier := a_identifier
+			item_count := a_item_count
 			create queue_wrapper.make (a_queue)
+
+				-- Note: You cannot place the main loop of a consumer
+				-- within its creaton procedure, because otherwise it will
+				-- hold a lock on `a_queue' throughout its lifecycle.
 		end
 
 	queue_wrapper: CP_QUEUE_PROXY [STRING, CPS_STRING_IMPORTER]
@@ -25,17 +33,20 @@ feature {NONE} -- Initialization
 	identifier: INTEGER
 			-- Identifier of `Current'.
 
+	item_count: INTEGER
+			-- Number of items to consume.
+
 feature -- Basic operations
 
-	consume (items_to_consume: INTEGER)
-			-- Consume `items_to_consume' items.
+	start
+			-- Consume `item_count' items.
 		local
 			i: INTEGER
 		do
 			from
 				i := 1
 			until
-				i > items_to_consume
+				i > item_count
 			loop
 				queue_wrapper.consume
 

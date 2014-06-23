@@ -7,6 +7,9 @@ note
 deferred class
 	CP_PROCESS
 
+inherit
+	CP_LAUNCHABLE
+
 feature -- Status report
 
 	is_stopped: BOOLEAN

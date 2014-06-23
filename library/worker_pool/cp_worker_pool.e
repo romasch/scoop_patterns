@@ -10,7 +10,7 @@ class
 inherit
 	CP_QUEUE [G, IMPORTER]
 
-	CP_PROCESS_LAUNCHER
+	CP_LAUNCHER
 
 create
 	make_with_factory

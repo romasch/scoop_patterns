@@ -7,16 +7,19 @@ note
 class
 	PRODUCER
 
+inherit
+	CP_LAUNCHABLE
+
 create
 	make
 
-
 feature {NONE} -- Initialization
 
-	make (a_queue: separate CP_QUEUE [STRING, CPS_STRING_IMPORTER]; a_id: INTEGER)
+	make (a_queue: separate CP_QUEUE [STRING, CPS_STRING_IMPORTER]; a_identifier: INTEGER; a_item_count: INTEGER)
 			-- Initialization for `Current'.
 		do
-			identifier := a_id
+			identifier := a_identifier
+			item_count := a_item_count
 			create queue_wrapper.make (a_queue)
 		end
 
@@ -26,10 +29,13 @@ feature {NONE} -- Initialization
 	identifier: INTEGER
 			-- Identifier of `Current'.
 
+	item_count: INTEGER
+			-- Number of items to produce.
+
 feature -- Basic operations
 
-	produce (items_to_produce: INTEGER)
-			-- Produce `items_to_produce' items.
+	start
+			-- Produce `item_count' items.
 		local
 			i: INTEGER
 			item: STRING
@@ -37,7 +43,7 @@ feature -- Basic operations
 			from
 				i := 1
 			until
-				i > items_to_produce
+				i > item_count
 			loop
 					-- Note that there's no need to declare `item' as separate, because
 					-- it will be imported anyway.

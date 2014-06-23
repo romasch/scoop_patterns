@@ -5,14 +5,14 @@ note
 	revision: "$Revision$"
 
 class
-	CP_PROCESS_LAUNCHER
+	CP_LAUNCHER
 
 feature -- Basic operations
 
-	launch (a_process: separate CP_PROCESS)
-			-- Start the separate `a_process' object.
+	launch (a_launchable: separate CP_LAUNCHABLE)
+			-- Start the separate `a_launchable' object.
 		do
-			a_process.start
+			a_launchable.start
 		end
 
 end
