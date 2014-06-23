@@ -1,5 +1,5 @@
 note
-	description: "Objects with their own main loop."
+	description: "Active objects with a main loop."
 	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"

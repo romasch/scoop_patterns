@@ -1,6 +1,6 @@
 note
-	description: "Summary description for {CP_LAUNCHABLE}."
-	author: ""
+	description: "Objects that define an operation which may be invoked asynchronously."
+	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 

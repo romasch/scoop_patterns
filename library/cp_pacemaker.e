@@ -1,6 +1,6 @@
 note
-	description: "Summary description for {CP_PACEMAKER}."
-	author: ""
+	description: "Objects that call a separate procedure if asked."
+	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 
@@ -16,12 +16,12 @@ create
 feature -- Access
 
 	operation: separate PROCEDURE [ANY, TUPLE]
-			-- The agent to call.
+			-- The pocedure to be call.
 
 feature -- Basic operations
 
 	start
-			-- <Precursor>
+			-- Call the separate procedure.
 		do
 			do_start (operation)
 		end

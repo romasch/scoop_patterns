@@ -1,5 +1,5 @@
 note
-	description: "Helper class to start a separate CP_PROCESS."
+	description: "Helper class to start a separate CP_LAUNCHABLE."
 	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"

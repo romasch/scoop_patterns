@@ -1,6 +1,6 @@
 note
-	description: "Summary description for {CP_CONTINUOUS_PROCESS}."
-	author: ""
+	description: "Active objects which never allow other processor to access their data."
+	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 

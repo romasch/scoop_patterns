@@ -5,7 +5,7 @@ note
 	revision: "$Revision$"
 
 class
-	CPS_STRING_IMPORTER
+	CP_STRING_IMPORTER
 
 inherit
 	CP_IMPORT [STRING]

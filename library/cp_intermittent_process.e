@@ -1,6 +1,6 @@
 note
-	description: "Summary description for {CP_INTERMITTENT_PROCESS}."
-	author: ""
+	description: "Active objects that allow other processors to access its data after each loop iteration."
+	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 

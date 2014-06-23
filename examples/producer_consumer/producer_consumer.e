@@ -22,7 +22,7 @@ feature {NONE} -- Initialization
 				-- therefore we use a CPS_STRING_IMPORTER.
 				-- An alternative would be to avoid copies with CPS_NO_IMPORT, but then a new
 				-- processor has to be created for every string object.
-			l_queue: separate CP_QUEUE [STRING, CPS_STRING_IMPORTER]
+			l_queue: separate CP_QUEUE [STRING, CP_STRING_IMPORTER]
 			l_producer: separate PRODUCER
 			l_consumer: separate CONSUMER
 		do

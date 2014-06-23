@@ -15,7 +15,7 @@ create
 
 feature {NONE} -- Initialization
 
-	make (a_queue: separate CP_QUEUE [STRING, CPS_STRING_IMPORTER]; a_identifier: INTEGER; a_item_count: INTEGER)
+	make (a_queue: separate CP_QUEUE [STRING, CP_STRING_IMPORTER]; a_identifier: INTEGER; a_item_count: INTEGER)
 			-- Initialization for `Current'.
 		do
 			identifier := a_identifier
@@ -23,7 +23,7 @@ feature {NONE} -- Initialization
 			create queue_wrapper.make (a_queue)
 		end
 
-	queue_wrapper: CP_QUEUE_PROXY [STRING, CPS_STRING_IMPORTER]
+	queue_wrapper: CP_QUEUE_PROXY [STRING, CP_STRING_IMPORTER]
 			-- A wrapper object to a separate queue.
 
 	identifier: INTEGER
