@@ -12,7 +12,7 @@ inherit
 	CP_EXECUTOR_PROXY
 
 create
-	make
+	make, make_global
 
 feature -- Basic operations
 
@@ -41,6 +41,17 @@ feature -- Basic operations
 
 				-- Submit the work to the worker pool.
 			put (a_computation)
+		end
+
+feature {NONE} -- Initialization
+
+	make_global
+			-- Initialize `Current' with the global worker pool.
+		local
+			l_procs: CP_GLOBAL_PROCESSORS
+		do
+			create l_procs
+			make (l_procs.global_worker_pool)
 		end
 
 end

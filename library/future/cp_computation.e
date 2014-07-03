@@ -8,15 +8,21 @@ deferred class
 	CP_COMPUTATION [RESULT_TYPE -> detachable separate ANY]
 
 inherit
+
 	CP_TASK
 		redefine
 			broker
 		end
 
+feature -- Access
+
+	broker: detachable separate CP_SHARED_RESULT_BROKER [RESULT_TYPE, CP_IMPORT_STRATEGY[RESULT_TYPE]]
+			-- <Precursor>
+
 feature -- Basic operations
 
 	run
-			-- Run the current task.
+			-- <Precursor>
 		local
 			l_result: RESULT_TYPE
 		do
@@ -32,8 +38,6 @@ feature -- Basic operations
 		end
 
 feature {CP_COMPUTATION} -- Implementation
-
-	broker: detachable separate CP_SHARED_RESULT_BROKER [RESULT_TYPE, CP_IMPORT_STRATEGY[RESULT_TYPE]]
 
 	put_result (a_token: attached like broker; a_result: RESULT_TYPE)
 			-- Put `a_result' into `a_cell'.
