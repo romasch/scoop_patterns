@@ -1,6 +1,6 @@
 note
-	description: "Summary description for {CP_BROKER_UTILS}."
-	author: ""
+	description: "Utility functions to access a separate CP_BROKER object."
+	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 

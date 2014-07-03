@@ -1,6 +1,6 @@
 note
-	description: "Summary description for {CP_BROKER_PROCESSOR}."
-	author: ""
+	description: "Internal class to create a separate processor holding all broker objects."
+	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 

@@ -1,5 +1,5 @@
 note
-	description: "Processor-local access to a separate CPS_QUEUE object."
+	description: "Processor-local access to a separate CP_QUEUE object."
 	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"

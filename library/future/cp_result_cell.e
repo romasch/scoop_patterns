@@ -21,6 +21,7 @@ create
 feature {NONE} -- Initialization
 
 	make
+			-- Initialization for `Current'.
 		do
 			Precursor
 			create importer
@@ -36,11 +37,17 @@ feature {NONE} -- Initialization
 feature -- Access
 
 	item: detachable like importer.import
+			-- The generated result.
+			-- May be void in case of an exception.
+		require
+			terminated: is_terminated
+		attribute
+		end
 
-feature {CP_COMPUTATION} -- Basic operations
+feature -- Basic operations
 
 	set_item (a_item: separate G)
-			-- Set `last_result' to `a_result'.
+			-- Set `item' to `a_item'.
 		do
 			item := importer.import (a_item)
 		end
@@ -48,5 +55,6 @@ feature {CP_COMPUTATION} -- Basic operations
 feature {NONE} -- Implementation
 
 	importer: IMPORTER
+			-- Importer object for results.
 
 end

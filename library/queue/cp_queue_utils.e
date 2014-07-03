@@ -1,5 +1,5 @@
 note
-	description: "Utility functions to access a separate CPS_QUEUE."
+	description: "Utility functions to access a separate CP_QUEUE."
 	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"

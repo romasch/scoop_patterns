@@ -7,17 +7,16 @@ note
 class
 	CP_FUTURE [G, IMPORTER -> CP_IMPORT_STRATEGY [G] create default_create end]
 
-
 create
 	make
 
 feature {NONE} -- Initialization
 
-	make (a_cell: like result_cell)
+	make (a_cell: like broker)
 			-- Initialization for `Current'.
 		do
-			create importer
-			result_cell := a_cell
+			create utils
+			broker := a_cell
 		end
 
 feature -- Status report
@@ -25,50 +24,35 @@ feature -- Status report
 	is_available: BOOLEAN
 			-- Is the future result available?
 		do
-			Result := is_imported or else sep_is_available (result_cell)
+			Result := is_imported or else utils.is_broker_terminated (broker)
 		end
 
 feature -- Access
 
-	item: detachable like importer.import
+	item: detachable like utils.importer.import
 			-- The result of the computation.
+			-- Blocks if the result is not yet available.
+			-- May be void in case of an exception.
 		do
 			if not is_imported then
-				sep_item (result_cell)
+				is_imported := True
+				imported_item := utils.broker_imported_item (broker)
 			end
 			Result := imported_item
 		end
 
-
 feature {NONE} -- Implementation
+
+	broker: separate CP_RESULT_BROKER [G, IMPORTER]
+			-- The broker object that stores the separate result.
+
+	utils: CP_RESULT_BROKER_UTILS [G, IMPORTER]
+			-- Utilities to access the broker.
 
 	is_imported: BOOLEAN
 			-- Is the future already imported into `Current'?
 
-	result_cell: separate CP_RESULT_BROKER [G, IMPORTER]
-			-- The separate result
-
-	imported_item: detachable like importer.import
-
-	importer: IMPORTER
-
-feature {NONE} -- Implementation: SCOOP helpers.
-
-	sep_is_available (a_res: like result_cell): BOOLEAN
-			-- Check if the result is available.
-		do
-			Result := a_res.is_terminated
-		end
-
-	sep_item (a_res: separate CP_RESULT_BROKER [G, IMPORTER])
-			-- Get the separate result.
-		require
-			available: a_res.is_terminated
-		do
-			if attached a_res.item as it then
-				imported_item := importer.import (it)
-				is_imported := True
-			end
-		end
+	imported_item: detachable like utils.importer.import
+			-- The imported item.
 
 end
