@@ -22,7 +22,6 @@ feature
 			worker_pool_proxy.submit (a_computation)
 		end
 
-
 feature {NONE} -- Data structures
 
 

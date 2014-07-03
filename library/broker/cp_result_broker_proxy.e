@@ -37,6 +37,8 @@ feature -- Access
 	item: detachable like {IMPORTER}.import
 			-- <Precursor>
 			-- Blocks if the result is not yet available.
+		require else
+			True
 		do
 			if not is_imported then
 				is_imported := True

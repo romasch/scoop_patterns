@@ -10,6 +10,8 @@ class
 inherit
 	CP_EXECUTOR
 
+	CP_GLOBAL_PROCESSORS
+
 create make
 
 feature {NONE} -- Initialization
@@ -34,12 +36,15 @@ feature -- Basic operations
 		end
 
 	put_with_broker (a_task: separate CP_TASK): CP_BROKER
-			-- <Precursor>
+			-- Execute `a_task' asynchronously and return a broker object.
 		local
-			l_result: CP_BROKER_PROXY
+			l_broker: separate CP_SHARED_BROKER
 		do
-			create l_result.make (executor_put_with_broker (executor, a_task))
-			Result := l_result
+			l_broker := new_broker (broker_processor)
+			a_task.set_broker (l_broker)
+			create {CP_BROKER_PROXY} Result.make (l_broker)
+
+			put (a_task)
 		end
 
 feature {NONE} -- Implementation
@@ -48,12 +53,6 @@ feature {NONE} -- Implementation
 			-- Put `a_task' in `a_executor'.
 		do
 			a_executor.put (a_task)
-		end
-
-	executor_put_with_broker (a_executor: like executor; a_task: separate CP_TASK): separate CP_BROKER
-			-- Put `a_task' in `a_executor' and return a broker.
-		do
-			Result := a_executor.put_with_broker (a_task)
 		end
 
 end

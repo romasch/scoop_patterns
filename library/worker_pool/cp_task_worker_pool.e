@@ -13,6 +13,8 @@ inherit
 
 	CP_WORKER_FACTORY [CP_TASK, CP_DYNAMIC_TYPE_IMPORTER [CP_TASK]]
 
+	CP_EXECUTOR
+
 create
 	make
 

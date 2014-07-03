@@ -7,6 +7,9 @@ note
 class
 	CP_BROKER_PROCESSOR
 
+obsolete
+	"get rid of it"
+
 inherit
 	CP_DYNAMIC_TYPE_IMPORTER [CP_IMPORTABLE]
 		export {CP_BROKER_UTILS}
@@ -14,7 +17,7 @@ inherit
 		end
 
 
-feature {CP_BROKER_UTILS}
+feature --{CP_BROKER_UTILS}
 
 	new_broker: CP_SHARED_BROKER
 			-- Create a new broker on the global pool.
