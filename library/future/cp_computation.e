@@ -33,7 +33,7 @@ feature -- Basic operations
 
 feature {CP_COMPUTATION} -- Implementation
 
-	broker: detachable separate CP_RESULT_BROKER [RESULT_TYPE, CP_IMPORT_STRATEGY[RESULT_TYPE]]
+	broker: detachable separate CP_SHARED_RESULT_BROKER [RESULT_TYPE, CP_IMPORT_STRATEGY[RESULT_TYPE]]
 
 	put_result (a_token: attached like broker; a_result: RESULT_TYPE)
 			-- Put `a_result' into `a_cell'.

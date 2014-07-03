@@ -30,7 +30,7 @@ feature -- Access
 
 feature -- Basic operations
 
-	broker_set_item (a_broker: separate CP_RESULT_BROKER [G, IMPORTER]; a_item: separate G)
+	broker_set_item (a_broker: separate CP_SHARED_RESULT_BROKER [G, IMPORTER]; a_item: separate G)
 			-- Set `a_item' in `a_broker'.
 		do
 			a_broker.set_item (a_item)
@@ -38,23 +38,23 @@ feature -- Basic operations
 
 feature -- Factory functions
 
-	new_independent_result_broker: separate CP_RESULT_BROKER [G, IMPORTER]
+	new_independent_result_broker: separate CP_SHARED_RESULT_BROKER [G, IMPORTER]
 			-- Create a new result broker object on a new processor.
 		do
 			create Result.make
 		end
 
-	new_result_broker: separate CP_RESULT_BROKER [G, IMPORTER]
+	new_result_broker: separate CP_SHARED_RESULT_BROKER [G, IMPORTER]
 			-- Create a new result broker on the global broker processor.
 		local
-			l_broker: CP_RESULT_BROKER [G, IMPORTER]
+			l_broker: CP_SHARED_RESULT_BROKER [G, IMPORTER]
 			l_importable: separate CP_IMPORTABLE
 		do
 			create l_broker.make
 			l_importable := export_to_global_processor (global_broker_processor, l_broker)
 
 				-- Check must succeed because we're importing based on the dynamic type.
-			check attached {separate CP_RESULT_BROKER [G, IMPORTER]} l_importable as l_result then
+			check attached {separate CP_SHARED_RESULT_BROKER [G, IMPORTER]} l_importable as l_result then
 				Result := l_result
 			end
 		end
