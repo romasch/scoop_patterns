@@ -1,17 +1,19 @@
 note
-	description: "Separate cell for a future result."
+	description: "Shared broker objects that can import the result of a separate task."
 	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 
 class
-	CP_ASYNCH_RESULT [G, IMPORTER -> CP_IMPORT_STRATEGY [G] create default_create end]
+	CP_RESULT_BROKER [G, IMPORTER -> CP_IMPORT_STRATEGY [G] create default_create end]
 
 inherit
-	CP_ASYNCH_TOKEN
+	CP_BROKER
 		redefine
 			make
 		end
+
+	CP_IMPORTABLE
 
 create
 	make, make_from_separate
@@ -22,6 +24,13 @@ feature {NONE} -- Initialization
 		do
 			Precursor
 			create importer
+		end
+
+
+	make_from_separate (a_object: separate like Current)
+			-- <Precursor>
+		do
+			make
 		end
 
 feature -- Access

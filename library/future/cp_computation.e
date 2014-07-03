@@ -33,7 +33,7 @@ feature -- Basic operations
 
 feature {CP_COMPUTATION} -- Implementation
 
-	asynch_token: detachable separate CP_ASYNCH_RESULT [RESULT_TYPE, CP_IMPORT_STRATEGY[RESULT_TYPE]]
+	asynch_token: detachable separate CP_RESULT_BROKER [RESULT_TYPE, CP_IMPORT_STRATEGY[RESULT_TYPE]]
 
 	put_result (a_token: attached like asynch_token; a_result: RESULT_TYPE)
 			-- Put `a_result' into `a_cell'.

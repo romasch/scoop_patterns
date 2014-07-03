@@ -1,17 +1,14 @@
 note
-	description: "A shared token which can be used for communication between two processors."
+	description: "Shared broker objects which can be used for communication between two processors."
 	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 
 class
-	CP_ASYNCH_TOKEN
-
-inherit
-	CP_IMPORTABLE
+	CP_BROKER
 
 create
-	make, make_from_separate
+	make
 
 feature -- Initialization
 
@@ -22,11 +19,6 @@ feature -- Initialization
 			is_exceptional := False
 		end
 
-	make_from_separate (a_object: separate like Current)
-			-- <Precursor>
-		do
-			make
-		end
 
 feature -- Access
 

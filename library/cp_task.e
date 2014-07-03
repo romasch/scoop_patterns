@@ -12,7 +12,7 @@ inherit
 
 feature -- Access
 
-	asynch_token: detachable separate CP_ASYNCH_TOKEN
+	asynch_token: detachable separate CP_BROKER
 			-- A stable communication object.
 
 feature -- Basic operations

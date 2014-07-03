@@ -45,7 +45,7 @@ feature {NONE} -- Implementation
 	is_imported: BOOLEAN
 			-- Is the future already imported into `Current'?
 
-	result_cell: separate CP_ASYNCH_RESULT [G, IMPORTER]
+	result_cell: separate CP_RESULT_BROKER [G, IMPORTER]
 			-- The separate result
 
 	imported_item: detachable like importer.import
@@ -60,7 +60,7 @@ feature {NONE} -- Implementation: SCOOP helpers.
 			Result := a_res.is_finished
 		end
 
-	sep_item (a_res: separate CP_ASYNCH_RESULT [G, IMPORTER])
+	sep_item (a_res: separate CP_RESULT_BROKER [G, IMPORTER])
 			-- Get the separate result.
 		require
 			available: a_res.is_finished

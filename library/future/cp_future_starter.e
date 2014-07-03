@@ -13,7 +13,7 @@ feature
 			-- Compute `a_computation' asynchronously.
 			-- The result can later be retrieved in {CP_FUTURE}.item.
 		local
-			l_cell: separate CP_ASYNCH_RESULT [G, IMPORTER]
+			l_cell: separate CP_RESULT_BROKER [G, IMPORTER]
 		do
 			l_cell := new_cell_on_pool (result_pool)
 			create Result.make (l_cell)
@@ -45,16 +45,16 @@ feature {NONE} -- Data structures
 
 feature {NONE} -- Result cell factory
 
-	new_cell_on_pool (a_pool: like result_pool): separate CP_ASYNCH_RESULT [G, IMPORTER]
+	new_cell_on_pool (a_pool: like result_pool): separate CP_RESULT_BROKER [G, IMPORTER]
 		local
-			l_cell: CP_ASYNCH_RESULT [G, IMPORTER]
+			l_cell: CP_RESULT_BROKER [G, IMPORTER]
 			l_importable: separate CP_IMPORTABLE
 		do
 			create l_cell.make
 			l_importable := a_pool.import (l_cell)
 
 				-- Check should succeed because we're using the dynamic type importer.
-			check attached {separate CP_ASYNCH_RESULT [G, IMPORTER]} l_importable as l_result then
+			check attached {separate CP_RESULT_BROKER [G, IMPORTER]} l_importable as l_result then
 				Result := l_result
 			end
 		end
