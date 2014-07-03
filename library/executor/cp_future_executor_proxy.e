@@ -1,5 +1,5 @@
 note
-	description: "Processor-local access to a separate CP_FUTURE_EXECUTOR object."
+	description: "Interface for creating and starting a new future."
 	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
