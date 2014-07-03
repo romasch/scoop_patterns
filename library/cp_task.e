@@ -8,19 +8,24 @@ deferred class
 	CP_TASK
 
 inherit
+
+	CP_LAUNCHABLE
+
 	CP_IMPORTABLE
+
+	CP_BROKER_UTILS
 
 feature -- Access
 
-	asynch_token: detachable separate CP_BROKER
+	broker: detachable separate CP_BROKER
 			-- A stable communication object.
 
 feature -- Basic operations
 
-	set_asynch_token (a_token: like asynch_token)
-			-- Set `asynch_token' to `a_token'.
+	set_broker (a_broker: like broker)
+			-- Set `broker' to `a_broker'.
 		do
-			asynch_token := a_token
+			broker := a_broker
 		end
 
 	start
@@ -31,8 +36,8 @@ feature -- Basic operations
 		do
 			if not l_retried then
 				run
-				if attached asynch_token as l_token then
-					token_finish (l_token)
+				if attached broker as l_broker then
+					broker_terminate (l_broker)
 				end
 			end
 		rescue
@@ -41,10 +46,10 @@ feature -- Basic operations
 
 			if
 				attached l_exception_manager.last_exception as l_exception
-				and	attached asynch_token as l_token
+				and	attached broker as l_broker
 			then
-				token_set_exception (l_token, l_exception)
-				token_finish (l_token)
+				broker_set_exception (l_broker, l_exception)
+				broker_terminate (l_broker)
 			end
 
 			retry
@@ -61,21 +66,7 @@ feature -- Initialization
 			-- Initialize `Current' from `other'.
 		deferred
 		ensure then
-			same_token: asynch_token = other.asynch_token
-		end
-
-feature {NONE} -- Implementation
-
-	token_finish (a_token: attached like asynch_token)
-			-- Call `a_token.finish'.
-		do
-			a_token.finish
-		end
-
-	token_set_exception (a_token: attached like asynch_token; a_exception: EXCEPTION)
-			-- Call `a_token.set_exception (a_exception)'.
-		do
-			a_token.set_exception (a_exception)
+			same_token: broker = other.broker
 		end
 
 end

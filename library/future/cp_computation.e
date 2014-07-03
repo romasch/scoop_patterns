@@ -10,7 +10,7 @@ deferred class
 inherit
 	CP_TASK
 		redefine
-			asynch_token
+			broker
 		end
 
 feature -- Basic operations
@@ -21,7 +21,7 @@ feature -- Basic operations
 			l_result: RESULT_TYPE
 		do
 			l_result := compute
-			if attached asynch_token as l_token then
+			if attached broker as l_token then
 				put_result (l_token, l_result)
 			end
 		end
@@ -33,13 +33,13 @@ feature -- Basic operations
 
 feature {CP_COMPUTATION} -- Implementation
 
-	asynch_token: detachable separate CP_RESULT_BROKER [RESULT_TYPE, CP_IMPORT_STRATEGY[RESULT_TYPE]]
+	broker: detachable separate CP_RESULT_BROKER [RESULT_TYPE, CP_IMPORT_STRATEGY[RESULT_TYPE]]
 
-	put_result (a_token: attached like asynch_token; a_result: RESULT_TYPE)
+	put_result (a_token: attached like broker; a_result: RESULT_TYPE)
 			-- Put `a_result' into `a_cell'.
 		do
 			a_token.set_item (a_result)
-			a_token.finish
+			a_token.terminate
 		end
 
 end

@@ -57,13 +57,13 @@ feature {NONE} -- Implementation: SCOOP helpers.
 	sep_is_available (a_res: like result_cell): BOOLEAN
 			-- Check if the result is available.
 		do
-			Result := a_res.is_finished
+			Result := a_res.is_terminated
 		end
 
 	sep_item (a_res: separate CP_RESULT_BROKER [G, IMPORTER])
 			-- Get the separate result.
 		require
-			available: a_res.is_finished
+			available: a_res.is_terminated
 		do
 			if attached a_res.item as it then
 				imported_item := importer.import (it)

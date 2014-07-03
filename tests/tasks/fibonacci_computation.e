@@ -19,7 +19,7 @@ feature -- Initialization
 			-- Initialize `Current' from `other'.
 		do
 			input := other.input
-			asynch_token := other.asynch_token
+			broker := other.broker
 		end
 
 	make (a_input: INTEGER)

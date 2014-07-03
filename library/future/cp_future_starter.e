@@ -18,7 +18,7 @@ feature
 			l_cell := new_cell_on_pool (result_pool)
 			create Result.make (l_cell)
 
-			a_computation.set_asynch_token (l_cell)
+			a_computation.set_broker (l_cell)
 			worker_pool_proxy.submit (a_computation)
 		end
 
