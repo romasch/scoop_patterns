@@ -1,0 +1,162 @@
+\documentclass[a4paper,10pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{bibentry}
+
+\nobibliography*
+
+\title{Concurrency Patterns in SCOOP}
+\author{Master Thesis -- Project Plan}
+\date{}
+
+
+\begin{document}
+
+\maketitle
+\begin{flushleft}
+
+\begin{tabular}{ll}
+Project period: & 10. March to 8. September 2014 \\
+Student name:  & Roman Schmocker, 09-911-215 \\
+Status: & 4. semester, Msc in Computer Science \\
+Email address: & romasch@student.ethz.ch \\
+Supervisor name: & Alexey Kolesnichenko and Prof. Dr. Bertrand Meyer
+\end{tabular}
+\end{flushleft}
+
+\section  {Project Description}
+\label {sec:project-description}
+
+\subsection {Overview}
+
+The SCOOP \cite{Nienaltowski07} \cite{ScoopWeb} mechanism in Eiffel \cite{EcmaEiffel} \cite{Meyer09} is a language extension for concurrency. 
+Many important concurrency problems, such as the Dining Philosophers, can be solved in a simple and elegant way \cite{ScoopExamples}.
+
+In practice programmers have learned to avoid tricky concurrency issues in most cases.
+In order to make use of modern multi-core machines, most applications use thread-safe data structures and some well-known patterns, like a worker pool.
+
+In the case of Eiffel primitive operations like individual method calls are thread-safe thanks to SCOOP.
+There is little experience in constructing higher-level concurrency patterns however.
+As a consequence, whenever a programmer wants to use a pattern to solve a specific problem he or she needs to figure out a way to do it in SCOOP.
+
+The goal of the project is therefore to determine how some interesting concurrency problems, for which a well-known pattern exists in other languages, can be solved in Eiffel with the SCOOP extension.
+
+An example is the idea that when two threads proceed concurrently and need to update each other, 
+as in the case of a user interface thread and a downloading thread, where the UI should be updated regularly to show the progress of the download.
+The standard solution is for the download process to trigger a repaint operation in the UI thread and to store the progress value in a synchronized shared object.
+With SCOOP however it is useful to introduce a third processor with which they both communicate to avoid undue waiting or even deadlock \cite{taskCancellation13}.
+
+The result of the previous analysis is a new set of SCOOP specific patterns that each solve a typical concurrency problem. 
+As a last step, those patterns should be turned into reusable library components.
+
+\subsection {Scope of the work}
+
+The project consists of four main tasks:
+
+\begin {enumerate}
+\item A survey of popular concurrency problems and the standard patterns used to solve them.
+The goal of the survey is to have a broad overview over widely used concurrency patterns and to determine if the underlying problem they are solving is valid as well in a SCOOP context.
+\item An analysis of several selected patterns. In this task the goal is to investigate if it’s possible to devise a new pattern in Eiffel and SCOOP solving the same problem.
+\item The design and implementation of a new library which provides the new SCOOP patterns as reusable components wherever possible.
+\item A written report with descriptions about the patterns and the problems that may have occurred.
+\end {enumerate}
+
+\subsection {Written Report}
+\label {sec:written_report}
+The report should cover the following topics:
+
+\begin{itemize}
+\item A short introduction to SCOOP and how it differs from other concurrency mechanisms.
+\item A section about concurrency patterns and an overview over all patterns collected in the survey.
+\item A detailed description of all analyzed patterns. For each pattern this part should answer the following questions:
+\begin {itemize}
+\item What is it used for?
+\item What is the general architecture?
+\item Is it possible to efficiently implement it with SCOOP, and if not, why?
+\item Is it possible to provide the pattern in a library, and if not, why?
+\item What were the problems that occurred and how could they be solved?
+\item What is the difference in implementation between Eiffel and other languages?
+\end {itemize}
+\item A description (manual) of the new concurrency pattern library.
+\end {itemize}
+
+\subsection {Intended results}
+The result of the project should be an Eiffel library with the analyzed concurrency patterns and a written report describing the patterns and the library. If a specific pattern can not be turned into a library component, the report should provide a reason why it’s not possible.
+\section {Background Material}
+\label {sec:background-material}
+\subsection {Reading list}
+\begin{flushleft}
+\begin{itemize}
+\item \bibentry {Nienaltowski07}
+\item \bibentry {Goetz06}
+\item \bibentry {McCool12}
+\item \bibentry {Schmidt00}
+\item \bibentry  {Grand02}
+\item \bibentry  {Toub10}
+\item \bibentry  {Arnout04}
+\item \bibentry  {MeyerArnout06}
+\end{itemize}
+\end{flushleft}
+
+\subsection {Software Libraries}
+\begin{flushleft}
+\begin {itemize}
+\item \bibentry  {MsTpl}
+\item \bibentry  {JavaConcurrency}
+\end{itemize}
+\end{flushleft}
+
+\section {Project Management}
+\label {sec:project-management}
+
+\subsection{Objectives and priorities}
+
+Due to the nature of the project prioritization on the individual tasks doesn’t make a lot of sense. Instead the amount of work can be measured by the number of analyzed concurrency problems. 
+
+There is one optional low priority task, which is to analyze existing Eiffel / SCOOP applications and libraries and checking if they can be refactored to using the new pattern library.
+\subsection {Criteria for success}
+At least five concurrency problems are analyzed and the report is finished. For each analyzed problem there should be an Eiffel pattern solving the problem and either a fully tested library component or a written statement with the reason why it’s not possible to turn the pattern into a library. The report is complete when all points in Section~\ref{sec:written_report} are covered.
+\subsection {Method of work}
+There will be regular meetings and email communication. Important design decisions or project plan changes will be discussed in advance.
+
+\subsection {Quality management}
+\subsubsection {Documentation}
+The written report should give a detailed description about the patterns. For the source code, a header comment for each class and feature is required. All SVN commits have a meaningful commit message. The source code will be code-reviewed.
+\subsubsection {Validation steps}
+The concurrency pattern library should be tested and equipped with some example applications. If possible, performance tests should be included.
+
+\section{Plan with Milestones}
+\label {sec:plan-with-milestones}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{l p{1.5cm} p{7cm}}
+
+Date & Duration (weeks) & Milestone\\ \hline
+
+31. March & 3 & Literature study and initial survey complete.\\
+
+afterwards & - & Selection of relevant concurrency problems and patterns to be implemented in SCOOP.\\
+
+9. June & 10 & Analysis of selected patterns and experimental implementations in Eiffel. If there’s enough time: analysis of more patterns or optional tasks. \\
+
+14. July & 5 & Design and implementation of the new pattern library, including testing, example applications and a code review at the end. \\
+
+28. July & 2 & Implementation of code review suggestions and finalization of the pattern library. \\
+
+25. August & 4 & The final report is written and ready for submission.\\
+
+8. September & 2 & Submission of thesis. Last two weeks are reserved for delays.\\
+
+\end{tabular}
+\end{center}
+
+\subsection{Deadline}
+8. September 2014
+
+\begin{flushleft}
+\bibliographystyle {plain}
+\bibliography{project_plan.bib}
+\end{flushleft}
+
+\end{document}
