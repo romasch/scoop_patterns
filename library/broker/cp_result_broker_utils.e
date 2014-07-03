@@ -22,6 +22,8 @@ feature -- Access
 
 	broker_imported_item (a_broker: separate CP_RESULT_BROKER [G, IMPORTER]): detachable like importer.import
 			-- Imported item in `a_broker'.
+		require
+			available: a_broker.is_terminated
 		do
 			if attached a_broker.item as l_item then
 				Result := importer.import (l_item)

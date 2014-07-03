@@ -1,5 +1,5 @@
 note
-	description: "Processor-local access to a separate BROKER object."
+	description: "Processor-local access to a separate CP_BROKER object."
 	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
@@ -23,6 +23,7 @@ feature {NONE} -- Initialization
 		end
 
 	utils: CP_BROKER_UTILS
+			-- Utilitity functions to handle separate brokers.
 
 feature -- Access
 
