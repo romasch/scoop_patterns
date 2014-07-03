@@ -16,7 +16,7 @@ inherit
 
 feature {CP_BROKER_UTILS}
 
-	new_broker: CP_BROKER
+	new_broker: CP_SHARED_BROKER
 			-- Create a new broker on the global pool.
 		do
 			create Result.make

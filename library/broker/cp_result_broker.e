@@ -8,7 +8,7 @@ class
 	CP_RESULT_BROKER [G, IMPORTER -> CP_IMPORT_STRATEGY [G] create default_create end]
 
 inherit
-	CP_BROKER
+	CP_SHARED_BROKER
 		redefine
 			make
 		end

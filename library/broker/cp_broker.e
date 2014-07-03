@@ -1,32 +1,11 @@
 note
-	description: "Shared broker objects which can be used for communication between two processors."
+	description: "Interface for broker objects which can be used for communication between two processors."
 	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 
-class
+deferred class
 	CP_BROKER
-
-inherit
-	REFACTORING_HELPER
-
-create
-	make
-
-feature -- Initialization
-
-	make
-			-- Initialization for `Current'.
-		do
-			is_terminated := False
-			is_exceptional := False
-			is_cancelled := False
-		ensure
-			not_terminated: not is_terminated
-			not_exceptional: not is_exceptional
-			not_cancelled: not is_cancelled
-			no_trace: last_exception_trace = Void
-		end
 
 feature -- Access
 
@@ -35,48 +14,33 @@ feature -- Access
 
 	last_exception_trace: detachable READABLE_STRING_32
 			-- The exception trace of the last exception.
+		deferred
+		end
 
 feature -- Status report
 
 	is_terminated: BOOLEAN
 			-- Has the asynchronous operation terminated?
+		deferred
+		end
 
 	is_exceptional: BOOLEAN
 			-- Has there been an exception in the asynchronous call?
+		deferred
+		end
 
 	is_cancelled: BOOLEAN
 			-- Has there been a cancellation request?
+		deferred
+		end
 
 feature -- Basic operations
 
 	cancel
 			-- Request a cancellation.
-		do
-			is_cancelled := True
+		deferred
 		ensure
 			cancelled: is_cancelled
-		end
-
-	terminate
-			-- Declare the asynchronous operation as terminated.
-		do
-			is_terminated := True
-		ensure
-			terminated: is_terminated
-		end
-
-	set_exception (a_exception: separate EXCEPTION)
-			-- Declare the asynchronous operation as exceptional and set the exception trace.
-		do
-			fixme ("TODO: Properly import an exception.")
-
-			is_exceptional := True
-			if attached a_exception.trace as l_trace then
-				create {STRING_32} last_exception_trace.make_from_separate (l_trace)
-			end
-		ensure
-			exceptional: is_exceptional
-			trace_set: attached a_exception.trace implies attached last_exception_trace
 		end
 
 invariant
