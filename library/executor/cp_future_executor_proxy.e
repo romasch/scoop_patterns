@@ -9,8 +9,6 @@ class
 
 inherit
 
-	CP_FUTURE_EXECUTOR [G, IMPORTER]
-
 	CP_EXECUTOR_PROXY
 
 create

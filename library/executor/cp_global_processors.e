@@ -19,7 +19,7 @@ feature -- Constants
 
 feature -- Access
 
-	broker_processor: separate CP_BROKER_PROCESSOR
+	broker_processor: separate CP_BROKER_UTILS
 			-- A processor for broker objects.
 		once ("PROCESS")
 			create Result
@@ -46,10 +46,10 @@ feature -- Utilities
 			Result := a_processor.new_broker
 		end
 
-	new_result_broker (a_processor: like result_broker_processor; a_blueprint: CP_IMPORTABLE): separate CP_IMPORTABLE
-			-- Export `a_blueprint' to `a_processor'.
+	new_result_broker (a_processor: like result_broker_processor; a_template: CP_IMPORTABLE): separate CP_IMPORTABLE
+			-- Export `a_template' to `a_processor'.
 		do
-			Result := a_processor.import (a_blueprint)
+			Result := a_processor.import (a_template)
 		end
 
 end
