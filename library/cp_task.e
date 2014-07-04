@@ -15,10 +15,15 @@ inherit
 
 	CP_BROKER_UTILS
 
+	REFACTORING_HELPER
+
 feature -- Access
 
 	broker: detachable separate CP_BROKER
 			-- A stable communication object.
+		attribute
+			fixme ("It would be nice to be able to redefine broker, in order to support wrappers of TASK objects.")
+		end
 
 feature -- Basic operations
 
@@ -26,6 +31,8 @@ feature -- Basic operations
 			-- Set `broker' to `a_broker'.
 		do
 			broker := a_broker
+		ensure
+			broker_set: broker = a_broker
 		end
 
 	start
