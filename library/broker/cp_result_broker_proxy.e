@@ -1,38 +1,44 @@
 note
-	description: "Encapsulates a future result. May block if the result is not yet ready."
+	description: "Processor-local access to a separate CP_RESULT_BROKER object."
 	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 
 class
-	CP_FUTURE [G, IMPORTER -> CP_IMPORT_STRATEGY [G] create default_create end]
+	CP_RESULT_BROKER_PROXY [G, IMPORTER -> CP_IMPORT_STRATEGY [G] create default_create end]
+
+inherit
+
+	CP_RESULT_BROKER [G, IMPORTER]
+
+	CP_BROKER_PROXY
+		redefine
+				-- TODO: is it necessary to redefine make?
+			make, utils, broker
+		end
 
 create
 	make
 
 feature {NONE} -- Initialization
 
-	make (a_cell: like broker)
+	make (a_broker: like broker)
 			-- Initialization for `Current'.
 		do
+			broker := a_broker
 			create utils
-			broker := a_cell
-		end
-
-feature -- Status report
-
-	is_available: BOOLEAN
-			-- Is the future result available?
-		do
-			Result := is_imported or else utils.is_broker_terminated (broker)
 		end
 
 feature -- Access
 
-	item: detachable like utils.importer.import
-			-- The result of the computation.
+	broker: separate CP_RESULT_BROKER [G, IMPORTER]
+			-- <Precursor>
+
+	item: detachable like {IMPORTER}.import
+			-- <Precursor>
 			-- Blocks if the result is not yet available.
-			-- May be void in case of an exception.
+		require else
+			True
 		do
 			if not is_imported then
 				is_imported := True
@@ -43,11 +49,8 @@ feature -- Access
 
 feature {NONE} -- Implementation
 
-	broker: separate CP_RESULT_BROKER [G, IMPORTER]
-			-- The broker object that stores the separate result.
-
 	utils: CP_RESULT_BROKER_UTILS [G, IMPORTER]
-			-- Utilities to access the broker.
+			-- <Precursor>
 
 	is_imported: BOOLEAN
 			-- Is the future already imported into `Current'?

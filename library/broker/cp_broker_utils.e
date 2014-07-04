@@ -51,13 +51,13 @@ feature -- Basic operations
 			a_broker.cancel
 		end
 
-	broker_terminate (a_broker: separate CP_BROKER)
+	broker_terminate (a_broker: separate CP_SHARED_BROKER)
 			-- Terminate `a_broker'.
 		do
 			a_broker.terminate
 		end
 
-	broker_set_exception (a_broker: separate CP_BROKER; a_exception: separate EXCEPTION)
+	broker_set_exception (a_broker: separate CP_SHARED_BROKER; a_exception: separate EXCEPTION)
 			-- Set `a_exception' in `a_broker'.
 		do
 			a_broker.set_exception (a_exception)
@@ -65,30 +65,10 @@ feature -- Basic operations
 
 feature -- Factory functions
 
-	new_independent_broker: separate CP_BROKER
-			-- Create a new broker object on a new processor.
+	new_broker: CP_SHARED_BROKER
+			-- Create a new broker on the local processor.
 		do
 			create Result.make
-		end
-
-	new_broker: separate CP_BROKER
-			-- Create a new broker on the global broker processor.
-		do
-			Result := create_broker_on_processor (global_broker_processor)
-		end
-
-feature {NONE} -- Implementation
-
-	global_broker_processor: separate CP_BROKER_PROCESSOR
-			-- A single processor that can create new broker objects.
-		once ("PROCESS")
-			create Result
-		end
-
-	create_broker_on_processor (a_broker_processor: separate CP_BROKER_PROCESSOR): separate CP_BROKER
-			-- Create a new broker on `a_broker_processor'.
-		do
-			Result := a_broker_processor.new_broker
 		end
 
 end
