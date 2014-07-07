@@ -1,11 +1,11 @@
 note
-	description: "Summary description for {CANCELLABLE_TEST}."
+	description: "Summary description for {CANCELABLE_TEST}."
 	author: ""
 	date: "$Date$"
 	revision: "$Revision$"
 
 class
-	CANCELLABLE_TEST
+	CANCELABLE_TEST
 
 inherit
 	CP_TASK

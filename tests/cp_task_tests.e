@@ -19,7 +19,7 @@ feature -- Tests
 	test_cancel
 			-- Test if it is possible to cancel a task.
 		local
-			task: CANCELLABLE_TEST
+			task: CANCELABLE_TEST
 			broker: CP_BROKER_PROXY
 		do
 			create task
@@ -52,8 +52,12 @@ feature -- Tests
 			broker: CP_BROKER_PROXY
 		do
 			create failure
+			assert ("has_broker", not attached failure.broker)
 
 			broker := executor.put_with_broker (failure)
+
+			assert ("different_broker", failure.broker = broker.broker)
+
 			broker.await_termination
 
 			assert ("no_exception", broker.is_exceptional)

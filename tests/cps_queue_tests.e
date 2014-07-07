@@ -1,11 +1,11 @@
 note
-	description: "Test CPS_QUEUE implementation."
+	description: "Test CP_QUEUE implementation."
 	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 
 class
-	CPS_QUEUE_TESTS
+	CP_QUEUE_TESTS
 
 inherit
 	EQA_TEST_SET
