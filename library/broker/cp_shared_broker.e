@@ -8,6 +8,7 @@ class
 	CP_SHARED_BROKER
 
 inherit
+	
 	CP_BROKER
 
 	REFACTORING_HELPER

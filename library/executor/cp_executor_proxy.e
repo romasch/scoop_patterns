@@ -35,7 +35,7 @@ feature -- Basic operations
 			executor_put (executor, a_task)
 		end
 
-	put_with_broker (a_task: separate CP_TASK): CP_BROKER
+	put_with_broker (a_task: separate CP_TASK): CP_BROKER_PROXY
 			-- Execute `a_task' asynchronously and return a broker object.
 		local
 			l_broker: separate CP_SHARED_BROKER

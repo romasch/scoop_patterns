@@ -34,13 +34,13 @@ feature -- Status report
 	is_broker_cancelled (a_broker: separate CP_BROKER): BOOLEAN
 			-- Is `a_broker' cancelled?
 		do
-			Result := a_broker.is_terminated
+			Result := a_broker.is_cancelled
 		end
 
 	is_broker_exceptional (a_broker: separate CP_BROKER): BOOLEAN
 			-- Is `a_broker' exceptional?
 		do
-			Result := a_broker.is_terminated
+			Result := a_broker.is_exceptional
 		end
 
 feature -- Basic operations
@@ -61,6 +61,13 @@ feature -- Basic operations
 			-- Set `a_exception' in `a_broker'.
 		do
 			a_broker.set_exception (a_exception)
+		end
+
+	broker_await_termination (a_broker: separate CP_BROKER)
+			-- Wait until `a_broker' has terminated
+		require
+			a_broker.is_terminated
+		do
 		end
 
 feature -- Factory functions

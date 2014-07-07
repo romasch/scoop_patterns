@@ -64,4 +64,10 @@ feature -- Basic operations
 			utils.broker_cancel (broker)
 		end
 
+	await_termination
+			-- Wait until the task is terminated.
+		do
+			utils.broker_await_termination (broker)
+		end
+
 end
