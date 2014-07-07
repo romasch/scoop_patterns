@@ -42,6 +42,7 @@ feature -- Basic operations
 			-- Consume `item_count' items.
 		local
 			i: INTEGER
+			item: STRING
 		do
 			from
 				i := 1
@@ -50,10 +51,11 @@ feature -- Basic operations
 			loop
 				queue_wrapper.consume
 
-				check attached queue_wrapper.last_consumed_item as item then
+				check attached queue_wrapper.last_consumed_item as l_item then
+
 						-- Note that `item' is not declared as separate, because it has been
 						-- imported automatically.
-
+					item := l_item
 					print (item + " // Consumer " + identifier.out + ": item " + i.out + "%N")
 				end
 				i := i + 1

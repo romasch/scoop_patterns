@@ -19,8 +19,8 @@ feature {NONE} -- Initialization
 			-- Launch the producer and consumers.
 		local
 				-- Note the choice of types: We want to copy strings across processor boundaries,
-				-- therefore we use a CPS_STRING_IMPORTER.
-				-- An alternative would be to avoid copies with CPS_NO_IMPORT, but then a new
+				-- therefore we use a CP_STRING_IMPORTER.
+				-- An alternative would be to avoid copies with CP_NO_IMPORT, but then a new
 				-- processor has to be created for every string object.
 			l_queue: separate CP_QUEUE [STRING, CP_STRING_IMPORTER]
 			l_producer: separate PRODUCER

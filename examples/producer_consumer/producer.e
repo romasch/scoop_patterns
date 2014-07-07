@@ -1,6 +1,6 @@
 note
 	description: "Objects that produce strings and put them in a shared buffer."
-	author: ""
+	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 

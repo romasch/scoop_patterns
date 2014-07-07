@@ -6,7 +6,11 @@ note
 class
 	EXAMPLES
 
-inherit CP_IMPORTABLE
+inherit
+
+	CP_IMPORTABLE
+
+	CP_LAUNCHER
 
 create
 	make, make_from_separate, default_create
@@ -42,6 +46,7 @@ feature {NONE} -- Initialization
 --			end
 
 			example_loader := create {PRODUCER_CONSUMER}.make
+			launch (create {separate ECHO_SERVER}.make)
 
 		end
 
