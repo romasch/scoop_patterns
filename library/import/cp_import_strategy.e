@@ -7,10 +7,20 @@ note
 deferred class
 	CP_IMPORT_STRATEGY [G]
 
-feature
+feature -- Status report
+
+	is_importable (object: separate G): BOOLEAN
+			-- Is `object' importable?
+		do
+			Result := True
+		end
+
+feature -- Duplication
 
 	import (object: separate G): separate G
 			-- Import `object' based on the strategy defined in `Current'.
+		require
+			importable: is_importable (object)
 		deferred
 		end
 

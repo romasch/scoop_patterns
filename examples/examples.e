@@ -30,6 +30,7 @@ feature {NONE} -- Initialization
 			ex: EXAMPLES
 
 			imp: CP_DYNAMIC_TYPE_IMPORTER [EXAMPLES]
+			compile_helper: CP_AGENT_IMPORTER
 		do
 			--create app.make
 
