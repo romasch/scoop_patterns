@@ -106,6 +106,7 @@ feature --  Basic operations
 					until
 						k > equations.count
 					loop
+							-- May block if the result is not yet available.
 						check attached brokers.item.item as l_item then
 							equations [k] := l_item
 						end
