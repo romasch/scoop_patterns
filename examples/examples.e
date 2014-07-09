@@ -47,7 +47,7 @@ feature {NONE} -- Initialization
 --			end
 
 			example_loader := create {PRODUCER_CONSUMER}.make
-			launch (create {separate ECHO_SERVER}.make)
+			example_loader := create {ECHO_APPLICATION}.make
 
 		end
 

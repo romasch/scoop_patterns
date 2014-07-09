@@ -48,6 +48,19 @@ feature -- Initialization
 			print ("%N>>>%N%N")
 		end
 
+	test_lock_passing (obj: detachable separate ANY)
+		do
+				-- obj not locked
+			if attached obj as l_obj then
+
+					-- l_obj should not be controlled.
+				--l_obj.print (1)
+
+					-- Why is obj controlled?
+				obj.print (1)
+			end
+		end
+
 	test_worker_pool
 		local
 			factory: separate TEST_WORKER_FACTORY

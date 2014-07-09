@@ -1,6 +1,7 @@
 note
-	description: "Summary description for {ECHO_SERVER}."
-	author: ""
+	description: "A simple Echo server process. The server may be stopped in two ways - either by calling `stop' %
+				 % from another processor, or by sending the word stop through the network."
+	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 
@@ -8,7 +9,11 @@ class
 	ECHO_SERVER
 
 inherit
-	CP_CONTINUOUS_PROCESS
+
+		-- It is necessary to inherit from CP_INTERMITTENT_PROCESS, such that
+		-- other processors have a chance to call `stop' on `Current'.
+
+	CP_INTERMITTENT_PROCESS
 		redefine
 			finish
 		end
@@ -21,10 +26,18 @@ feature {NONE} -- Initialization
 	make
 			-- Initialization for `Current'.
 		do
-			create socket.make_server_by_port (port_number)
-			check socket.is_bound end
+				-- Create the socket on the specified port.
+			create socket.make_server_by_port ({ECHO_APPLICATION}.listen_port)
+			check initialized: socket.is_bound end
+
+				-- Disable lingering. This fixes a bug where the application can't be executed repeatedly.
 			socket.set_linger_off
-			socket.listen (1)
+
+				-- Set an accept timeout. That way the server has a chance to re-execute its main loop from time to time.
+			socket.set_accept_timeout ({ECHO_APPLICATION}.accept_timeout)
+
+				-- Enable the socket.
+			socket.listen ({ECHO_APPLICATION}.listen_queue_count)
 		end
 
 feature -- Basic operations
@@ -34,13 +47,19 @@ feature -- Basic operations
 		local
 			l_received: STRING
 		do
+				-- Accept a new message. In case of a timeout the accepted socket is Void.
 			socket.accept
 			if attached socket.accepted as l_answer_socket then
+
+					-- Read the message.
 				l_answer_socket.read_line
 				l_received := l_answer_socket.last_string
+
+					-- Check if the client wants us to stop.
 				if l_received.starts_with ("stop") then
 					is_stopped := True
 				else
+						-- Generate and send the answer.
 					l_answer_socket.put_string (l_received)
 					l_answer_socket.put_new_line
 					l_answer_socket.close
@@ -54,9 +73,11 @@ feature -- Basic operations
 			socket.cleanup
 		end
 
-feature -- Constants
-
-	port_number: INTEGER = 2002
+	stop
+			-- Stop the current processor.
+		do
+			is_stopped := True
+		end
 
 feature {NONE} -- Implementation
 
