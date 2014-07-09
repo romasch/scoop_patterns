@@ -47,4 +47,10 @@ feature -- Basic operations
 			).call ([worker_pool, a_count])
 		end
 
+	stop
+			-- Stop the worker pool.
+		do
+			set_worker_count (0)
+		end
+
 end

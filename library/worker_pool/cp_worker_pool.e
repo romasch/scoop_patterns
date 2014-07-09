@@ -55,7 +55,7 @@ feature -- Worker control
 	set_worker_count (a_size: INTEGER)
 			-- Adjust the preset number of workers in `Current'.
 		require
-			positove: a_size > 0
+			positive: a_size > 0
 		do
 			preset_worker_count := a_size
 			adjust (worker_factory)

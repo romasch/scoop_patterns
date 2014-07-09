@@ -47,12 +47,24 @@ feature -- Basic operations
 			put (a_task)
 		end
 
+	stop
+			-- <Precursor>
+		do
+			executor_stop (executor)
+		end
+
 feature {NONE} -- Implementation
 
 	executor_put (a_executor: like executor; a_task: separate CP_TASK)
 			-- Put `a_task' in `a_executor'.
 		do
 			a_executor.put (a_task)
+		end
+
+	executor_stop (a_executor: like executor)
+			-- Stop `a_executor'.
+		do
+			a_executor.stop
 		end
 
 end

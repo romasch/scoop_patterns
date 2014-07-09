@@ -14,4 +14,9 @@ feature -- Basic operations
 		deferred
 		end
 
+	stop
+			-- Stop the executor service.
+		deferred
+		end
+
 end

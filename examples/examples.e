@@ -48,6 +48,7 @@ feature {NONE} -- Initialization
 
 			example_loader := create {PRODUCER_CONSUMER}.make
 			example_loader := create {ECHO_APPLICATION}.make
+			example_loader := create {IO_WORKER_POOL}.make
 
 		end
 

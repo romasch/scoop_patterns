@@ -16,13 +16,12 @@ create
 
 feature -- Basic operations
 
-	put_future (a_computation: separate CP_COMPUTATION [G]): CP_RESULT_BROKER [G, IMPORTER]
+	put_future (a_computation: separate CP_COMPUTATION [G]): CP_RESULT_BROKER_PROXY [G, IMPORTER]
 			-- <Precursor>
 		local
 			l_template_broker: CP_SHARED_RESULT_BROKER [G, IMPORTER]
 			l_importable: separate CP_IMPORTABLE
 			l_broker: separate CP_SHARED_RESULT_BROKER [G, IMPORTER]
-			l_result: CP_RESULT_BROKER_PROXY [G, IMPORTER]
 		do
 				-- Create a broker on the global result processor.
 			create l_template_broker.make
@@ -36,8 +35,7 @@ feature -- Basic operations
 				-- Initialiye the computation and the result.
 			a_computation.set_broker (l_broker)
 
-			create l_result.make (l_broker)
-			Result := l_result
+			create Result.make (l_broker)
 
 				-- Submit the work to the worker pool.
 			put (a_computation)
