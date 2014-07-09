@@ -1,6 +1,7 @@
 note
-	description: "Summary description for {ROW_SUBTRACTION_TASK}."
-	author: ""
+	description: "Future object that computes a single row subtraction%
+				 % in a system of linear equations."
+	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 
@@ -16,11 +17,12 @@ create
 
 feature {NONE} -- Initialization
 
-	make (a_subtrahend: like subtrahend; a_minuend: like minuend)
+	make (a_subtrahend: like subtrahend; a_minuend: like minuend; a_pivot: like pivot)
 			-- Initialization for `Current'.
 		do
 			subtrahend := a_subtrahend
 			minuend := a_minuend
+			pivot := a_pivot
 		end
 
 	make_from_separate (other: separate like Current)
@@ -28,9 +30,9 @@ feature {NONE} -- Initialization
 		do
 			create subtrahend.make_from_separate (other.subtrahend)
 			create minuend.make_from_separate (other.minuend)
+			pivot := other.pivot
 			broker := other.broker
 		end
-
 
 feature -- Access
 
@@ -40,17 +42,16 @@ feature -- Access
 	subtrahend: LINEAR_EQUATION
 			-- The subtrahend row.
 
+	pivot: INTEGER
+			-- The index of the pivot element.
+
 feature -- Basic operations
 
 	compute: LINEAR_EQUATION
 			-- <Precursor>
 		local
-			pivot: INTEGER
 			scalar: DOUBLE
 		do
-				-- Find the first non-zero entry in the input.	
-			pivot := minuend.find_nonzero
-
 				-- Calculate the scalar value.
 			scalar := minuend [pivot] / subtrahend [pivot]
 

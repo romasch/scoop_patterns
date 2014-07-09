@@ -1,6 +1,6 @@
 note
-	description: "Summary description for {LINEAR_EQUATION}."
-	author: ""
+	description: "Contains the coefficients for a linear equation."
+	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 
@@ -17,21 +17,9 @@ inherit
 		end
 
 create
-
-	make, make_with_values, make_from_separate
+	make, make_from_separate
 
 feature {NONE} -- Initialization
-
-	make_with_values (vector: READABLE_INDEXABLE [DOUBLE])
-			-- Initialize with values from `a_vector'.
-		do
-			make (1)
-			across
-				vector as cell
-			loop
-				extend (cell.item)
-			end
-		end
 
 	make_from_separate (other: separate LINEAR_EQUATION)
 			-- <Precursor>
@@ -48,6 +36,8 @@ feature {NONE} -- Initialization
 			loop
 				extend (other [idx])
 				idx := idx + 1
+			variant
+				l_count - idx + 1
 			end
 		end
 
@@ -70,25 +60,8 @@ feature -- Mathematical operations
 			loop
 				Result.extend ( minuend [idx] - scalar * subtrahend [idx])
 				idx := idx + 1
-			end
-		end
-
-feature -- Searching
-
-	find_nonzero: INTEGER
-			-- The index of the first non-zero element.
-			-- Negative if all elements are zero.
-		do
-			from
-				Result := 1
-			until
-				Current [Result] /= 0.0 or Result > count
-			loop
-				Result := Result + 1
-			end
-
-			if Result > count then
-				Result := -1
+			variant
+				count - idx + 1
 			end
 		end
 
