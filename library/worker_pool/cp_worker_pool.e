@@ -39,7 +39,7 @@ feature {NONE} -- Initialization
 		do
 			preset_worker_count := worker_count
 			worker_factory := a_factory
-			adjust (worker_factory)
+			adjust (a_factory)
 		end
 
 feature -- Access

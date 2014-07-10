@@ -55,6 +55,7 @@ feature -- Factory functions
 
 			create Result.make (a_pool)
 			logger_initialize_database (Result)
+--			create Result.make_with_database (a_pool, Current)
 		end
 
 feature {NONE} -- Implementation
