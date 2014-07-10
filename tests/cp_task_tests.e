@@ -11,7 +11,7 @@ inherit
 
 	EQA_TEST_SET
 		redefine
-			on_prepare
+			on_prepare, on_clean
 		end
 
 feature -- Tests
@@ -75,6 +75,12 @@ feature {NONE} -- Initialization
 		do
 			create l_global
 			create executor.make (l_global.global_worker_pool)
+		end
+
+	on_clean
+			-- <Precursor>
+		do
+			executor.stop
 		end
 
 	executor: CP_EXECUTOR_PROXY

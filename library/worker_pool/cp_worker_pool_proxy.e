@@ -26,6 +26,15 @@ feature -- Access
 	worker_pool: separate CP_WORKER_POOL [G, CP_IMPORT_STRATEGY [G]]
 
 	worker_count: INTEGER
+		do
+			Result := (
+			agent (a_pool: separate like worker_pool): INTEGER
+				do
+					Result := a_pool.actual_worker_count
+				end
+			).item ([worker_pool])
+		end
+
 
 feature -- Basic operations
 
@@ -50,7 +59,12 @@ feature -- Basic operations
 	stop
 			-- Stop the worker pool.
 		do
-			set_worker_count (0)
+			(
+			agent (a_pool: separate like worker_pool)
+				do
+					a_pool.stop
+				end
+			).call ([worker_pool])
 		end
 
 end
