@@ -1,6 +1,6 @@
 note
-	description: "Summary description for {CP_TASK_WORKER}."
-	author: ""
+	description: "Worker implementation that executes CP_TASK objects."
+	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 

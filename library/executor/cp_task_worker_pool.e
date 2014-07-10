@@ -1,6 +1,6 @@
 note
-	description: "Summary description for {CP_TASK_WORKER_POOL}."
-	author: ""
+	description: "Executor service for CP_TASK objects, implemented with a worker pool."
+	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 
