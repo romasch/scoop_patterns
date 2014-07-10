@@ -37,17 +37,17 @@ feature {NONE} -- Initialization
 			create logger_pool_proxy.make (logger_pool)
 
 				-- Add some work items to the pool
-			logger_pool_proxy.submit ("INSERT INTO log VALUES ('OK', 'Served client: johndoe')")
-			logger_pool_proxy.submit ("INSERT INTO log VALUES ('OK', 'Served client: johndoe')")
-			logger_pool_proxy.submit ("INSERT INTO log VALUES ('OK', 'Served client: johndoe')")
-			logger_pool_proxy.submit ("INSERT INTO log VALUES ('OK', 'Served client: johndoe')")
-			logger_pool_proxy.submit ("INSERT INTO log VALUES ('Error', 'Too many requests: johndoe')")
+			logger_pool_proxy.put ("INSERT INTO log VALUES ('OK', 'Served client: johndoe')")
+			logger_pool_proxy.put ("INSERT INTO log VALUES ('OK', 'Served client: johndoe')")
+			logger_pool_proxy.put ("INSERT INTO log VALUES ('OK', 'Served client: johndoe')")
+			logger_pool_proxy.put ("INSERT INTO log VALUES ('OK', 'Served client: johndoe')")
+			logger_pool_proxy.put ("INSERT INTO log VALUES ('Error', 'Too many requests: johndoe')")
 
 				-- It is possible to increase the number of worker processors on the fly.
 			print ("Adding two new workers to the pool:%N")
 			logger_pool_proxy.set_worker_count (4)
 
-			check logger_pool_proxy.worker_count = 4 end
+			check logger_pool_proxy.actual_worker_count = 4 end
 
 				-- Scaling down is also possible.
 			print ("Tearing down three workers:%N")
@@ -55,7 +55,7 @@ feature {NONE} -- Initialization
 
 				-- However, it takes some time for these workers to shut down.
 			(create {EXECUTION_ENVIRONMENT}).sleep (1_000_000_000)
-			check logger_pool_proxy.worker_count = 1 end
+			check logger_pool_proxy.actual_worker_count = 1 end
 
 				-- It is necessary to stop the worker pool at the end, otherwise the application can't terminate.
 			print ("Stopping worker pool:%N")
