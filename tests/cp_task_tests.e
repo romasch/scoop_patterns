@@ -9,6 +9,11 @@ class
 
 inherit
 
+	CP_LAUNCHER
+		undefine
+			default_create
+		end
+
 	EQA_TEST_SET
 		redefine
 			on_prepare, on_clean
@@ -66,7 +71,54 @@ feature -- Tests
 			assert ("executor_count_wrong", executor.worker_count = {CP_GLOBAL_PROCESSORS}.worker_count)
 		end
 
+	test_delayed_task
+			-- Test a delayed task.
+		local
+			delayer: CP_DELAYED_TASK
+			task: CANCELABLE_TEST
+			broker: CP_BROKER_PROXY
+		do
+			create task
+			create delayer.make (task, 2 * second)
+
+			assert ("has_broker", not attached task.broker)
+
+			broker := executor.put_with_broker (delayer)
+
+			assert ("broker_missing", attached task.broker)
+			assert ("different_broker", task.broker = delayer.broker and broker.broker = delayer.broker)
+
+			broker.cancel
+			assert ("not_cancelled", broker.is_cancelled)
+
+			env.sleep (second)
+
+			assert ("not_delayed", not broker.is_terminated)
+
+			broker.await_termination
+
+			assert ("not_terminated", broker.is_terminated)
+			assert ("has_exception", not broker.is_exceptional)
+		end
+
+	test_timer
+			-- Test a timer object.
+		local
+			task: separate TICK_TIMER
+		do
+			create task.make (second)
+			launch (task)
+
+			env.sleep (5 * second)
+			timer_stop (task)
+
+			assert ("not_started", timer_count (task) > 0)
+		end
+
+
 feature {NONE} -- Initialization
+
+	second: INTEGER_64 = 1_000_000_000
 
 	on_prepare
 			-- <Precursor>
@@ -75,6 +127,7 @@ feature {NONE} -- Initialization
 		do
 			create l_global
 			create executor.make (l_global.global_worker_pool)
+			create env
 		end
 
 	on_clean
@@ -85,5 +138,18 @@ feature {NONE} -- Initialization
 
 	executor: CP_EXECUTOR_PROXY
 			-- A global worker pool.
+
+	env: EXECUTION_ENVIRONMENT
+			-- An execution environment to call `sleep' on.
+
+	timer_stop (a_timer: separate CP_TIMER)
+		do
+			a_timer.stop
+		end
+
+	timer_count (a_timer: separate TICK_TIMER): INTEGER
+		do
+			Result := a_timer.count
+		end
 
 end

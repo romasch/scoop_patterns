@@ -16,7 +16,8 @@ inherit
 
 	EXECUTION_ENVIRONMENT
 
-create make, make_from_separate
+create
+	make, make_from_separate
 
 feature {NONE} -- Initialization
 
@@ -29,10 +30,12 @@ feature {NONE} -- Initialization
 			task := a_task
 			delay := a_delay
 			broker := a_task.broker
+			is_initialized := True
 		ensure
 			delay_set: delay = a_delay
 			broker_set: broker = a_task.broker
 			equal_task: task ~ a_task
+			initialized: is_initialized
 		end
 
 
@@ -45,6 +48,9 @@ feature {NONE} -- Initialization
 			delay := other.delay
 			task := importer.import (other.task)
 			broker := task.broker
+			is_initialized := True
+		ensure then
+			initialized: is_initialized
 		end
 
 feature -- Access
@@ -72,6 +78,11 @@ feature -- Basic operations
 			task.run
 		end
 
+feature {NONE} -- Status report
+
+	is_initialized: BOOLEAN
+			-- Is `Current' correctly initialized?
+
 invariant
-	broker_aliased: broker = task.broker
+	broker_aliased: is_initialized implies broker = task.broker
 end
