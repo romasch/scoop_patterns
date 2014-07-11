@@ -37,7 +37,7 @@ feature {NONE} -- Implementation
 	pacemaker: separate CP_PACEMAKER
 			-- The pacemaker of `Current'.
 		attribute
-			create Result.make (agent iteration)
+			create Result.make (Current)
 		end
 
 end

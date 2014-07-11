@@ -39,17 +39,8 @@ feature -- Basic operations
 
 				-- Submit the work to the worker pool.
 			put (a_computation)
-		end
-
-feature {NONE} -- Initialization
-
-	make_global
-			-- Initialize `Current' with the global worker pool.
-		local
-			l_procs: CP_GLOBAL_PROCESSORS
-		do
-			create l_procs
-			make (l_procs.global_worker_pool)
+		ensure
+			same_broker: Result.broker = a_computation.broker
 		end
 
 end

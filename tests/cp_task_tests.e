@@ -123,10 +123,10 @@ feature {NONE} -- Initialization
 	on_prepare
 			-- <Precursor>
 		local
-			l_global: CP_GLOBAL_PROCESSORS
+			sep_executor: separate CP_TASK_WORKER_POOL
 		do
-			create l_global
-			create executor.make (l_global.global_worker_pool)
+			create sep_executor.make (100, 4)
+			create executor.make (sep_executor)
 			create env
 		end
 

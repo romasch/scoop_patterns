@@ -9,11 +9,11 @@ class
 
 inherit
 
+	CP_EXECUTOR
+
 	CP_WORKER_POOL [CP_TASK, CP_DYNAMIC_TYPE_IMPORTER [CP_TASK]]
 
 	CP_WORKER_FACTORY [CP_TASK, CP_DYNAMIC_TYPE_IMPORTER [CP_TASK]]
-
-	CP_EXECUTOR
 
 create
 	make
@@ -30,7 +30,7 @@ feature {NONE} -- Initialization
 feature {NONE} -- Worker factory
 
 	new_worker (a_pool: separate CP_TASK_WORKER_POOL): separate CP_TASK_WORKER
-			-- Create a new worker belonging to `a_pool'.
+			-- <Precursor>
 		do
 			create Result.make (Current)
 		end

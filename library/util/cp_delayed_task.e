@@ -68,13 +68,15 @@ feature -- Basic operations
 		do
 			broker := a_broker
 			task.set_broker (a_broker)
+		ensure then
+			aliased: a_broker = task.broker
 		end
 
 	run
 			-- <Precursor>
 		do
 			sleep (delay)
-				-- We're invoking `run' as opposed to `start', because exception handling is done in `Current'.
+				-- Invoke `run' as opposed to `start', because exception handling is done in `Current'.
 			task.run
 		end
 

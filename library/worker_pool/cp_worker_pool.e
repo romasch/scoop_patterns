@@ -32,6 +32,8 @@ feature {NONE} -- Initialization
 			else
 				make_unbounded
 			end
+		ensure
+			capacity_set: capacity = buffer_size
 		end
 
 	initialize_factory (worker_count: INTEGER; a_factory: separate CP_WORKER_FACTORY [G, IMPORTER])
@@ -40,6 +42,10 @@ feature {NONE} -- Initialization
 			preset_worker_count := worker_count
 			worker_factory := a_factory
 			adjust (a_factory)
+		ensure
+			factory_set: worker_factory = a_factory
+			count_set: worker_count = preset_worker_count
+			worker_started: actual_worker_count = preset_worker_count
 		end
 
 feature -- Access
@@ -59,12 +65,17 @@ feature -- Worker control
 		do
 			preset_worker_count := a_size
 			adjust (worker_factory)
+		ensure
+			correct: preset_worker_count = a_size
+			immediately_increased: old preset_worker_count < a_size implies actual_worker_count = preset_worker_count
 		end
 
 	stop
 			-- Stop all workers in `Current'.
 		do
 			preset_worker_count := 0
+		ensure
+			correct: preset_worker_count = 0
 		end
 
 feature {CP_WORKER} -- Worker support
@@ -79,6 +90,8 @@ feature {CP_WORKER} -- Worker support
 			-- Decrease the number of active workers.
 		do
 			actual_worker_count := actual_worker_count - 1
+		ensure
+			decreased: actual_worker_count + 1 = old actual_worker_count
 		end
 
 feature {NONE} -- Implementation

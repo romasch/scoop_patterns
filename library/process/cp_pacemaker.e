@@ -1,5 +1,5 @@
 note
-	description: "Objects that call a separate procedure if asked."
+	description: "Objects that call `iteration' on a separate CP_INTERMITTENT_PROCESS."
 	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
@@ -15,31 +15,31 @@ create
 
 feature -- Access
 
-	operation: separate PROCEDURE [ANY, TUPLE]
-			-- The pocedure to be call.
+	process: separate CP_INTERMITTENT_PROCESS
+			-- The separate process.
 
 feature -- Basic operations
 
 	start
 			-- Call the separate procedure.
 		do
-			do_start (operation)
+			do_start (process)
 		end
 
 feature {NONE} -- Initialization
 
-	make (a_operation: like operation)
+	make (a_process: like process)
 			-- Initialization for `Current'.
 		do
-			operation := a_operation
+			process := a_process
 		end
 
 feature {NONE} -- Implementation
 
-	do_start (a_operation: like operation)
-			-- Call `a_operation.call'.
+	do_start (a_process: like process)
+			-- Call `a_process.iteration'.
 		do
-			a_operation.call (Void)
+			a_process.iteration
 		end
 
 end

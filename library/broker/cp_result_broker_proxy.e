@@ -13,21 +13,11 @@ inherit
 
 	CP_BROKER_PROXY
 		redefine
-				-- TODO: is it necessary to redefine make?
-			make, utils, broker
+			utils, broker
 		end
 
 create
 	make
-
-feature {NONE} -- Initialization
-
-	make (a_broker: like broker)
-			-- Initialization for `Current'.
-		do
-			broker := a_broker
-			create utils
-		end
 
 feature -- Access
 

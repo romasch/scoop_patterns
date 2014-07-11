@@ -17,6 +17,8 @@ feature {NONE} -- Initialization
 		do
 			pool := a_pool
 			create importer
+		ensure
+			pool_set: pool = a_pool
 		end
 
 	importer: IMPORTER

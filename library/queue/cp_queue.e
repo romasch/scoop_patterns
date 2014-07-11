@@ -19,6 +19,8 @@ feature -- Access
 			-- The number of items in `Current'.
 		do
 			Result := store.count
+		ensure
+			correct: Result = store.count
 		end
 
 	item: separate G
@@ -86,6 +88,7 @@ feature {NONE} -- Initialization
 		ensure
 			correct_capacity: capacity = a_capacity
 			correct_count: count = 0
+			bounded: is_bounded
 			empty: is_empty
 		end
 
@@ -98,6 +101,7 @@ feature {NONE} -- Initialization
 		ensure
 			correct_capacity: capacity < 0
 			correct_count: count = 0
+			not_bounded: not is_bounded
 			empty: is_empty
 		end
 

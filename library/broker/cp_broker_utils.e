@@ -13,6 +13,8 @@ feature -- Access
 			-- Last exception trace in `a_broker'.
 		do
 			Result := a_broker.last_exception_trace
+		ensure
+			correct: Result = a_broker.last_exception_trace
 		end
 
 	broker_imported_last_exception_trace (a_broker: separate CP_BROKER): detachable READABLE_STRING_32
@@ -21,6 +23,8 @@ feature -- Access
 			if attached broker_last_exception_trace (a_broker) as l_trace then
 				create {STRING_32} Result.make_from_separate (l_trace)
 			end
+		ensure
+			correct: Result ~ a_broker.last_exception_trace
 		end
 
 feature -- Status report

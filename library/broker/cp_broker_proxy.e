@@ -20,6 +20,8 @@ feature {NONE} -- Initialization
 		do
 			broker := a_broker
 			create utils
+		ensure
+			broker_set: broker = a_broker
 		end
 
 	utils: CP_BROKER_UTILS

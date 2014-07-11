@@ -12,7 +12,8 @@ inherit
 
 	CP_GLOBAL_PROCESSORS
 
-create make
+create
+	make, make_global
 
 feature {NONE} -- Initialization
 
@@ -20,6 +21,17 @@ feature {NONE} -- Initialization
 			-- Initialization for `Current'.
 		do
 			executor := a_executor
+		ensure
+			executor_set: executor = a_executor
+		end
+
+	make_global
+			-- Initialize `Current' with the global worker pool.
+		local
+			l_procs: CP_GLOBAL_PROCESSORS
+		do
+			create l_procs
+			make (l_procs.global_worker_pool)
 		end
 
 feature -- Access
@@ -42,9 +54,10 @@ feature -- Basic operations
 		do
 			l_broker := new_broker (broker_processor)
 			a_task.set_broker (l_broker)
-			create {CP_BROKER_PROXY} Result.make (l_broker)
-
+			create Result.make (l_broker)
 			put (a_task)
+		ensure
+			same_broker: Result.broker = a_task.broker
 		end
 
 	stop
