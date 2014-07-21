@@ -14,8 +14,6 @@ inherit
 			set_broker
 		end
 
-	EXECUTION_ENVIRONMENT
-
 create
 	make, make_from_separate
 
@@ -28,9 +26,7 @@ feature {NONE} -- Initialization
 			positive_delay: a_delay >= 0
 		do
 			task := a_task
-			delay := a_delay
-			broker := a_task.broker
-			is_initialized := True
+			initialize (a_delay)
 		ensure
 			delay_set: delay = a_delay
 			broker_set: broker = a_task.broker
@@ -45,11 +41,26 @@ feature {NONE} -- Initialization
 			importer: CP_DYNAMIC_TYPE_IMPORTER [CP_TASK]
 		do
 			create importer
-			delay := other.delay
 			task := importer.import (other.task)
-			broker := task.broker
-			is_initialized := True
+			initialize (other.delay)
 		ensure then
+			same_delay: delay = other.delay
+			same_broker: broker = other.broker
+			initialized: is_initialized
+		end
+
+	initialize (a_delay: like delay)
+			-- Finish initializion of `Current'.
+		require
+			task_initialized: attached task
+		do
+			delay := a_delay
+			broker := task.broker
+			create environment
+			is_initialized := True
+		ensure
+			delay_set: delay = a_delay
+			broker_set: broker = task.broker
 			initialized: is_initialized
 		end
 
@@ -75,15 +86,18 @@ feature -- Basic operations
 	run
 			-- <Precursor>
 		do
-			sleep (delay)
+			environment.sleep (delay)
 				-- Invoke `run' as opposed to `start', because exception handling is done in `Current'.
 			task.run
 		end
 
-feature {NONE} -- Status report
+feature {NONE} -- Implementation
 
 	is_initialized: BOOLEAN
 			-- Is `Current' correctly initialized?
+
+	environment: EXECUTION_ENVIRONMENT
+			-- An execution environment instance.
 
 invariant
 	broker_aliased: is_initialized implies broker = task.broker
