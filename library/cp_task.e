@@ -35,7 +35,7 @@ feature -- Basic operations
 			broker_set: broker = a_broker
 		end
 
-	start
+	frozen start
 			-- Start the current task.
 		local
 			l_retried: BOOLEAN

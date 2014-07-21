@@ -28,7 +28,7 @@ feature -- Status report
 				l_count := tuple.count
 				Result := True
 			until
-				l_index > l_count
+				l_index > l_count or not Result
 			loop
 				if tuple.is_reference_item (l_index) then
 					Result := Result and c_is_tuple_item_separate (tuple, l_index)
