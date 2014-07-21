@@ -30,6 +30,7 @@ feature {NONE} -- Initialization
 	default_create
 			-- <Precursor>
 		do
+			create routine_access
 			create tuple_importer
 			create reflector
 			create reflected_agent.make (Current)
@@ -37,18 +38,59 @@ feature {NONE} -- Initialization
 
 feature -- Status report
 
-	is_importable (an_agent: separate ROUTINE [ANY, TUPLE]): BOOLEAN
-			-- Is `an_agent' importable?
+	is_importable (a_routine: separate ROUTINE [ANY, TUPLE]): BOOLEAN
+			-- Is `a_routine' importable?
+		local
+			l_separate_closed_args: BOOLEAN
+			l_no_attributes: BOOLEAN
+			l_correct_return_type: BOOLEAN
+			l_type_id: INTEGER
 		do
-			fixme ("TODO")
-			-- All closed args expanded or truly separate
-			-- Target open, no attributes
-			-- Return type separate or expanded.
-			Result := True
+				-- First check if the basic requirements hold.
+			if is_unsafe_importable (a_routine) then
+
+					-- All closed arguments must be either of a basic type or truly separate.
+				l_separate_closed_args := tuple_importer.is_importable (routine_access.get_closed_operands (a_routine))
+
+					-- The type of the target should not define any attributes.
+				l_type_id := {ISE_RUNTIME}.dynamic_type (a_routine)
+				l_no_attributes := reflector.field_count_of_type (l_type_id) = 0
+
+					-- The return type, if any, must be a basic type or separate.
+				l_correct_return_type := to_implement_assertion ("TODO: At the moment there is a limitation in the runtime.")
+
+				Result := l_separate_closed_args and l_no_attributes and l_correct_return_type
+			end
+		ensure then
+			correct_relation: Result implies is_unsafe_importable (a_routine)
 		end
 
+	is_unsafe_importable (a_routine: separate ROUTINE [ANY, TUPLE]): BOOLEAN
+			-- Is `a_routine' ready for an unsafe import?
+		local
+			l_operands_void: BOOLEAN
+			l_target_open: BOOLEAN
+			l_no_result: BOOLEAN
+		do
+				-- There should not be any open operands from a previous invocation.
+			l_operands_void := not attached a_routine.operands
+
+				-- The target must be open.
+			l_target_open := not a_routine.is_target_closed
+
+				-- There should not be a result from a previous invocation.
+			l_no_result := to_implement_assertion ("Make sure {FUNCTION}.last_result is Void")
+
+			Result := l_operands_void and l_target_open and l_no_result
+		ensure
+			no_open_operands: Result implies a_routine.operands = Void
+			open_target: Result implies not a_routine.is_target_closed
+		end
+
+feature -- Basic operations
+
 	import (routine: separate ROUTINE [ANY, TUPLE]): ROUTINE [ANY, TUPLE]
-			-- <Precursor>
+			-- Import `routine' by creating a copy on the local processor.
 		do
 			Result := do_import (routine)
 		end
@@ -60,7 +102,7 @@ feature -- Status report
 			--- All closed arguments are either expanded or declared as separate.
 			--- The agent must never access its target (i.e. no implicit or explicit use of Current).
 		require
-			open_target: not routine.is_target_closed
+			unsafe_importable: is_unsafe_importable (routine)
 		do
 			Result := do_import (routine)
 		end
@@ -71,18 +113,19 @@ feature {NONE} -- Implementation
 	tuple_importer: CP_TUPLE_IMPORTER
 			-- Importer object for TUPLEs
 
+	routine_access: CP_ROUTINE_ACCESS
+			-- Object with privileged access for a routine's attributes.
+
 	reflector: REFLECTOR
 			-- Reflection object to create a new agent on the current processor.
 
 	reflected_agent: REFLECTED_REFERENCE_OBJECT
 			-- A reflector to initialize newly created agents.
 
-
 	do_import (routine: separate ROUTINE [ANY, TUPLE]): ROUTINE [ANY, TUPLE]
 			-- Import `routine'.
 		require
-			open_operands_void: not attached routine.operands
-			no_result: to_implement_assertion ("Make sure {FUNCTION}.last_result is Void.")
+			unsafe_importable: is_unsafe_importable (routine)
 		local
 			type_id: INTEGER
 			i: INTEGER
@@ -94,6 +137,10 @@ feature {NONE} -- Implementation
 
 			l_closed_operands: TUPLE
 		do
+			fixme ("It may be possible to weaken the harsh precondition a bit: %
+				% {ROUTINE}.operands and {FUNCTION}.last_result may be attached - we can just ignore them. %
+				% However, this probably implies that some string comparison is necessary here.")
+
 			type_id := {ISE_RUNTIME}.dynamic_type (routine)
 
 				-- Should succeed because `type_id' is a valid type.
@@ -126,8 +173,8 @@ feature {NONE} -- Implementation
 					pointer_field := {ISE_RUNTIME}.pointer_field (i, $routine, 0)
 					reflected_agent.set_pointer_field (i, pointer_field)
 
-				else -- Reference field
-
+					-- Import `open_map', `open_types' and `closed_operands'.
+				when reference_type then
 					reference_field := {ISE_RUNTIME}.reference_field (i, $routine, 0)
 
 						-- Import `open_map' and `open_types'.
@@ -146,6 +193,10 @@ feature {NONE} -- Implementation
 							-- Both of them must be Void.
 						check no_more_items: reference_field = Void end
 					end
+				else
+						-- The above inspect statement should cover all attributes, except maybe `{FUNCTION}.last_result'.
+						-- If this check fails, something in ROUTINE or its descendants has changed.
+					check only_last_result: reflected_agent.field_name (i) ~ "last_result" end
 				end
 				i := i + 1
 			end
