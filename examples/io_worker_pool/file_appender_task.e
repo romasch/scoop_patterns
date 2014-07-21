@@ -23,6 +23,8 @@ feature {NONE} -- Initialization
 			content := a_content
 		end
 
+feature {CP_DYNAMIC_TYPE_IMPORTER} -- Initialization
+
 	make_from_separate (other: separate like Current)
 			-- <Precursor>
 		do

@@ -19,7 +19,7 @@ inherit
 create
 	make, make_from_separate
 
-feature {NONE} -- Initialization
+feature {CP_DYNAMIC_TYPE_IMPORTER} -- Initialization
 
 	make_from_separate (other: separate LINEAR_EQUATION)
 			-- <Precursor>

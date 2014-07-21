@@ -24,9 +24,6 @@ feature {NONE} -- Initialization
 			broker_set: broker = a_broker
 		end
 
-	utils: CP_BROKER_UTILS
-			-- Utilitity functions to handle separate brokers.
-
 feature -- Access
 
 	broker: separate CP_BROKER
@@ -71,5 +68,10 @@ feature -- Basic operations
 		do
 			utils.broker_await_termination (broker)
 		end
+
+feature {NONE} -- Implementation
+
+	utils: CP_BROKER_UTILS
+			-- Utilitity functions to handle separate brokers.
 
 end

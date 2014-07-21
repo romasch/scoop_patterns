@@ -13,23 +13,30 @@ inherit
 create
 	make, make_from_separate
 
-feature
+feature {NONE} -- Initialization
 
-	make (i: INTEGER_64)
+	make (a_input: INTEGER_64)
+			-- Initialize `Current' with `a_input'.
 		require
-			i > 0
+			positive: a_input > 0
 		do
-			input := i
+			input := a_input
 		end
 
+feature {CP_DYNAMIC_TYPE_IMPORTER} -- Initialization
+
 	make_from_separate (other: separate like Current)
+			-- <Precursor>
 		do
 			input := other.input
 			broker := other.broker
 		end
 
+feature -- Access
 
 	input: INTEGER_64
+
+feature -- Basic operations
 
 	compute: INTEGER_64
 			-- <Precursor>

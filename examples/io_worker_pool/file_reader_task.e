@@ -22,6 +22,8 @@ feature {NONE} -- Initialization
 			path := a_path
 		end
 
+feature {CP_DYNAMIC_TYPE_IMPORTER} -- Initialization
+
 	make_from_separate (other: separate like Current)
 			-- <Precursor>
 		do

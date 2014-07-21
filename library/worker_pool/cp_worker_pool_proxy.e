@@ -19,9 +19,6 @@ feature {NONE} -- Initialization
 			create utils
 		end
 
-	utils: CP_WORKER_POOL_UTILS [G]
-			-- Helper functions to access a separate worker pool.
-
 feature -- Access
 
 	worker_pool: separate CP_WORKER_POOL [G, CP_IMPORT_STRATEGY [G]]
@@ -59,5 +56,10 @@ feature -- Basic operations
 		do
 			utils.wp_stop (worker_pool)
 		end
+
+feature {NONE} -- Implementation
+
+	utils: CP_WORKER_POOL_UTILS [G]
+			-- Helper functions to access a separate worker pool.
 
 end

@@ -29,6 +29,8 @@ feature {NONE} -- Initialization
 			create importer
 		end
 
+feature {CP_DYNAMIC_TYPE_IMPORTER}-- Initialization
+
 	make_from_separate (a_object: separate like Current)
 			-- <Precursor>
 		do

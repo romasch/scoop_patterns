@@ -17,6 +17,15 @@ inherit
 
 	REFACTORING_HELPER
 
+feature {CP_DYNAMIC_TYPE_IMPORTER}-- Initialization
+
+	make_from_separate (other: separate like Current)
+			-- Initialize `Current' from `other'.
+		deferred
+		ensure then
+			same_token: broker = other.broker
+		end
+
 feature -- Access
 
 	broker: detachable separate CP_SHARED_BROKER
@@ -26,14 +35,6 @@ feature -- Access
 		end
 
 feature -- Basic operations
-
-	set_broker (a_broker: like broker)
-			-- Set `broker' to `a_broker'.
-		do
-			broker := a_broker
-		ensure
-			broker_set: broker = a_broker
-		end
 
 	frozen start
 			-- Start the current task.
@@ -67,13 +68,12 @@ feature -- Basic operations
 		deferred
 		end
 
-feature -- Initialization
-
-	make_from_separate (other: separate like Current)
-			-- Initialize `Current' from `other'.
-		deferred
-		ensure then
-			same_token: broker = other.broker
+	set_broker (a_broker: like broker)
+			-- Set `broker' to `a_broker'.
+		do
+			broker := a_broker
+		ensure
+			broker_set: broker = a_broker
 		end
 
 end

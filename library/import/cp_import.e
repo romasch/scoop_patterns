@@ -12,7 +12,7 @@ note
 			
 			E.g. `task' should not be declared separate in the following example:
 			
-				put_new_task (pool: separate CP_WORKER_POOL [MY_TASK], CP_IMPORTER [MY_TASK]])
+				put_new_task (pool: separate CP_WORKER_POOL [MY_TASK, CP_IMPORT [MY_TASK]])
 						-- Add a new task in `pool'.
 					local
 						task: MY_TASK

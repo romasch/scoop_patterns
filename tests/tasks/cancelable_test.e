@@ -13,6 +13,14 @@ inherit
 create
 	default_create, make_from_separate
 
+
+feature {CP_DYNAMIC_TYPE_IMPORTER}-- Initialization
+
+	make_from_separate (other: separate like Current)
+		do
+			broker := other.broker
+		end
+
 feature
 
 	millisecond: INTEGER_64 = 1_000_000
@@ -29,11 +37,6 @@ feature
 			loop
 				env.sleep (200 * millisecond)
 			end
-		end
-
-	make_from_separate (other: separate like Current)
-		do
-			broker := other.broker
 		end
 
 end

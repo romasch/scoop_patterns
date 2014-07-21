@@ -10,6 +10,16 @@ class
 create
 	make
 
+feature {NONE} -- Initialization
+
+	make (a_separate_queue: attached separate like queue)
+			-- Initialization for `Current'.
+		do
+			queue := a_separate_queue
+			create importer
+			create utils
+		end
+
 feature -- Access
 
 	queue: separate CP_QUEUE [G, IMPORTER]
@@ -82,15 +92,7 @@ feature -- Basic operations
 			last_consumed_item := importer.import (utils.queue_consume (queue))
 		end
 
-feature {NONE} -- Initialization
-
-	make (a_separate_queue: attached separate like queue)
-			-- Initialization for `Current'.
-		do
-			queue := a_separate_queue
-			create importer
-			create utils
-		end
+feature {NONE} -- Implementation
 
 	importer: attached IMPORTER
 			-- The selected import strategy.

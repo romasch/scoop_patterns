@@ -23,12 +23,12 @@ feature -- Basic operations
 		end
 
 	setup
-			-- Initialize everything.
+			-- Perform initialization.
 		do
 		end
 
 	finish
-			-- Perform some cleanup.
+			-- Perform cleanup.
 		do
 		end
 

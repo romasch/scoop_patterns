@@ -10,6 +10,36 @@ class
 create
 	make_bounded, make_unbounded
 
+feature {NONE} -- Initialization
+
+	make_bounded (a_capacity: INTEGER)
+			-- Create a bounded queue with capacity `a_capacity'.
+		require
+			non_negative: a_capacity >= 0
+		do
+			capacity := a_capacity
+			create store.make (a_capacity)
+			create importer
+		ensure
+			correct_capacity: capacity = a_capacity
+			correct_count: count = 0
+			bounded: is_bounded
+			empty: is_empty
+		end
+
+	make_unbounded
+			-- Create an unbounded queue.
+		do
+			capacity := -1
+			create store.make (1)
+			create importer
+		ensure
+			correct_capacity: capacity < 0
+			correct_count: count = 0
+			not_bounded: not is_bounded
+			empty: is_empty
+		end
+
 feature -- Access
 
 	capacity: INTEGER
@@ -75,35 +105,7 @@ feature -- Basic operations
 			removed: count + 1 = old count
 		end
 
-feature {NONE} -- Initialization
-
-	make_bounded (a_capacity: INTEGER)
-			-- Create a bounded queue with capacity `a_capacity'.
-		require
-			non_negative: a_capacity >= 0
-		do
-			capacity := a_capacity
-			create store.make (a_capacity)
-			create importer
-		ensure
-			correct_capacity: capacity = a_capacity
-			correct_count: count = 0
-			bounded: is_bounded
-			empty: is_empty
-		end
-
-	make_unbounded
-			-- Create an unbounded queue.
-		do
-			capacity := -1
-			create store.make (1)
-			create importer
-		ensure
-			correct_capacity: capacity < 0
-			correct_count: count = 0
-			not_bounded: not is_bounded
-			empty: is_empty
-		end
+feature {NONE} -- Implementation
 
 	store: ARRAYED_QUEUE [separate G]
 			-- The internal storage for `Current'.

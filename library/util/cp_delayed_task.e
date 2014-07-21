@@ -34,21 +34,6 @@ feature {NONE} -- Initialization
 			initialized: is_initialized
 		end
 
-
-	make_from_separate (other: separate like Current)
-			-- <Precursor>
-		local
-			importer: CP_DYNAMIC_TYPE_IMPORTER [CP_TASK]
-		do
-			create importer
-			task := importer.import (other.task)
-			initialize (other.delay)
-		ensure then
-			same_delay: delay = other.delay
-			same_broker: broker = other.broker
-			initialized: is_initialized
-		end
-
 	initialize (a_delay: like delay)
 			-- Finish initializion of `Current'.
 		require
@@ -61,6 +46,22 @@ feature {NONE} -- Initialization
 		ensure
 			delay_set: delay = a_delay
 			broker_set: broker = task.broker
+			initialized: is_initialized
+		end
+
+feature {CP_DYNAMIC_TYPE_IMPORTER}-- Initialization
+
+	make_from_separate (other: separate like Current)
+			-- <Precursor>
+		local
+			importer: CP_DYNAMIC_TYPE_IMPORTER [CP_TASK]
+		do
+			create importer
+			task := importer.import (other.task)
+			initialize (other.delay)
+		ensure then
+			same_delay: delay = other.delay
+			same_broker: broker = other.broker
 			initialized: is_initialized
 		end
 
