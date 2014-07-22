@@ -1,6 +1,9 @@
 \documentclass[a4paper,10pt]{report}
 \usepackage[utf8]{inputenc}
 
+\usepackage{pattern}
+\usepackage{todo}
+
 % Title Page
 \title{Concurrency Patterns in SCOOP}
 \author{Roman Schmocker}
@@ -10,6 +13,7 @@
 \maketitle
 
 \begin{abstract}
+
 \end{abstract}
 
 \section{Introduction}
@@ -19,6 +23,309 @@
 
 \section {Pattern overview}
 % Overview of all patterns, maybe tabular
+
+\pattern [ name={Single Exclusive Access}
+  ,category={Synchronization Primitive}
+  ,intent={Make sure that at most one thread has access to exactly one shared object or resource.}
+  ,applicability={Shared memory systems}
+  ,status={Implemented language mechanism}
+  ,example={A counter variable that shold only be incremented by one thread at a time to avoid lost updates.}
+  ,knownapps={The Java ``synchronized'' block implements single exclusive access, as well as C\# ``lock''.}
+  ,relation={Usually implemented with some kind of locking mechanism.}
+  ]
+
+\pattern [ name={Multiple Exclusive Access}
+  ,category={Synchronization Primitive}
+  ,intent={Make sure that at most one thread has access to several shared objects or resources.}
+  ,applicability={Shared memory systems}
+  ,status={Implemented language mechanism}
+  ,example={A money transfer between two bank accounts.}
+  ,knownapps={Databases can provide exclusive access over all data previously used in the same transaction.}
+  ,relation={It is possible to use nested single exclusive access to provide multiple exclusive access, but special care has to be taken with deadlocks.}
+  ]
+
+\pattern [ name={Import}
+  ,category={Language limitation}
+  ,intent={Copy an object structure from a separate processor to the local processor.}
+  ,applicability={SCOOP only. Requires some client support.}
+  ,status={Implemented library component; future language mechanism}
+  ,example={Copy the HTTP request from the network socket listener to a request handler, such that the listener can continue.}
+  ,knownapps={The library makes heavy use of this pattern.}
+%  ,relation={}
+]
+
+\pattern [ name={Self Asynch}
+  ,category={Program structuring}
+  ,intent={Allow other processors to access and modify data on the current processor despite running in a main loop.}
+  ,applicability={SCOOP only}
+  ,status={Implemented library component}
+  ,example={A network socket listener that may be stopped by another process.}
+  ,knownapps={The timer pattern and the echo server use self asynch.}
+  ,relation={Similar to the Active Object pattern, except that other processors may access data after each iteration.}
+]
+
+\pattern [ name={Separate Proxy}
+  ,category={Program structuring}
+  ,intent={Provide easy access to a separate object.}
+  ,applicability={SCOOP only}
+  ,status={Guideline}
+  ,example={A shared buffer in a producer / consumer setting, where every producer and consumer creates a proxy on its own processor to avoid dealing with separate references.}
+  ,knownapps={The CP\_BROKER and CP\_QUEUE classes have predefined proxies.\todo {inline listings}}
+  ,relation={The separate proxy is a special version of the more general GoF \todo{ref} proxy pattern.}
+]
+
+\pattern [ name={Future}
+  ,category={Program structuring, Performance}
+  ,intent={Run a task asynchronously, and fetch the result later.}
+  ,applicability={Asynchronous operations}
+  ,status={Implemented library component, implemented language mechanism.}
+  ,example={Download a file in the background.}
+  ,knownapps={UI programming, downloader tasks, IO operations...}
+  ,relation={Futures may be backed by worker pools that execute them.}
+]
+
+\pattern [ name={Producer / Consumer}
+  ,category={Program structuring}
+  ,intent={Pass data items from producers to consumers via a shared buffer}
+  ,applicability={Shared memory systems}
+  ,status={Implemented library component.}
+  ,example={A logger service, where many producers submit log messages to a buffer and a single consumer writes them to a file.}
+  ,knownapps={Logging, input processing, pipeline...}
+  ,relation={The worker pool uses this pattern to pass along tasks.}
+]
+\pattern [ name={Thread specific storage}
+  ,category={Program structuring}
+  ,intent={Provide per-thread singletons.}
+  ,applicability={Shared memory systems}
+  ,status={Implemented language mechanism.}
+  ,example={Store the last exception raised in the current thread.}
+%  ,knownapps={}
+%  ,relation={The worker pool uses this pattern to pass along tasks.}
+]
+
+\pattern [ name={Timer: Invoke later}
+  ,category={Program structuring}
+  ,intent={Invoke a certain operation once at a later point in time.}
+%   ,applicability={}
+  ,status={Implemented library component.}
+  ,example={Send an email after a delay of one minute.}
+%   ,knownapps={}
+%   ,relation={}
+]
+
+\pattern [name={Worker Pool}
+%   ,category={}
+%   ,intent={}
+%   ,applicability={}
+%   ,status={}
+%   ,example={}
+%   ,knownapps={}
+%   ,relation={}
+]
+
+\pattern [name={Executor framework}
+%   ,category={}
+%   ,intent={}
+%   ,applicability={}
+%   ,status={}
+%   ,example={}
+%   ,knownapps={}
+%   ,relation={}
+]
+
+\pattern [name={Publish / Subscribe}
+%   ,category={}
+%   ,intent={}
+%   ,applicability={}
+%   ,status={}
+%   ,example={}
+%   ,knownapps={}
+%   ,relation={}
+]
+
+\pattern [name={EiffelVision support}
+%   ,category={}
+%   ,intent={}
+%   ,applicability={}
+%   ,status={}
+%   ,example={}
+%   ,knownapps={}
+%   ,relation={}
+%   ,category={}
+]
+
+\pattern [name={Handshake}
+%   ,category={}
+%   ,intent={}
+%   ,applicability={}
+%   ,status={}
+%   ,example={}
+%   ,knownapps={}
+%   ,relation={}
+]
+
+\pattern [name={Pipeline}
+%   ,category={}
+%   ,intent={}
+%   ,applicability={}
+%   ,status={}
+%   ,example={}
+%   ,knownapps={}
+%   ,relation={}
+]
+
+\pattern [name={Timer: Periodic}
+%   ,category={}
+%   ,intent={}
+%   ,applicability={}
+%   ,status={}
+%   ,example={}
+%   ,knownapps={}
+%   ,relation={}
+]
+
+\pattern [name={Barrier}
+  ,category={Synchronization primitive}
+%   ,intent={}
+%   ,applicability={}
+%   ,status={}
+%   ,example={}
+%   ,knownapps={}
+%   ,relation={}
+]
+
+\pattern [name={Condition Variables}
+  ,category={Synchronization primitive}
+%   ,intent={}
+%   ,applicability={}
+%   ,status={}
+%   ,example={}
+%   ,knownapps={}
+%   ,relation={}
+]
+
+% \clearpage
+
+\pattern [name={TryLock}
+  ,category={Synchronization primitive}
+%   ,intent={}
+%   ,applicability={}
+%   ,status={}
+%   ,example={}
+%   ,knownapps={}
+%   ,relation={}
+]
+
+\pattern [name={Dataflow Network}]
+%   ,category={}
+%   ,intent={}
+%   ,applicability={}
+%   ,status={}
+%   ,example={}
+%   ,knownapps={}
+%   ,relation={}
+]
+
+\pattern [name={Transactions}
+%   ,category={}
+%   ,intent={}
+%   ,applicability={}
+%   ,status={}
+%   ,example={}
+%   ,knownapps={}
+%   ,relation={}
+]
+
+\pattern [name={Fully Asynch}
+%   ,category={}
+%   ,intent={}
+%   ,applicability={}
+%   ,status={}
+%   ,example={}
+%   ,knownapps={}
+%   ,relation={}
+]
+
+\pattern [name={Universal Call}
+%   ,category={}
+%   ,intent={}
+%   ,applicability={}
+%   ,status={}
+%   ,example={}
+%   ,knownapps={}
+%   ,relation={}
+]
+
+\pattern [name={Atomic Operations}
+  ,category={Synchronization primitive}
+%   ,intent={}
+%   ,applicability={}
+%   ,status={}
+%   ,example={}
+%   ,knownapps={}
+%   ,relation={}
+]
+
+\pattern [name={Monitor}
+  ,category={Synchronization primitive}
+%   ,intent={}
+%   ,applicability={}
+%   ,status={}
+%   ,example={}
+%   ,knownapps={}
+%   ,relation={}
+]
+
+\pattern [name={Read / Write lock}
+  ,category={Synchronization primitive}
+%   ,intent={}
+%   ,applicability={}
+%   ,status={}
+%   ,example={}
+%   ,knownapps={}
+%   ,relation={}
+]
+
+\pattern [name={Semaphore}
+  ,category={Synchronization primitive}
+%   ,intent={}
+%   ,applicability={}
+%   ,status={}
+%   ,example={}
+%   ,knownapps={}
+%   ,relation={}
+]
+
+\pattern [name={Active Object}
+%   ,category={}
+%   ,intent={}
+%   ,applicability={}
+%   ,status={}
+%   ,example={}
+%   ,knownapps={}
+%   ,relation={}
+]
+
+\pattern [name={Disruptor}
+%   ,category={}
+%   ,intent={}
+%   ,applicability={}
+%   ,status={}
+%   ,example={}
+%   ,knownapps={}
+%   ,relation={}
+]
+% 
+\pattern [name={Leader / Follower}
+%   ,category={}
+%   ,intent={}
+%   ,applicability={}
+%   ,status={}
+%   ,example={}
+%   ,knownapps={}
+%   ,relation={}
+]
+
 
 \section {Individual patterns}
 % Description of a few patterns
@@ -31,5 +338,5 @@
 
 \section{Conclusion}
 
-
+\todos
 \end{document}          

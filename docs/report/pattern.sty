@@ -1,0 +1,53 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{pattern}[2014/07/21 Pattern package]
+
+\RequirePackage{xkeyval}
+\RequirePackage{array}
+\RequirePackage{float}
+
+% Define a column type with fixed with and \flushleft semantics.
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+% Needed in normal tex files.
+% \makeatletter
+
+  % Define all keys to be used in a \pattern command.
+  % Their family is `patterncmd', the macro \cfield@name retrieves the value,
+  % and `N/A' is the default value.
+\define@cmdkeys {patterncmd} [cfield@]
+  {name,category,intent,applicability,status,example,knownapps,relation} [N/A]
+  
+  % Initialize the keys. Not sure why that's necessary...
+\setkeys {patterncmd} {name,category,intent,applicability,status,example,knownapps,relation}
+
+
+  % Define the command to create a new pattern classification.
+  % There's actually only one argument: a comma-separated list of key=value pairs.
+\newcommand{\pattern}[1][]{
+   \begingroup
+   
+      % This statement lets xkeyval split the argument and makes 
+      % all options available in the corresponding macros.
+   \setkeys {patterncmd}{#1}
+   
+      % A normal LaTeX table that displays all options.
+   \begin{table} [H]
+   \begin{tabular} {P{0.22\textwidth} P{0.71\textwidth}}
+      Name: & \cfield@name \\
+      Category: & \cfield@category \\
+      Intent: & \cfield@intent \\
+      Applicability and Restrictions: & \cfield@applicability \\
+      Status: & \cfield@status \\
+      Example: & \cfield@example \\
+      Known applications: & \cfield@knownapps \\
+      Relation to other patterns: & \cfield@relation
+   \end{tabular}
+   \end{table}
+   
+   \endgroup
+}
+
+% Needed in normal tex files.
+% \makeatother
+
+\endinput
