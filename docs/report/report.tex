@@ -100,46 +100,46 @@
   ,status={Implemented language mechanism.}
   ,example={Store the last exception raised in the current thread.}
 %  ,knownapps={}
-%  ,relation={The worker pool uses this pattern to pass along tasks.}
+%  ,relation={}
 ]
 
 \pattern [ name={Timer: Invoke later}
   ,category={Program structuring}
   ,intent={Invoke a certain operation once at a later point in time.}
 %   ,applicability={}
-  ,status={Implemented library component.}
+  ,status={Implemented library component}
   ,example={Send an email after a delay of one minute.}
 %   ,knownapps={}
 %   ,relation={}
 ]
 
 \pattern [name={Worker Pool}
-%   ,category={}
-%   ,intent={}
-%   ,applicability={}
-%   ,status={}
-%   ,example={}
-%   ,knownapps={}
+  ,category={Performance}
+  ,intent={Avoid expensive thread cration by providing a set of threads that can execute arbitrary operations.}
+  ,applicability={}
+  ,status={Implemented library component}
+  ,example={A set of HTTP request handlers in a web server.}
+  ,knownapps={The Java Executor service is usually backed by a worker pool.}
 %   ,relation={}
 ]
 
 \pattern [name={Executor framework}
-%   ,category={}
-%   ,intent={}
+  ,category={Program structuring}
+  ,intent={Split task submission from task execution}
 %   ,applicability={}
-%   ,status={}
-%   ,example={}
+  ,status={Implemented library component.}
+  ,example={The Java Executor interface which has implementations for a worker pool or a single thread.}
 %   ,knownapps={}
 %   ,relation={}
 ]
 
 \pattern [name={Publish / Subscribe}
-%   ,category={}
-%   ,intent={}
+  ,category={Program structuring}
+  ,intent={Provide a service for event subscription and delievery, where the publisher doesn't need to know the subscribers.}
 %   ,applicability={}
 %   ,status={}
-%   ,example={}
-%   ,knownapps={}
+  ,example={A GUI button has an event ``clicked'', where the application logic can provide a handler.}
+  ,knownapps={GUI frameworks like Java Swing or EiffelVision.}
 %   ,relation={}
 ]
 
@@ -151,12 +151,11 @@
 %   ,example={}
 %   ,knownapps={}
 %   ,relation={}
-%   ,category={}
 ]
 
 \pattern [name={Handshake}
-%   ,category={}
-%   ,intent={}
+  ,category={Synchronization primitive}
+  ,intent={Send a message from sender to receiver synchronously, where both must wait until the operation has completed.}
 %   ,applicability={}
 %   ,status={}
 %   ,example={}
@@ -165,70 +164,69 @@
 ]
 
 \pattern [name={Pipeline}
-%   ,category={}
-%   ,intent={}
+  ,category={Program structuring}
+  ,intent={Split processing of input into separate individual stages.}
 %   ,applicability={}
 %   ,status={}
-%   ,example={}
-%   ,knownapps={}
-%   ,relation={}
+  ,example={An emailing system that applies a spam filter, database logging, and a virus scan to each incoming email.}
+  ,knownapps={Messaging systems, input processing}
+  ,relation={This is like a chained producer / consumer}
 ]
 
 \pattern [name={Timer: Periodic}
-%   ,category={}
-%   ,intent={}
+  ,category={Program structuring}
+  ,intent={Apply an operation repeatedly with a small wait time in between.}
 %   ,applicability={}
-%   ,status={}
-%   ,example={}
+  ,status={Implemented library component}
+  ,example={An emailing application that checks for new messages every five seconds.}
 %   ,knownapps={}
 %   ,relation={}
 ]
 
 \pattern [name={Barrier}
   ,category={Synchronization primitive}
-%   ,intent={}
+  ,intent={Provide a synchronization point where several threads have to meet before continuing.}
 %   ,applicability={}
-%   ,status={}
-%   ,example={}
+  ,status={Possible library component}
+  ,example={If the computation of a matrix multiplication is split among threads, the barrier can be used to make sure that all threads finish before the result can be used}
 %   ,knownapps={}
 %   ,relation={}
 ]
 
 \pattern [name={Condition Variables}
   ,category={Synchronization primitive}
-%   ,intent={}
+  ,intent={Wait for a certain condition to become true.}
 %   ,applicability={}
-%   ,status={}
-%   ,example={}
-%   ,knownapps={}
+  ,status={Implemented language feature, possible library component}
+  ,example={When a buffer is empty, a consumer can wait on the is_not_empty conditon variable. Producers will signal on this variable when a new item is available.}
+  ,knownapps={Preconditions in SCOOP are effectively condition variables, due to their wait semantics.}
 %   ,relation={}
 ]
 
-% \clearpage
 
 \pattern [name={TryLock}
   ,category={Synchronization primitive}
-%   ,intent={}
+  ,intent={Try to acquire a lock, with the option to back off after a certain amount of time.}
 %   ,applicability={}
-%   ,status={}
-%   ,example={}
+  ,status={Possible library component}
+  ,example={Database transactions may get aborted due to a timeout if they can't lock a resource after a certain amount of time.}
 %   ,knownapps={}
 %   ,relation={}
 ]
 
 \pattern [name={Dataflow Network}]
-%   ,category={}
-%   ,intent={}
+  ,category={Program structuring}
+  ,intent={Process input in several stages, with the option to process them in parallel at some points.}
 %   ,applicability={}
-%   ,status={}
-%   ,example={}
+  ,status={Possible library component}
+  ,example={A video player application that internally has a file decoder stage, which splits the input in an audio and video part, which then gets further processed.}
 %   ,knownapps={}
-%   ,relation={}
+  ,relation={This is a more generalized form of the pipeline pattern.}
 ]
 
 \pattern [name={Transactions}
-%   ,category={}
-%   ,intent={}
+  ,category={Program structuring}
+  ,intent={Avoid a deadlock by ``reserving'' a set of objects one at a time.}
 %   ,applicability={}
 %   ,status={}
 %   ,example={}
@@ -258,9 +256,9 @@
 
 \pattern [name={Atomic Operations}
   ,category={Synchronization primitive}
-%   ,intent={}
-%   ,applicability={}
-%   ,status={}
+  ,intent={Avoid the use of locks by using hardware-supported atomic operations.}
+  ,applicability={Shared memory systems}
+  ,status={unsolved}
 %   ,example={}
 %   ,knownapps={}
 %   ,relation={}
@@ -268,39 +266,39 @@
 
 \pattern [name={Monitor}
   ,category={Synchronization primitive}
-%   ,intent={}
+  ,intent={Ensure that only one thread has access to an object. The thread may also wait on a condition to become true.}
 %   ,applicability={}
-%   ,status={}
+  ,status={Implemented language mechanism.}
 %   ,example={}
 %   ,knownapps={}
-%   ,relation={}
+  ,relation={The monitor pattern can be seen as a combination of single exclusive access and condition variables.}
 ]
 
 \pattern [name={Read / Write lock}
   ,category={Synchronization primitive}
-%   ,intent={}
+  ,intent={Allow multiple concurrent readers, but provide exclusive access to a single writer.}
 %   ,applicability={}
-%   ,status={}
-%   ,example={}
+  ,status={Language limitation}
+  ,example={A shared array with frequent concurrent reads can make use of a read / write lock.}
 %   ,knownapps={}
 %   ,relation={}
 ]
 
 \pattern [name={Semaphore}
   ,category={Synchronization primitive}
-%   ,intent={}
+%   ,intent={Control the amount of threads that may pass a certain section.}
 %   ,applicability={}
-%   ,status={}
+%   ,status={Possible library component.}
 %   ,example={}
 %   ,knownapps={}
-%   ,relation={}
+%   ,relation={Similar to a barrier.}
 ]
 
 \pattern [name={Active Object}
-%   ,category={}
-%   ,intent={}
+  ,category={Program structuring}
+  ,intent={Assign a thread to an object. Calls to this object correspond to messages with operations to be executed.}
 %   ,applicability={}
-%   ,status={}
+  ,status={Implemented language mechanism. Implemented library component.}
 %   ,example={}
 %   ,knownapps={}
 %   ,relation={}
