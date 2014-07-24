@@ -1,6 +1,7 @@
 note
-	description: "Summary description for {CP_AGENT_TASK}."
-	author: ""
+	description: "Task object that execute an agent. Note: The agent will be moved %
+		% across processor boundaries and thus has to fulfill the requirements in {CP_AGENT_IMPORTER}."
+	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 

@@ -24,7 +24,7 @@ class
 	CP_DYNAMIC_TYPE_IMPORTER[G -> CP_IMPORTABLE]
 
 inherit
-	CP_IMPORT [G]
+	CP_IMPORTER [G]
 
 	REFLECTOR
 		export {NONE}

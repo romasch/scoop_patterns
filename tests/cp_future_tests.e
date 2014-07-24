@@ -15,7 +15,7 @@ feature
 	test_fibonacci_executor
 		local
 			l_computation: FIBONACCI_COMPUTATION
-			l_starter: CP_FUTURE_EXECUTOR_PROXY [INTEGER, CP_NO_IMPORT [INTEGER]]
+			l_starter: CP_FUTURE_EXECUTOR_PROXY [INTEGER, CP_NO_IMPORTER [INTEGER]]
 			l_future: CP_RESULT_BROKER [INTEGER]
 		do
 			create l_starter.make_global
@@ -43,7 +43,7 @@ feature {NONE} -- Helpers
 	fib (n: INTEGER_64): INTEGER_64
 		local
 			l_computation: SEQUENTIAL_FIBONACCI
-			l_starter: CP_FUTURE_EXECUTOR_PROXY [INTEGER_64, CP_NO_IMPORT [INTEGER_64]]
+			l_starter: CP_FUTURE_EXECUTOR_PROXY [INTEGER_64, CP_NO_IMPORTER [INTEGER_64]]
 			l_future: CP_RESULT_BROKER [INTEGER_64]
 
 			first, second: INTEGER_64

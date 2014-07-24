@@ -8,7 +8,7 @@ class
 	CP_TUPLE_IMPORTER
 
 inherit
-	CP_IMPORT [TUPLE]
+	CP_IMPORTER [TUPLE]
 		redefine
 			is_importable
 		end

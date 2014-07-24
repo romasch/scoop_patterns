@@ -16,7 +16,7 @@ note
 	revision: "$Revision$"
 
 class
-	CP_NO_IMPORT [G]
+	CP_NO_IMPORTER [G]
 
 inherit
 	CP_IMPORT_STRATEGY [G]

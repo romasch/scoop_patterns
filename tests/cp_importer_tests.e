@@ -74,7 +74,7 @@ feature {NONE}
 			create Result
 		end
 
-	no: CP_NO_IMPORT [ANY]
+	no: CP_NO_IMPORTER [ANY]
 		attribute
 			create Result
 		end

@@ -7,7 +7,7 @@ note
 		Note: The type of the imported object will be the static type G,
 		not the dynamic type of the original object.
 	]"
-	author: ""
+	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 
@@ -15,7 +15,7 @@ class
 	CP_STATIC_TYPE_IMPORTER [G -> CP_IMPORTABLE create make_from_separate end]
 
 inherit
-	CP_IMPORT [G]
+	CP_IMPORTER [G]
 
 feature
 

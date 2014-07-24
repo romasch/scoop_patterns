@@ -28,7 +28,7 @@ note
 	revision: "$Revision$"
 
 deferred class
-	CP_IMPORT [G]
+	CP_IMPORTER [G]
 
 inherit
 	CP_IMPORT_STRATEGY [G]

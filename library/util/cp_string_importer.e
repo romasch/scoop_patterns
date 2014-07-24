@@ -8,7 +8,7 @@ class
 	CP_STRING_IMPORTER
 
 inherit
-	CP_IMPORT [STRING]
+	CP_IMPORTER [STRING]
 
 feature
 

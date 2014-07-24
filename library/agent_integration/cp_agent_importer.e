@@ -9,7 +9,7 @@ class
 
 inherit
 
-	CP_IMPORT [ROUTINE [ANY, TUPLE]]
+	CP_IMPORTER [ROUTINE [ANY, TUPLE]]
 		redefine
 			is_importable,
 			default_create

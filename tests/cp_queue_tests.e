@@ -109,7 +109,7 @@ feature -- Tests
 		local
 			a: STRING
 			b: STRING
-			queue_access: CP_QUEUE_PROXY [STRING, CP_NO_IMPORT[STRING]]
+			queue_access: CP_QUEUE_PROXY [STRING, CP_NO_IMPORTER[STRING]]
 			sep_queue: separate like queue
 		do
 			create sep_queue.make_bounded (max_capacity)
@@ -154,8 +154,8 @@ feature -- Tests
 			-- Test put and remove cycles with a queue access object.
 		local
 			one, two: INTEGER
-			queue_access: CP_QUEUE_PROXY [INTEGER, CP_NO_IMPORT [INTEGER]]
-			sep_queue: separate CP_QUEUE [INTEGER, CP_NO_IMPORT [INTEGER]]
+			queue_access: CP_QUEUE_PROXY [INTEGER, CP_NO_IMPORTER [INTEGER]]
+			sep_queue: separate CP_QUEUE [INTEGER, CP_NO_IMPORTER [INTEGER]]
 		do
 			create sep_queue.make_bounded (max_capacity)
 			create queue_access.make (sep_queue)
@@ -204,7 +204,7 @@ feature {NONE} -- Initialization
 		end
 
 
-	queue: CP_QUEUE [STRING, CP_NO_IMPORT [STRING]]
+	queue: CP_QUEUE [STRING, CP_NO_IMPORTER [STRING]]
 
 	max_capacity: INTEGER = 10
 
