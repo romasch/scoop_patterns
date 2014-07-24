@@ -8,22 +8,17 @@ class
 	CP_EXECUTOR_PROXY
 
 inherit
+
 	CP_EXECUTOR
 
 	CP_GLOBAL_PROCESSORS
+
+	CP_PROXY [CP_EXECUTOR, CP_EXECUTOR_UTILS]
 
 create
 	make, make_global
 
 feature {NONE} -- Initialization
-
-	make (a_executor: like executor)
-			-- Initialization for `Current'.
-		do
-			executor := a_executor
-		ensure
-			executor_set: executor = a_executor
-		end
 
 	make_global
 			-- Initialize `Current' with the global worker pool.
@@ -34,17 +29,12 @@ feature {NONE} -- Initialization
 			make (l_procs.global_worker_pool)
 		end
 
-feature -- Access
-
-	executor: separate CP_EXECUTOR
-			-- The actual executor.
-
 feature -- Basic operations
 
 	put (a_task: separate CP_TASK)
 			-- <Precursor>
 		do
-			executor_put (executor, a_task)
+			utils.executor_put (subject, a_task)
 		end
 
 	put_with_broker (a_task: separate CP_TASK): CP_BROKER_PROXY
@@ -63,21 +53,7 @@ feature -- Basic operations
 	stop
 			-- <Precursor>
 		do
-			executor_stop (executor)
-		end
-
-feature {NONE} -- Implementation
-
-	executor_put (a_executor: like executor; a_task: separate CP_TASK)
-			-- Put `a_task' in `a_executor'.
-		do
-			a_executor.put (a_task)
-		end
-
-	executor_stop (a_executor: like executor)
-			-- Stop `a_executor'.
-		do
-			a_executor.stop
+			utils.executor_stop (subject)
 		end
 
 end

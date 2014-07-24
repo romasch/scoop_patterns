@@ -7,33 +7,25 @@ note
 class
 	CP_WORKER_POOL_PROXY [G]
 
+inherit
+
+	CP_PROXY [CP_WORKER_POOL [G, CP_IMPORT_STRATEGY [G]], CP_WORKER_POOL_UTILS [G]]
+
 create
 	make
 
-feature {NONE} -- Initialization
-
-	make (a_pool: separate like worker_pool)
-			-- Initialization for `Current'.
-		do
-			worker_pool := a_pool
-			create utils
-		end
-
 feature -- Access
 
-	worker_pool: separate CP_WORKER_POOL [G, CP_IMPORT_STRATEGY [G]]
-			-- The worker pool to which `Current' acts as a proxy.
-
 	actual_worker_count: INTEGER
-			-- The actual number of workers in `worker_pool'.
+			-- The actual number of workers in the pool.
 		do
-			Result := utils.wp_actual_worker_count (worker_pool)
+			Result := utils.wp_actual_worker_count (subject)
 		end
 
 	preset_worker_count: INTEGER
-			-- The number of workers that `worker_pool' should have.
+			-- The number of workers that the pool should have.
 		do
-			Result := utils.wp_preset_worker_count (worker_pool)
+			Result := utils.wp_preset_worker_count (subject)
 		end
 
 feature -- Basic operations
@@ -42,24 +34,19 @@ feature -- Basic operations
 			-- Submit `a_work' to the worker pool.
 			-- May block if the worker pool buffer is full.
 		do
-			utils.queue_put (worker_pool, a_work)
+			utils.queue_put (subject, a_work)
 		end
 
 	set_worker_count (a_count: INTEGER)
 			-- Set the number of workers to `a_count'
 		do
-			utils.wp_set_worker_count (worker_pool, a_count)
+			utils.wp_set_worker_count (subject, a_count)
 		end
 
 	stop
 			-- Stop the worker pool.
 		do
-			utils.wp_stop (worker_pool)
+			utils.wp_stop (subject)
 		end
-
-feature {NONE} -- Implementation
-
-	utils: CP_WORKER_POOL_UTILS [G]
-			-- Helper functions to access a separate worker pool.
 
 end

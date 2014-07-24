@@ -7,23 +7,17 @@ note
 class
 	CP_QUEUE_PROXY [G, IMPORTER -> CP_IMPORT_STRATEGY [G] create default_create end]
 
+inherit
+
+	CP_PROXY [CP_QUEUE [G, IMPORTER], CP_QUEUE_UTILS [G]]
+		rename
+			subject as queue
+		end
+
 create
 	make
 
-feature {NONE} -- Initialization
-
-	make (a_separate_queue: attached separate like queue)
-			-- Initialization for `Current'.
-		do
-			queue := a_separate_queue
-			create importer
-			create utils
-		end
-
 feature -- Access
-
-	queue: separate CP_QUEUE [G, IMPORTER]
-			-- The separate queue.
 
 	last_consumed_item: detachable like importer.import
 			-- The last consumed item.
@@ -96,8 +90,8 @@ feature {NONE} -- Implementation
 
 	importer: attached IMPORTER
 			-- The selected import strategy.
-
-	utils: CP_QUEUE_UTILS [G]
-			-- Utility functions to access the separate queue.
+		attribute
+			create Result
+		end
 
 end

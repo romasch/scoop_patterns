@@ -10,24 +10,15 @@ class
 inherit
 	CP_BROKER
 
+	CP_PROXY [CP_BROKER, CP_BROKER_UTILS]
+		rename
+			subject as broker
+		end
+
 create
 	make
 
-feature {NONE} -- Initialization
-
-	make (a_broker: like broker)
-			-- Initialization for `Current'.
-		do
-			broker := a_broker
-			create utils
-		ensure
-			broker_set: broker = a_broker
-		end
-
 feature -- Access
-
-	broker: separate CP_BROKER
-			-- The actual separate broker.
 
 	last_exception_trace: detachable READABLE_STRING_32
 			-- The exception trace of the last exception.
@@ -68,10 +59,5 @@ feature -- Basic operations
 		do
 			utils.broker_await_termination (broker)
 		end
-
-feature {NONE} -- Implementation
-
-	utils: CP_BROKER_UTILS
-			-- Utilitity functions to handle separate brokers.
 
 end
