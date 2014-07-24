@@ -53,7 +53,7 @@ feature -- Access
 			correct: Result = store.count
 		end
 
-	item: separate G
+	item: like importer.import
 			-- Get the oldest item in `Current'.
 		require
 			not_empty: not is_empty
@@ -107,7 +107,7 @@ feature -- Basic operations
 
 feature {NONE} -- Implementation
 
-	store: ARRAYED_QUEUE [separate G]
+	store: ARRAYED_QUEUE [like item]
 			-- The internal storage for `Current'.
 
 	importer: attached IMPORTER

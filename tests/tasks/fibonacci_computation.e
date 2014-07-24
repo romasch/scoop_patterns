@@ -8,6 +8,7 @@ class
 	FIBONACCI_COMPUTATION
 
 inherit
+	
 	CP_COMPUTATION [INTEGER]
 
 create

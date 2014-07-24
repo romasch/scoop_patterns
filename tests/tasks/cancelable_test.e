@@ -8,7 +8,7 @@ class
 	CANCELABLE_TEST
 
 inherit
-	CP_TASK
+	CP_DEFAULT_TASK
 
 create
 	default_create, make_from_separate

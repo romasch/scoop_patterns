@@ -9,7 +9,7 @@ deferred class
 
 inherit
 
-	CP_TASK
+	CP_DEFAULT_TASK
 		redefine
 			broker
 		end

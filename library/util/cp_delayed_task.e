@@ -10,9 +10,6 @@ class
 inherit
 
 	CP_TASK
-		redefine
-			set_broker
-		end
 
 create
 	make, make_from_separate
@@ -21,7 +18,6 @@ feature {NONE} -- Initialization
 
 	make (a_task: CP_TASK; a_delay: like delay)
 			-- Create `Current' with `a_task' and `a_delay' (in nanoseconds).
-			-- Note: `a_task' must not be modified afterwards.
 		require
 			positive_delay: a_delay >= 0
 		do
@@ -40,7 +36,7 @@ feature {NONE} -- Initialization
 			task_initialized: attached task
 		do
 			delay := a_delay
-			broker := task.broker
+--			broker := task.broker
 			create environment
 			is_initialized := True
 		ensure
@@ -67,6 +63,12 @@ feature {CP_DYNAMIC_TYPE_IMPORTER}-- Initialization
 
 feature -- Access
 
+	broker: detachable separate CP_SHARED_BROKER
+			-- A stable communication object.
+		do
+			Result := task.broker
+		end
+
 	delay: INTEGER_64
 			-- The delay time in nanoseconds.
 
@@ -78,7 +80,7 @@ feature -- Basic operations
 	set_broker (a_broker: like broker)
 			-- Always alias the broker object.
 		do
-			broker := a_broker
+--			broker := a_broker
 			task.set_broker (a_broker)
 		ensure then
 			aliased: a_broker = task.broker

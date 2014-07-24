@@ -38,6 +38,8 @@ feature -- Access
 
 feature -- Status report
 
+	is_successfully_terminated: BOOLEAN
+
 	is_terminated: BOOLEAN
 			-- Has the asynchronous operation terminated?
 

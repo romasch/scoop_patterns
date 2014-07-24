@@ -9,7 +9,7 @@ class
 
 inherit
 
-	CP_TASK
+	CP_DEFAULT_TASK
 
 create
 	make, make_from_separate

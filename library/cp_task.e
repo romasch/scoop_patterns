@@ -15,8 +15,6 @@ inherit
 
 	CP_BROKER_UTILS
 
-	REFACTORING_HELPER
-
 feature {CP_DYNAMIC_TYPE_IMPORTER}-- Initialization
 
 	make_from_separate (other: separate like Current)
@@ -30,8 +28,16 @@ feature -- Access
 
 	broker: detachable separate CP_SHARED_BROKER
 			-- A stable communication object.
-		attribute
-			fixme ("It would be nice to be able to redefine broker, in order to support wrappers of TASK objects.")
+		deferred
+		end
+
+feature -- Element change
+
+	set_broker (a_broker: like broker)
+			-- Set `broker' to `a_broker'.
+		deferred
+		ensure
+			broker_set: broker = a_broker
 		end
 
 feature -- Basic operations
@@ -66,14 +72,6 @@ feature -- Basic operations
 	run
 			-- Run the current task.
 		deferred
-		end
-
-	set_broker (a_broker: like broker)
-			-- Set `broker' to `a_broker'.
-		do
-			broker := a_broker
-		ensure
-			broker_set: broker = a_broker
 		end
 
 end
