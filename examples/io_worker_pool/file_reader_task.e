@@ -38,7 +38,7 @@ feature -- Access
 
 feature -- Basic operations
 
-	compute: STRING
+	computed: STRING
 			-- <Precursor>
 		local
 			l_file: PLAIN_TEXT_FILE

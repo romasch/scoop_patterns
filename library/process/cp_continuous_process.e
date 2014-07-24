@@ -22,7 +22,7 @@ feature -- Basic operations
 			loop
 				step
 			end
-			finish
+			cleanup
 		end
 
 end

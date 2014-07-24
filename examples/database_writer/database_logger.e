@@ -10,7 +10,7 @@ class
 inherit
 	CP_WORKER [STRING, CP_STRING_IMPORTER]
 		redefine
-			finish
+			cleanup
 		end
 
 create
@@ -59,7 +59,7 @@ feature -- Basic operations
 			retry
 		end
 
-	finish
+	cleanup
 			-- <Precursor>
 		do
 			if attached database as l_database then

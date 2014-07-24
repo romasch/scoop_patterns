@@ -49,7 +49,7 @@ feature -- Access
 
 feature -- Basic operations
 
-	compute: LINEAR_EQUATION
+	computed: LINEAR_EQUATION
 			-- <Precursor>
 		local
 			scalar: DOUBLE

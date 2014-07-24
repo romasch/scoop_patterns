@@ -35,7 +35,7 @@ feature -- Access
 
 feature -- Basic operations
 
-	compute: INTEGER
+	computed: INTEGER
 			-- <Precursor>
 		local
 			l_computation: FIBONACCI_COMPUTATION
@@ -50,7 +50,7 @@ feature -- Basic operations
 				l_future := l_starter.put_future (l_computation)
 
 				input := input - 1
-				Result := compute + l_future.item
+				Result := computed + l_future.item
 			end
 		end
 

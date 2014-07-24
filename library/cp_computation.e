@@ -26,14 +26,14 @@ feature -- Basic operations
 		local
 			l_result: RESULT_TYPE
 		do
-			l_result := compute
+			l_result := computed
 			if attached broker as l_token then
 				put_result (l_token, l_result)
 			end
 		end
 
-	compute: RESULT_TYPE
-			-- Compute the result.
+	computed: RESULT_TYPE
+			-- The computed result.
 		deferred
 		end
 

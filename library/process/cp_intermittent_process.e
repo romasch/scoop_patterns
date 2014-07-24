@@ -26,7 +26,7 @@ feature -- Basic operations
 		 do
 		 	step
 		 	if is_stopped then
-		 		finish
+		 		cleanup
 		 	else
 		 		async_start (pacemaker)
 		 	end

@@ -38,7 +38,7 @@ feature -- Access
 
 feature -- Basic operations
 
-	compute: INTEGER_64
+	computed: INTEGER_64
 			-- <Precursor>
 		local
 			i, last, tmp: INTEGER_64

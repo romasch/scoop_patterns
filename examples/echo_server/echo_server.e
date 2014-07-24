@@ -15,7 +15,7 @@ inherit
 
 	CP_INTERMITTENT_PROCESS
 		redefine
-			finish
+			cleanup
 		end
 
 create
@@ -67,7 +67,7 @@ feature -- Basic operations
 			end
 		end
 
-	finish
+	cleanup
 			-- <Precursor>
 		do
 			socket.cleanup

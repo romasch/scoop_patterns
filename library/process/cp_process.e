@@ -27,7 +27,7 @@ feature -- Basic operations
 		do
 		end
 
-	finish
+	cleanup
 			-- Perform cleanup.
 		do
 		end
