@@ -12,7 +12,7 @@ inherit
 
 feature -- Access
 
-	broker_item (a_broker: separate CP_RESULT_BROKER [G, IMPORTER]): detachable separate G
+	broker_item (a_broker: separate CP_RESULT_BROKER [G]): detachable separate G
 			-- Item in `a_broker'.
 		require
 			available: a_broker.is_terminated
@@ -20,7 +20,7 @@ feature -- Access
 			Result := a_broker.item
 		end
 
-	broker_imported_item (a_broker: separate CP_RESULT_BROKER [G, IMPORTER]): detachable like importer.import
+	broker_imported_item (a_broker: separate CP_RESULT_BROKER [G]): detachable like importer.import
 			-- Imported item in `a_broker'.
 		require
 			available: a_broker.is_terminated

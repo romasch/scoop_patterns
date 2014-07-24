@@ -1,6 +1,6 @@
 note
-	description: "Summary description for {CP_DEFAULT_TASK}."
-	author: ""
+	description: "A normal CP_TASK with a broker attribute."
+	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 

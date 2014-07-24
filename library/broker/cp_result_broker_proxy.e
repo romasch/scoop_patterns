@@ -9,7 +9,7 @@ class
 
 inherit
 
-	CP_RESULT_BROKER [G, IMPORTER]
+	CP_RESULT_BROKER [G]
 
 	CP_BROKER_PROXY
 		redefine
@@ -21,7 +21,7 @@ create
 
 feature -- Access
 
-	broker: separate CP_RESULT_BROKER [G, IMPORTER]
+	broker: separate CP_RESULT_BROKER [G]
 			-- <Precursor>
 
 	item: detachable like {IMPORTER}.import

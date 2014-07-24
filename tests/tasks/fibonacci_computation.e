@@ -8,7 +8,7 @@ class
 	FIBONACCI_COMPUTATION
 
 inherit
-	
+
 	CP_COMPUTATION [INTEGER]
 
 create
@@ -39,7 +39,7 @@ feature -- Basic operations
 			-- <Precursor>
 		local
 			l_computation: FIBONACCI_COMPUTATION
-			l_future: CP_RESULT_BROKER [INTEGER, CP_NO_IMPORT [INTEGER]]
+			l_future: CP_RESULT_BROKER [INTEGER]
 			l_starter: CP_FUTURE_EXECUTOR_PROXY [INTEGER, CP_NO_IMPORT [INTEGER]]
 		do
 			if input <= 2 then

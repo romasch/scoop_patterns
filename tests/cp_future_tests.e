@@ -16,7 +16,7 @@ feature
 		local
 			l_computation: FIBONACCI_COMPUTATION
 			l_starter: CP_FUTURE_EXECUTOR_PROXY [INTEGER, CP_NO_IMPORT [INTEGER]]
-			l_future: CP_RESULT_BROKER [INTEGER, CP_NO_IMPORT [INTEGER]]
+			l_future: CP_RESULT_BROKER [INTEGER]
 		do
 			create l_starter.make_global
 			create l_computation.make (6)
@@ -44,7 +44,7 @@ feature {NONE} -- Helpers
 		local
 			l_computation: SEQUENTIAL_FIBONACCI
 			l_starter: CP_FUTURE_EXECUTOR_PROXY [INTEGER_64, CP_NO_IMPORT [INTEGER_64]]
-			l_future: CP_RESULT_BROKER [INTEGER_64, CP_NO_IMPORT [INTEGER_64]]
+			l_future: CP_RESULT_BROKER [INTEGER_64]
 
 			first, second: INTEGER_64
 		do

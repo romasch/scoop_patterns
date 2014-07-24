@@ -5,14 +5,14 @@ note
 	revision: "$Revision$"
 
 deferred class
-	CP_RESULT_BROKER [G, IMPORTER -> CP_IMPORT_STRATEGY [G] create default_create end]
+	CP_RESULT_BROKER [G]
 
 inherit
 	CP_BROKER
 
 feature -- Access
 
-	item: detachable like {IMPORTER}.import
+	item: detachable separate G
 			-- The generated result.
 			-- May be void in case of an exception.
 		require
