@@ -8,7 +8,7 @@ class
 	CP_PACEMAKER
 
 inherit
-	CP_LAUNCHABLE
+	CP_STARTABLE
 
 create
 	make

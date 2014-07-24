@@ -5,7 +5,7 @@ note
 	revision: "$Revision$"
 
 deferred class
-	CP_LAUNCHABLE
+	CP_STARTABLE
 
 feature -- Basic operations
 

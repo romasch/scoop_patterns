@@ -8,7 +8,7 @@ class
 	CP_AGENT_TASK
 
 inherit
-	CP_TASK
+	CP_DEFAULT_TASK
 
 create
 	make_safe, make_from_separate

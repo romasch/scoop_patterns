@@ -9,7 +9,7 @@ class
 
 inherit
 
-	CP_LAUNCHER
+	CP_STARTABLE_UTILS
 
 create
 	make
@@ -39,7 +39,7 @@ feature {NONE} -- Initialization
 			create env
 
 			create server.make
-			launch (server)
+			async_start (server)
 
 			env.sleep (10 * second)
 			stop (server)

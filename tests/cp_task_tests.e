@@ -9,7 +9,7 @@ class
 
 inherit
 
-	CP_LAUNCHER
+	CP_STARTABLE_UTILS
 		undefine
 			default_create
 		end
@@ -107,7 +107,7 @@ feature -- Tests
 			task: separate TICK_TIMER
 		do
 			create task.make (second)
-			launch (task)
+			async_start (task)
 
 			env.sleep (5 * second)
 			timer_stop (task)
@@ -142,7 +142,7 @@ feature {NONE} -- Initialization
 	env: EXECUTION_ENVIRONMENT
 			-- An execution environment to call `sleep' on.
 
-	timer_stop (a_timer: separate CP_TIMER)
+	timer_stop (a_timer: separate CP_PERIODIC_PROCESS)
 		do
 			a_timer.stop
 		end

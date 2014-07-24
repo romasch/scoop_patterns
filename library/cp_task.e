@@ -9,7 +9,7 @@ deferred class
 
 inherit
 
-	CP_LAUNCHABLE
+	CP_STARTABLE
 
 	CP_IMPORTABLE
 

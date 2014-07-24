@@ -8,7 +8,7 @@ class
 	PRODUCER_CONSUMER
 
 inherit
-	CP_LAUNCHER
+	CP_STARTABLE_UTILS
 
 create
 	make
@@ -34,13 +34,13 @@ feature {NONE} -- Initialization
 				-- Create and launch the consumers.
 			across 1 |..| consumer_count as i loop
 				create l_consumer.make (l_queue, i.item, items_per_consumer)
-				launch (l_consumer)
+				async_start (l_consumer)
 			end
 
 				-- Create and launch the producers.
 			across 1 |..| producer_count as i loop
 				create l_producer.make (l_queue, i.item, items_per_producer)
-				launch (l_producer)
+				async_start (l_producer)
 			end
 
 		end

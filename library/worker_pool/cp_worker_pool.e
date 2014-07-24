@@ -10,7 +10,7 @@ class
 inherit
 	CP_QUEUE [G, IMPORTER]
 
-	CP_LAUNCHER
+	CP_STARTABLE_UTILS
 
 create
 	make_with_factory
@@ -109,7 +109,7 @@ feature {NONE} -- Implementation
 				actual_worker_count >= preset_worker_count
 			loop
 				l_worker := a_factory.new_worker (Current)
-				launch (l_worker)
+				async_start (l_worker)
 				actual_worker_count := actual_worker_count + 1
 			end
 		end

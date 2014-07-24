@@ -8,7 +8,7 @@ class
 	TICK_TIMER
 
 inherit
-	CP_TIMER
+	CP_PERIODIC_PROCESS
 
 create
 	make

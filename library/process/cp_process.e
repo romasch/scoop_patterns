@@ -8,7 +8,7 @@ deferred class
 	CP_PROCESS
 
 inherit
-	CP_LAUNCHABLE
+	CP_STARTABLE
 
 feature -- Status report
 

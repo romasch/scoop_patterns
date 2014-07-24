@@ -5,14 +5,14 @@ note
 	revision: "$Revision$"
 
 class
-	CP_LAUNCHER
+	CP_STARTABLE_UTILS
 
 feature -- Basic operations
 
-	launch (a_launchable: separate CP_LAUNCHABLE)
-			-- Start the separate `a_launchable' object.
+	async_start (a_startable: separate CP_STARTABLE)
+			-- Start the separate `a_startable' object.
 		do
-			a_launchable.start
+			a_startable.start
 		end
 
 end

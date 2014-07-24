@@ -10,7 +10,7 @@ deferred class
 inherit
 	CP_PROCESS
 
-	CP_LAUNCHER
+	CP_STARTABLE_UTILS
 
 feature -- Basic operations
 
@@ -18,7 +18,7 @@ feature -- Basic operations
 			-- Start the process.
 		do
 			setup
-			launch (pacemaker)
+			async_start (pacemaker)
 		end
 
 	iteration
@@ -28,7 +28,7 @@ feature -- Basic operations
 		 	if is_stopped then
 		 		finish
 		 	else
-		 		launch (pacemaker)
+		 		async_start (pacemaker)
 		 	end
 		 end
 

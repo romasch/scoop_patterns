@@ -1,11 +1,11 @@
 note
-	description: "Runs a task periodically."
+	description: "Runs an operation periodically."
 	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 
 deferred class
-	CP_TIMER
+	CP_PERIODIC_PROCESS
 
 inherit
 

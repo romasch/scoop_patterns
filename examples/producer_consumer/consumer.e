@@ -8,7 +8,7 @@ class
 	CONSUMER
 
 inherit
-	CP_LAUNCHABLE
+	CP_STARTABLE
 
 create
 	make
