@@ -96,10 +96,10 @@ feature -- Tests
 			assert ("bounded", not l_queue.is_bounded)
 
 				-- Test an empty queue.
-			create l_queue.make_bounded (0)
+			create l_queue.make_bounded (1)
 			assert ("not_empty", l_queue.is_empty)
-			assert ("not_full", l_queue.is_full)
-			assert ("wrong_capacity", l_queue.capacity = 0)
+			assert ("full", not l_queue.is_full)
+			assert ("wrong_capacity", l_queue.capacity = 1)
 			assert ("not_bounded", l_queue.is_bounded)
 		end
 

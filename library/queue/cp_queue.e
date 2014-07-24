@@ -15,7 +15,7 @@ feature {NONE} -- Initialization
 	make_bounded (a_capacity: INTEGER)
 			-- Create a bounded queue with capacity `a_capacity'.
 		require
-			non_negative: a_capacity >= 0
+			non_negative: a_capacity > 0
 		do
 			capacity := a_capacity
 			create store.make (a_capacity)
@@ -68,7 +68,7 @@ feature -- Status report
 	is_bounded: BOOLEAN
 			-- Does `Current' have a maximum capacity?
 		do
-			Result := capacity >= 0
+			Result := capacity > 0
 		end
 
 	is_full: BOOLEAN
@@ -102,7 +102,7 @@ feature -- Basic operations
 		do
 			store.remove
 		ensure
-			removed: count + 1 = old count
+			removed: count = old count - 1
 		end
 
 feature {NONE} -- Implementation
@@ -115,8 +115,9 @@ feature {NONE} -- Implementation
 
 invariant
 	valid_empty: is_empty = (count = 0)
-	valid_bounded: is_bounded = (capacity >= 0)
+	valid_bounded: is_bounded = (capacity > 0)
 	valid_full: is_full implies (count = capacity)
-	empty_full_relation: is_empty and is_full implies capacity = 0
+	valid_capacity: capacity /= 0
+	empty_full_relation: not (is_empty and is_full)
 
 end
