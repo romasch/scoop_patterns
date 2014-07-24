@@ -42,8 +42,7 @@ feature {CP_COMPUTATION} -- Implementation
 	put_result (a_token: attached like broker; a_result: RESULT_TYPE)
 			-- Put `a_result' into `a_cell'.
 		do
-			a_token.set_item (a_result)
-			a_token.terminate
+			a_token.set_item_and_terminate (a_result)
 		end
 
 end

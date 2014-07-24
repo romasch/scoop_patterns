@@ -61,10 +61,10 @@ feature -- Basic operations
 			a_broker.terminate
 		end
 
-	broker_set_exception (a_broker: separate CP_SHARED_BROKER; a_exception: separate EXCEPTION)
+	broker_set_exception_and_terminate (a_broker: separate CP_SHARED_BROKER; a_exception: separate EXCEPTION)
 			-- Set `a_exception' in `a_broker'.
 		do
-			a_broker.set_exception (a_exception)
+			a_broker.set_exception_and_terminate (a_exception)
 		end
 
 	broker_await_termination (a_broker: separate CP_BROKER)

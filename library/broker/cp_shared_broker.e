@@ -38,8 +38,6 @@ feature -- Access
 
 feature -- Status report
 
-	is_successfully_terminated: BOOLEAN
-
 	is_terminated: BOOLEAN
 			-- Has the asynchronous operation terminated?
 
@@ -65,12 +63,14 @@ feature -- Basic operations
 			terminated: is_terminated
 		end
 
-	set_exception (a_exception: separate EXCEPTION)
+	set_exception_and_terminate (a_exception: separate EXCEPTION)
 			-- Declare the asynchronous operation as exceptional and set the exception trace.
 		do
 			fixme ("TODO: Properly import an exception.")
 
 			is_exceptional := True
+			terminate
+
 			if attached a_exception.trace as l_trace then
 				create {STRING_32} last_exception_trace.make_from_separate (l_trace)
 			end

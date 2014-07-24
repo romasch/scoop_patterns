@@ -62,8 +62,7 @@ feature -- Basic operations
 				attached l_exception_manager.last_exception as l_exception
 				and	attached broker as l_broker
 			then
-				broker_set_exception (l_broker, l_exception)
-				broker_terminate (l_broker)
+				broker_set_exception_and_terminate (l_broker, l_exception)
 			end
 
 			retry

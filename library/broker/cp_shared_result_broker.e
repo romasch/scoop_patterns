@@ -44,10 +44,11 @@ feature -- Access
 
 feature -- Basic operations
 
-	set_item (a_item: separate G)
+	set_item_and_terminate (a_item: separate G)
 			-- Set `item' to `a_item'.
 		do
 			item := importer.import (a_item)
+			terminate
 		end
 
 feature {NONE} -- Implementation

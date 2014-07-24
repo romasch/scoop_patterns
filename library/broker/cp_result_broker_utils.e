@@ -32,10 +32,10 @@ feature -- Access
 
 feature -- Basic operations
 
-	broker_set_item (a_broker: separate CP_SHARED_RESULT_BROKER [G, IMPORTER]; a_item: separate G)
+	broker_set_item_and_terminate (a_broker: separate CP_SHARED_RESULT_BROKER [G, IMPORTER]; a_item: separate G)
 			-- Set `a_item' in `a_broker'.
 		do
-			a_broker.set_item (a_item)
+			a_broker.set_item_and_terminate (a_item)
 		end
 
 feature {NONE} -- Implementation

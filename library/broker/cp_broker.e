@@ -24,6 +24,14 @@ feature -- Status report
 		deferred
 		end
 
+
+	is_successfully_terminated: BOOLEAN
+			-- Has the asynchronous operation terminated without an exception?
+		do
+			Result := is_terminated and then not is_exceptional
+		end
+
+
 	is_exceptional: BOOLEAN
 			-- Has there been an exception in the asynchronous call?
 		deferred
@@ -45,4 +53,5 @@ feature -- Basic operations
 
 invariant
 	trace_implies_exceptional: attached last_exception_trace implies is_exceptional
+	exception_implies_terminated: is_exceptional implies is_terminated
 end
