@@ -2,6 +2,7 @@
 \usepackage[utf8]{inputenc}
 
 \usepackage{pattern}
+\usepackage{listings}
 \usepackage{todo}
 
 % Title Page
@@ -326,9 +327,131 @@
 
 \section {Library}
 
-\subsection {API tutorial}
+The library is designed as a set of modules which simplify concurrent programming in SCOOP.
+Section ~\ref{sec:tutorial} explains how to use the library for commonly used patterns,
+while Section ~\ref{sec:modules} concentrates on the design of the library itself.
 
-\subsection {Architecture and building blocks}
+\subsection {API tutorial}
+\label{sec:tutorial}
+
+\subsubsection{Producer / Consumer}
+
+The producer / consumer example is pretty common in concurrent programming.
+At its core is usually a shared buffer.
+A producer can add items to the buffer, whereas a consumer removes items from the buffer.
+
+The library class \lstinline!CP_QUEUE! can be used as a shared buffer.
+If we want to use \lstinline!STRING! objects to be passed from producer to consumer, we have to declare the queue like this:
+
+\begin{lstlisting}
+class PRODUCER_CONSUMER feature
+
+  make
+      -- Launch producers and consumers.
+    local
+      queue: separate CP_QUEUE [STRING, CP_STRING_IMPORTER]
+	-- ...
+    do
+      create queue.make_bounded (10)
+	-- ...
+    end
+end
+\end{lstlisting}
+
+Note that there are two generic arguments:
+\begin{itemize}
+\item The first argument (\lstinline!STRING!) denotes the type of items in the queue.
+\item The second argument (\lstinline!CP_STRING_IMPORTER!) defines the import strategy.
+\end{itemize}
+
+The import strategy is an important concept of the library.
+An import in the SCOOP context means that an object on a separate processor should be copied to the local processor.
+This is done recursively for any non-separate reference, i.e. for  \lstinline!STRING! you also have to copy the \lstinline!area! attribute.
+The import strategy can be used to tell a component if a given object should be imported, and if yes, how it is done.
+
+In our example we're using the \lstinline!CP_STRING_IMPORTER! to import strings.
+An alternative would be to use \lstinline!CP_NO_IMPORTER [STRING]! if we want to disable imports.
+
+The next step we need to do is to define the producer and consumer.
+
+\lstinputlisting [firstline=7] {../../examples/producer_consumer/producer.e}
+
+You may notice three things in this example:
+
+\begin{itemize}
+ \item \lstinline!PRODUCER! inherits from \lstinline!CP_STARTABLE!.
+ \item The \lstinline!PRODUCER! uses a \lstinline!CP_QUEUE_PROXY! instead of the \lstinline!CP_QUEUE!.
+ \item The generated strings are not separate.
+\end{itemize}
+
+The classes \lstinline!CP_STARTABLE! and \lstinline!CP_STARTABLE_UTILS! are a useful combination.
+They allow to start some operation on a separate object without the need for a specialized wrapper function.
+
+Another nice utility is the \lstinline!CP_QUEUE_PROXY!.
+It is part of a pattern which is often used throughout the library - the separate proxy \todo{add reference}.
+Basically it allows to access a separate queue without the need to deal with separate references.
+
+The really interesting thing however is that the producer can generate strings on its local processor.
+Usually this is not possible, because if the string is later passed to a consumer object, the latter needs to lock the producer in order to get access to the string.
+But in this case we instructed the queue object to import all string objects. During a call to \lstinline!queue_wrapper.put(item)! the following happens:
+\begin{itemize}
+ \item The producer waits until it gets exclusive access to the queue.
+ \item The separate call is executed. Because \lstinline!item! is a non-separate reference, the call is synchronous and lock passing happens.
+ \item The queue object imports the separate string, creating a local copy.
+ \item The separate call terminates, both processors can proceed autonomously.
+\end{itemize}
+Creating the strings on a separate processor is therefore unnecessary.
+
+The import trick avoids a lot of unnecessary thread creation:
+Instead of creating a new processor for every single produced item we just copy it, which is much faster for small objects.
+
+The consumer is basically the same as the producer, except for the feature \lstinline!start!:
+
+\begin{lstlisting}
+class
+  CONSUMER
+--...
+  
+	start
+			-- Consume `item_count' items.
+		local
+			i: INTEGER
+			item: STRING
+		do
+			from
+				i := 1
+			until
+				i > item_count
+			loop
+				queue_wrapper.consume
+
+				check attached queue_wrapper.last_consumed_item as l_item then
+
+						-- Note that `item' is not declared as separate, because it has been
+						-- imported automatically.
+					item := l_item
+					print (item + " // Consumer " + identifier.out + ": item " + i.out + "%N")
+				end
+				i := i + 1
+			end
+		end
+end
+\end{lstlisting}
+
+You might notice again that the consumed string is not declared as separate.
+This is again because of the import mechanism within \lstinline!CP_QUEUE!.
+
+The last thing we need to do is to create and launch the producers and consumers in the main application:
+
+\lstinputlisting [firstline=7] {../../examples/producer_consumer/producer_consumer.e}
+
+
+\subsubsection{Server thread}
+
+\subsubsection{Futures}
+
+\subsection {Architecture and modules}
+\label{sec:modules}
 
 \section {Individual patterns}
 % Description of a few patterns
