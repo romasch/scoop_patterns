@@ -5,6 +5,8 @@
 \usepackage{listings}
 \usepackage{todo}
 
+\newcommand{\dir} [1] [] {#1} 
+
 % Title Page
 \title{Concurrency Patterns in SCOOP}
 \author{Roman Schmocker}
@@ -16,6 +18,8 @@
 \begin{abstract}
 
 \end{abstract}
+
+\tableofcontents
 
 \section{Introduction}
 
@@ -497,8 +501,73 @@ If you use \lstinline!CP_EXECUTOR_PROXY!, you can submit a task and receive a to
 \subsection {Architecture and modules}
 \label{sec:modules}
 
+The library consists of several modules, which often build on each other.
+
+\subsection{Import}
+
+The import module is one of the most important mechanisms in the library.
+It consists of all classes in the directory \dir{library/import}.
+
+The main class is the deferred \lstinline!CP_IMPORT_STRATEGY [G]!, which has the simple interface:
+
+
+\lstinputlisting [firstline=7] {../../library/import/cp_import_strategy.e}
+
+By implementing \lstinline!import!, descendants can decide if an object of type \lstinline!G! shall be imported and if yes, how it's done.
+
+The class \lstinline!CP_NO_IMPORTER[G]! is the default class to disable import and just perform a reference copy.
+Every other importer can inherit from \lstinline!CP_IMPORTER!, which narrows the return type of \lstinline!import! to a non-separate \lstinline!G!.
+
+Because writing an extra importer for every importable object may be tedious, there's a support class \lstinline!CP_IMPORTABLE!:
+
+\lstinputlisting [firstline=7] {../../library/import/cp_importable.e}
+
+That way an import function can be written right inside the class that needs to be imported.
+There are two main import classes that make use of it: \lstinline!CP_DYNAMIC_TYPE_IMPORTER! and \lstinline!CP_STATIC_TYPE_IMPORTER!.
+The latter uses bounded genericity to directly create an object of type \lstinline!G!.
+This has the drawback however that the type is statically \lstinline!G!, even if the argument to \lstinline!import! was of a subtype of \lstinline!G!.
+
+The \lstinline!CP_DYNAMIC_TYPE_IMPORTER! tries to avoid this problem by using reflection.
+This introduces a new problem with respect to void safety however, as the new object will not be initialized.
+Therefore it is strongly advised to declare \lstinline!make_from_separate! as a creation procedure for every descendant of \lstinline!CP_IMPORTABLE!.
+
+Another problem of the \lstinline!CP_DYNAMIC_TYPE_IMPORTER! are the invariants of an object.
+There's a short time interval between the creation of an object (using reflection) and the call to \lstinline!{CP_IMPORTABLE}.make_from_separate! where the invariants are broken.
+Due to this, it is not possible to have invariants in a class that will be imported using the dynamic type importer.
+
+In the future, there will hopefully exist an import routine natively supported by the SCOOP runtime.
+In that case \lstinline!CP_IMPORTER! can be made effective and use the native import, and all its descendants will become obsolete.
+
+
+Other components of the library often use the import module via bounded genericity.
+The class \lstinline!CP_QUEUE! for example has the ability to import objects, and it's class header looks like this:
+\begin{lstlisting}
+class
+  [G, IMPORTER -> CP_IMPORT_STRATEGY [G] create default_create end]
+feature
+  ...
+end
+\end{lstlisting}
+That way a user can decide on the precise semantics of the import strategy by just declaring the right type.
+
+\subsection{Separate proxy}
+
+\subsection{CP\_QUEUE}
+
+\subsection{Process}
+
+\subsection{Worker pool}
+
+\subsection{Broker}
+
+\subsection{Executor and CP\_TASK}
+
 \section {Individual patterns}
 % Description of a few patterns
+
+\subsection{Worker pool}
+
+\subsection{Futures}
 
 \subsection{Evaluation and Benchmarks}
 
