@@ -29,5 +29,4 @@ feature {NONE} -- Implementation
 	utils: UTILS
 			-- Helper functions to access the separate `subject'.
 
-
 end
