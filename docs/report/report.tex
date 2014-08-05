@@ -439,14 +439,65 @@ The \lstinline!CP_WORKER_POOL! also implements the separate proxy pattern, which
 
 
 
-\subsection{Executor and CP\_TASK}
+\subsection{Executor}
 
+The executor module can be used to execute varying operations.
+The main class is \lstinline!CP_EXECUTOR!, which provides facilities to execute a \lstinline!CP_TASK! objects.
 
+\lstinline!CP_TASK! itself represents a user-defined operation.
+It can be imported across processor boundaries and provides exception handling.
+To define a new task a client needs to inherit from \lstinline!CP_DEFAULT_TASK! and implement the feature \lstinline!run! and \lstinline!make_from_separate!.
+
+A special kind of task is \lstinline!CP_COMPUTATION!, which can also return a value.
+This is needed to implement the future pattern.
+
+The \lstinline!CP_EXECUTOR! makes use of the separate proxy pattern.
+However, the proxy also enhances the raw \lstinline!CP_EXECUTOR! interface with the option to attach a \lstinline!CP_BROKER! object to a task.
+This can be used to query the status of a task, await termination, or get the computed result back in case of a \lstinline!CP_COMPUTATION!
+All \lstinline!CP_BROKER! objects are created on a dedicated processor to avoid unnecessary thread creation.
+
+An important implementation of the \lstinline!CP_EXECUTOR! is the \lstinline!CP_TASK_WORKER_POOL!.
+As the name suggests, this is a worker pool where each worker repeatedly executes \lstinline!CP_TASK! objects.
+\todo {More executor implementations?}
 
 \section {Individual patterns}
 % Description of a few patterns
 
-\subsection{Producer / Consumer and Pipeline}
+\subsection{Producer / Consumer}
+
+The producer / consumer is a very popular pattern in concurrent programming, and it is a building block for other patterns like pipeline as well.
+The basic idea is to have a shared, concurrent buffer.
+Producer threads put new items into the buffer, whereas consumer threads remove items from this buffer.
+
+In threaded systems, this buffer is usually accessed by several threads at the same time.
+Careful synchronization has to be enforced to ensure that the buffer remains in a consistent state.
+The data items on the other hand ``migrate'' from a producer to the buffer, and then to exactly one consumer.
+They therefore don't need to be thread-safe as long as the producer promises never to touch the item again.
+
+In SCOOP things look a bit different however.
+Due to the exclusive access guarantee it is not necessary to establish a synchronization policy.
+The downside however is a loss of potential concurrency when a producer and a consumer accesses the buffer simultaneously, but this is a minor problem.
+
+The main problem in SCOOP are the data items, especially if they are not of an expanded type.
+If the object is created on the producer processor, then the consumer needs to control the producer in order to get access to the object.
+This is clearly a situation that we want to avoid, because it couples the producer and consumer in a vicious hidden way, and the whole point of the producer / consumer pattern is to decouple the two.
+
+A nice solution would be if it's somehow possible to migrate data items, like it's done in threaded languages.
+However, this is not possible with the current semantics of SCOOP, because an object always stays on the processor it was created on.
+
+One approach to solve this problem is to create a new processor for every data item.
+This actually works, but it can be very slow, especially for a lot of small data items.
+There are two reasons for this:
+First, every SCOOP processor is mapped to an operating system thread, therefore creating a new processor involves creating a new thread which is an expensive operation.
+The second reason is the overhead of separate calls itself.
+This has to be paid every time the consumer wants to access the separate object.
+
+Another problem of this approach is related to ease of programming.
+Dealing with a separate object can be very annoying, because you need to write small wrapper functions for every little feature call.
+
+Due to these problems we decided to go for a different strategy: cloning objects.
+\todo {more text}
+
 
 \subsection{Worker pool}
 
