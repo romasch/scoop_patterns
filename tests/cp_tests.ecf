@@ -10,7 +10,7 @@
 		<library name="base" location="$ISE_LIBRARY/library/base/base-safe.ecf"/>
 		<library name="testing" location="$ISE_LIBRARY\library\testing\testing-safe.ecf"/>
 		<library name="examples" location="..\examples\all_examples.ecf" readonly="false" />
-		<library name="concurrency" location="..\library\concurrency.ecf" readonly="false"/>
+		<library name="scoop_patterns" location="..\library\scoop_patterns.ecf" readonly="false"/>
 		<library name="experiments" location="..\experiments\experiments.ecf" readonly="false"/>
 		<cluster name="cp_tests" location=".\" recursive="true">
 			<file_rule>
