@@ -37,17 +37,17 @@ feature -- Basic operations
 			utils.executor_put (subject, a_task)
 		end
 
-	put_with_broker (a_task: separate CP_TASK): CP_BROKER_PROXY
+	put_with_broker (a_task: separate CP_TASK): CP_PROMISE_PROXY
 			-- Execute `a_task' asynchronously and return a broker object.
 		local
-			l_broker: separate CP_SHARED_BROKER
+			l_broker: separate CP_SHARED_PROMISE
 		do
 			l_broker := new_broker (broker_processor)
 			a_task.set_broker (l_broker)
 			create Result.make (l_broker)
 			put (a_task)
 		ensure
-			same_broker: Result.broker = a_task.broker
+			same_broker: Result.subject = a_task.broker
 		end
 
 	stop

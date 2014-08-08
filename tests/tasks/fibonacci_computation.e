@@ -39,7 +39,7 @@ feature -- Basic operations
 			-- <Precursor>
 		local
 			l_computation: FIBONACCI_COMPUTATION
-			l_future: CP_RESULT_BROKER [INTEGER]
+			l_future: CP_RESULT_PROMISE [INTEGER]
 			l_starter: CP_FUTURE_EXECUTOR_PROXY [INTEGER, CP_NO_IMPORTER [INTEGER]]
 		do
 			if input <= 2 then

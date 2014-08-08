@@ -1,41 +1,41 @@
 note
-	description: "Utility functions to access a separate CP_RESULT_BROKER object."
+	description: "Utility functions to perform operations on a {separate CP_RESULT_PROMISE} object."
 	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 
 class
-	CP_RESULT_BROKER_UTILS [G, IMPORTER -> CP_IMPORT_STRATEGY [G] create default_create end]
+	CP_RESULT_PROMISE_UTILS [G, IMPORTER -> CP_IMPORT_STRATEGY [G] create default_create end]
 
 inherit
-	CP_BROKER_UTILS
+	CP_PROMISE_UTILS
 
 feature -- Access
 
-	broker_item (a_broker: separate CP_RESULT_BROKER [G]): detachable separate G
-			-- Item in `a_broker'.
+	promise_item (a_promise: separate CP_RESULT_PROMISE [G]): detachable separate G
+			-- Item in `a_promise'.
 		require
-			available: a_broker.is_terminated
+			available: a_promise.is_terminated
 		do
-			Result := a_broker.item
+			Result := a_promise.item
 		end
 
-	broker_imported_item (a_broker: separate CP_RESULT_BROKER [G]): detachable like importer.import
-			-- Imported item in `a_broker'.
+	promise_imported_item (a_promise: separate CP_RESULT_PROMISE [G]): detachable like importer.import
+			-- Imported item in `a_promise'.
 		require
-			available: a_broker.is_terminated
+			available: a_promise.is_terminated
 		do
-			if attached a_broker.item as l_item then
+			if attached a_promise.item as l_item then
 				Result := importer.import (l_item)
 			end
 		end
 
 feature -- Basic operations
 
-	broker_set_item_and_terminate (a_broker: separate CP_SHARED_RESULT_BROKER [G, IMPORTER]; a_item: separate G)
-			-- Set `a_item' in `a_broker'.
+	promise_set_item_and_terminate (a_promise: separate CP_SHARED_RESULT_PROMISE [G, IMPORTER]; a_item: separate G)
+			-- Set `a_item' in `a_promise'.
 		do
-			a_broker.set_item_and_terminate (a_item)
+			a_promise.set_item_and_terminate (a_item)
 		end
 
 feature {NONE} -- Implementation

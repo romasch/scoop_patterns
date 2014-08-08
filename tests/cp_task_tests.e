@@ -25,7 +25,7 @@ feature -- Tests
 			-- Test if it is possible to cancel a task.
 		local
 			task: CANCELABLE_TEST
-			broker: CP_BROKER_PROXY
+			broker: CP_PROMISE_PROXY
 		do
 			create task
 			assert ("has_broker", not attached task.broker)
@@ -33,7 +33,7 @@ feature -- Tests
 
 			broker := executor.put_with_broker (task)
 
-			assert ("different_broker", task.broker = broker.broker)
+			assert ("different_broker", task.broker = broker.subject)
 
 			assert ("not_running", not broker.is_terminated)
 			assert ("cancelled", not broker.is_cancelled)
@@ -54,14 +54,14 @@ feature -- Tests
 			-- Test if a failing task doesn't break the executor.
 		local
 			failure: FAILING_TASK
-			broker: CP_BROKER_PROXY
+			broker: CP_PROMISE_PROXY
 		do
 			create failure
 			assert ("has_broker", not attached failure.broker)
 
 			broker := executor.put_with_broker (failure)
 
-			assert ("different_broker", failure.broker = broker.broker)
+			assert ("different_broker", failure.broker = broker.subject)
 
 			broker.await_termination
 
@@ -76,7 +76,7 @@ feature -- Tests
 		local
 			delayer: CP_DELAYED_TASK
 			task: CANCELABLE_TEST
-			broker: CP_BROKER_PROXY
+			broker: CP_PROMISE_PROXY
 		do
 			create task
 			create delayer.make (task, 2 * second)
@@ -86,7 +86,7 @@ feature -- Tests
 			broker := executor.put_with_broker (delayer)
 
 			assert ("broker_missing", attached task.broker)
-			assert ("different_broker", task.broker = delayer.broker and broker.broker = delayer.broker)
+			assert ("different_broker", task.broker = delayer.broker and broker.subject = delayer.broker)
 
 			broker.cancel
 			assert ("not_cancelled", broker.is_cancelled)

@@ -79,10 +79,10 @@ feature -- Basic operations
 			-- Perform a single write operation on file A.
 		local
 			write_task: FILE_APPENDER_TASK
-			write_task_broker: CP_BROKER_PROXY
+			write_task_broker: CP_PROMISE_PROXY
 
 			read_task: FILE_READER_TASK
-			read_task_broker: CP_RESULT_BROKER_PROXY [STRING, CP_STRING_IMPORTER]
+			read_task_broker: CP_RESULT_PROMISE_PROXY [STRING, CP_STRING_IMPORTER]
 
 			l_result: detachable STRING
 		do
@@ -115,7 +115,7 @@ feature -- Basic operations
 	concurrent_write
 			-- Write to three files concurrently.
 		local
-			brokers: ARRAYED_LIST [CP_BROKER_PROXY]
+			brokers: ARRAYED_LIST [CP_PROMISE_PROXY]
 			task: FILE_APPENDER_TASK
 		do
 			create brokers.make (paths.count)
@@ -145,7 +145,7 @@ feature -- Basic operations
 	concurrent_read
 			-- Read three files concurrently.
 		local
-			brokers: ARRAYED_LIST [CP_RESULT_BROKER_PROXY [STRING, CP_STRING_IMPORTER]]
+			brokers: ARRAYED_LIST [CP_RESULT_PROMISE_PROXY [STRING, CP_STRING_IMPORTER]]
 			task: FILE_READER_TASK
 			l_result: detachable STRING
 		do

@@ -1,16 +1,16 @@
 note
-	description: "Result broker implementation that can be shared between two processors."
+	description: "Result promise implementation that can be shared between two processors."
 	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 
 class
-	CP_SHARED_RESULT_BROKER [G, IMPORTER -> CP_IMPORT_STRATEGY [G] create default_create end]
+	CP_SHARED_RESULT_PROMISE [G, IMPORTER -> CP_IMPORT_STRATEGY [G] create default_create end]
 
 inherit
-	CP_RESULT_BROKER [G]
+	CP_RESULT_PROMISE [G]
 
-	CP_SHARED_BROKER
+	CP_SHARED_PROMISE
 		redefine
 			make
 		end

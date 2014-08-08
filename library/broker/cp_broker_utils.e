@@ -1,83 +1,97 @@
 note
-	description: "Utility functions to access a separate CP_BROKER object."
+	description: "Utility functions to perform operations on a {separate CP_PROMISE} object."
 	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 
 class
-	CP_BROKER_UTILS
+	CP_PROMISE_UTILS
 
 feature -- Access
 
-	broker_last_exception_trace (a_broker: separate CP_BROKER): detachable separate READABLE_STRING_32
-			-- Last exception trace in `a_broker'.
+	promise_last_exception_trace (a_promise: separate CP_PROMISE): detachable separate READABLE_STRING_32
+			-- Last exception trace in `a_promise'.
 		do
-			Result := a_broker.last_exception_trace
+			Result := a_promise.last_exception_trace
 		ensure
-			correct: Result = a_broker.last_exception_trace
+			correct: Result = a_promise.last_exception_trace
 		end
 
-	broker_imported_last_exception_trace (a_broker: separate CP_BROKER): detachable READABLE_STRING_32
-			-- Imported exception trace in `a_broker'.
+	promise_imported_last_exception_trace (a_promise: separate CP_PROMISE): detachable READABLE_STRING_32
+			-- Imported exception trace in `a_promise'.
 		do
-			if attached broker_last_exception_trace (a_broker) as l_trace then
+			if attached promise_last_exception_trace (a_promise) as l_trace then
 				create {STRING_32} Result.make_from_separate (l_trace)
 			end
 		ensure
-			correct: Result ~ a_broker.last_exception_trace
+			correct: Result ~ a_promise.last_exception_trace
+		end
+
+	promise_progress (a_promise: separate CP_PROMISE): REAL
+			-- Progress in `a_promise'.
+		do
+			Result := a_promise.progress
 		end
 
 feature -- Status report
 
-	is_broker_terminated (a_broker: separate CP_BROKER): BOOLEAN
-			-- Is `a_broker' terminated?
+	is_promise_terminated (a_promise: separate CP_PROMISE): BOOLEAN
+			-- Is `a_promise' terminated?
 		do
-			Result := a_broker.is_terminated
+			Result := a_promise.is_terminated
 		end
 
-	is_broker_cancelled (a_broker: separate CP_BROKER): BOOLEAN
-			-- Is `a_broker' cancelled?
+	is_promise_cancelled (a_promise: separate CP_PROMISE): BOOLEAN
+			-- Is `a_promise' cancelled?
 		do
-			Result := a_broker.is_cancelled
+			Result := a_promise.is_cancelled
 		end
 
-	is_broker_exceptional (a_broker: separate CP_BROKER): BOOLEAN
-			-- Is `a_broker' exceptional?
+	is_promise_exceptional (a_promise: separate CP_PROMISE): BOOLEAN
+			-- Is `a_promise' exceptional?
 		do
-			Result := a_broker.is_exceptional
+			Result := a_promise.is_exceptional
 		end
 
 feature -- Basic operations
 
-	broker_cancel (a_broker: separate CP_BROKER)
-			-- Cancel `a_broker'.
+	promise_cancel (a_promise: separate CP_PROMISE)
+			-- Cancel `a_promise'.
 		do
-			a_broker.cancel
+			a_promise.cancel
 		end
 
-	broker_terminate (a_broker: separate CP_SHARED_BROKER)
-			-- Terminate `a_broker'.
+	promise_terminate (a_promise: separate CP_SHARED_PROMISE)
+			-- Terminate `a_promise'.
 		do
-			a_broker.terminate
+			a_promise.terminate
 		end
 
-	broker_set_exception_and_terminate (a_broker: separate CP_SHARED_BROKER; a_exception: separate EXCEPTION)
-			-- Set `a_exception' in `a_broker'.
+	promise_set_exception_and_terminate (a_promise: separate CP_SHARED_PROMISE; a_exception: separate EXCEPTION)
+			-- Set `a_exception' in `a_promise'.
 		do
-			a_broker.set_exception_and_terminate (a_exception)
+			a_promise.set_exception_and_terminate (a_exception)
 		end
 
-	broker_await_termination (a_broker: separate CP_BROKER)
-			-- Wait until `a_broker' has terminated
+	promise_set_progress (a_promise: separate CP_SHARED_PROMISE; a_progress: REAL)
+			-- Set `a_progress' in `a_promise'.
 		require
-			a_broker.is_terminated
+			valid: 0.0 <= a_progress and a_progress <= 1.0
+		do
+			a_promise.set_progress (a_progress)
+		end
+
+	promise_await_termination (a_promise: separate CP_PROMISE)
+			-- Wait until `a_promise' has terminated
+		require
+			a_promise.is_terminated
 		do
 		end
 
 feature -- Factory functions
 
-	new_broker: CP_SHARED_BROKER
-			-- Create a new broker on the local processor.
+	new_promise: CP_SHARED_PROMISE
+			-- Create a new promise on the local processor.
 		do
 			create Result.make
 		end

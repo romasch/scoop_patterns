@@ -63,7 +63,7 @@ feature {CP_DYNAMIC_TYPE_IMPORTER}-- Initialization
 
 feature -- Access
 
-	broker: detachable separate CP_SHARED_BROKER
+	broker: detachable separate CP_SHARED_PROMISE
 			-- A stable communication object.
 		do
 			Result := task.broker

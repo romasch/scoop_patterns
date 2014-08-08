@@ -13,7 +13,7 @@ inherit
 
 	CP_IMPORTABLE
 
-	CP_BROKER_UTILS
+	CP_PROMISE_UTILS
 
 feature {CP_DYNAMIC_TYPE_IMPORTER}-- Initialization
 
@@ -26,7 +26,7 @@ feature {CP_DYNAMIC_TYPE_IMPORTER}-- Initialization
 
 feature -- Access
 
-	broker: detachable separate CP_SHARED_BROKER
+	broker: detachable separate CP_SHARED_PROMISE
 			-- A stable communication object.
 		deferred
 		end
@@ -37,7 +37,7 @@ feature -- Element change
 			-- Set `broker' to `a_broker'.
 		deferred
 		ensure
-			broker_set: broker = a_broker
+			promise_set: broker = a_broker
 		end
 
 feature -- Basic operations
@@ -51,7 +51,7 @@ feature -- Basic operations
 			if not l_retried then
 				run
 				if attached broker as l_broker then
-					broker_terminate (l_broker)
+					promise_terminate (l_broker)
 				end
 			end
 		rescue
@@ -62,7 +62,7 @@ feature -- Basic operations
 				attached l_exception_manager.last_exception as l_exception
 				and	attached broker as l_broker
 			then
-				broker_set_exception_and_terminate (l_broker, l_exception)
+				promise_set_exception_and_terminate (l_broker, l_exception)
 			end
 
 			retry

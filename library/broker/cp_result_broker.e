@@ -1,14 +1,14 @@
 note
-	description: "Shared broker objects that can import the result of a separate task."
+	description: "Handle to an asynchronous computation which returns a result."
 	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 
 deferred class
-	CP_RESULT_BROKER [G]
+	CP_RESULT_PROMISE [G]
 
 inherit
-	CP_BROKER
+	CP_PROMISE
 
 feature -- Access
 

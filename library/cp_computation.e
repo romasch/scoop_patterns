@@ -16,7 +16,7 @@ inherit
 
 feature -- Access
 
-	broker: detachable separate CP_SHARED_RESULT_BROKER [RESULT_TYPE, CP_IMPORT_STRATEGY[RESULT_TYPE]]
+	broker: detachable separate CP_SHARED_RESULT_PROMISE [RESULT_TYPE, CP_IMPORT_STRATEGY[RESULT_TYPE]]
 			-- <Precursor>
 
 feature -- Basic operations

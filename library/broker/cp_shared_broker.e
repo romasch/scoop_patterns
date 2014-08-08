@@ -1,15 +1,15 @@
 note
-	description: "Broker implementation that can be shared between two processors."
+	description: "Promise implementation that can be shared between two processors."
 	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 
 class
-	CP_SHARED_BROKER
+	CP_SHARED_PROMISE
 
 inherit
 
-	CP_BROKER
+	CP_PROMISE
 
 	REFACTORING_HELPER
 
@@ -34,23 +34,26 @@ feature {NONE} -- Initialization
 feature -- Access
 
 	last_exception_trace: detachable READABLE_STRING_32
-			-- The exception trace of the last exception.
+			-- <Precursor>
+
+	progress: REAL
+			-- <Precursor>
 
 feature -- Status report
 
 	is_terminated: BOOLEAN
-			-- Has the asynchronous operation terminated?
+			-- <Precursor>
 
 	is_exceptional: BOOLEAN
-			-- Has there been an exception in the asynchronous call?
+			-- <Precursor>
 
 	is_cancelled: BOOLEAN
-			-- Has there been a cancellation request?
+			-- <Precursor>
 
 feature -- Basic operations
 
 	cancel
-			-- Request a cancellation.
+			-- <Precursor>
 		do
 			is_cancelled := True
 		end
@@ -61,6 +64,16 @@ feature -- Basic operations
 			is_terminated := True
 		ensure
 			terminated: is_terminated
+		end
+
+	set_progress (a_progress: REAL)
+			-- Set `progress' to `a_progress'.
+		require
+			valid: 0.0 <= a_progress and a_progress <= 1.0
+		do
+			progress := a_progress
+		ensure
+			progress_set: progress = a_progress
 		end
 
 	set_exception_and_terminate (a_exception: separate EXCEPTION)

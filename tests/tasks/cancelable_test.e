@@ -33,7 +33,7 @@ feature
 			from
 				create env
 			until
-				attached broker as l_broker and then is_broker_cancelled (l_broker)
+				attached broker as l_broker and then is_promise_cancelled (l_broker)
 			loop
 				env.sleep (200 * millisecond)
 			end

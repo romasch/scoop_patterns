@@ -12,7 +12,7 @@ inherit
 
 feature -- Access
 
-	broker: detachable separate CP_SHARED_BROKER
+	broker: detachable separate CP_SHARED_PROMISE
 			-- <Precursor>
 
 feature -- Element change

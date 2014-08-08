@@ -19,7 +19,7 @@ feature -- Constants
 
 feature -- Access
 
-	broker_processor: separate CP_BROKER_UTILS
+	broker_processor: separate CP_PROMISE_UTILS
 			-- A processor for broker objects.
 		once ("PROCESS")
 			create Result
@@ -40,10 +40,10 @@ feature -- Access
 
 feature -- Utilities
 
-	new_broker (a_processor: like broker_processor): separate CP_SHARED_BROKER
+	new_broker (a_processor: like broker_processor): separate CP_SHARED_PROMISE
 			-- Create a new broker on `a_processor'.
 		do
-			Result := a_processor.new_broker
+			Result := a_processor.new_promise
 		end
 
 	new_result_broker (a_processor: like result_broker_processor; a_template: CP_IMPORTABLE): separate CP_IMPORTABLE
