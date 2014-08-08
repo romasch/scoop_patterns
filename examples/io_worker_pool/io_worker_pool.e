@@ -79,34 +79,34 @@ feature -- Basic operations
 			-- Perform a single write operation on file A.
 		local
 			write_task: FILE_APPENDER_TASK
-			write_task_broker: CP_PROMISE_PROXY
+			write_task_promise: CP_PROMISE_PROXY
 
 			read_task: FILE_READER_TASK
-			read_task_broker: CP_RESULT_PROMISE_PROXY [STRING, CP_STRING_IMPORTER]
+			read_task_promise: CP_RESULT_PROMISE_PROXY [STRING, CP_STRING_IMPORTER]
 
 			l_result: detachable STRING
 		do
 				-- First, create a task.
 			create write_task.make (paths [1], hello_world)
 
-				-- The next statment submits the task and returns a broker object which can be used to control the asynchronous task.
-			write_task_broker := executor.put_with_broker (write_task)
+				-- The next statment submits the task and returns a promise object which can be used to control the asynchronous task.
+			write_task_promise := executor.put_with_promise (write_task)
 
 				-- Let's wait for the task to finish.
-			write_task_broker.await_termination
+			write_task_promise.await_termination
 
 				-- It is possible to check for IO exceptions in the asynchronous task.
-			check no_exception: not write_task_broker.is_exceptional end
+			check no_exception: not write_task_promise.is_exceptional end
 
 				-- Now we can read the contents of file A.
 			create read_task.make (paths [1])
 
-				-- Again, this statement submits the task and returns a broker.
-			read_task_broker := executor.put_future (read_task)
+				-- Again, this statement submits the task and returns a promise.
+			read_task_promise := executor.put_future (read_task)
 
-				-- The broker can be used to get the result of the asynchronous computation.
+				-- The promise can be used to get the result of the asynchronous computation.
 				-- Note that the statement blocks if the result is not yet available.
-			l_result := read_task_broker.item
+			l_result := read_task_promise.item
 
 				-- Check if the read-write cycle worked as expected.
 			check correct_result: l_result ~ hello_world end
@@ -115,10 +115,10 @@ feature -- Basic operations
 	concurrent_write
 			-- Write to three files concurrently.
 		local
-			brokers: ARRAYED_LIST [CP_PROMISE_PROXY]
+			promises: ARRAYED_LIST [CP_PROMISE_PROXY]
 			task: FILE_APPENDER_TASK
 		do
-			create brokers.make (paths.count)
+			create promises.make (paths.count)
 
 			across
 				paths as path_cursor
@@ -126,17 +126,17 @@ feature -- Basic operations
 					-- Create the task.
 				create task.make (path_cursor.item, content)
 
-					-- Submit the task and store the broker.
-				brokers.extend (executor.put_with_broker (task))
+					-- Submit the task and store the promise.
+				promises.extend (executor.put_with_promise (task))
 			end
 
 				-- All three files are being written concurrently now.
 
 			across
-				brokers as broker_cursor
+				promises as promise_cursor
 			loop
 					-- We can wait for termination of the tasks now.
-				broker_cursor.item.await_termination
+				promise_cursor.item.await_termination
 			end
 
 				-- Every file has `content' at the end now.
@@ -145,11 +145,11 @@ feature -- Basic operations
 	concurrent_read
 			-- Read three files concurrently.
 		local
-			brokers: ARRAYED_LIST [CP_RESULT_PROMISE_PROXY [STRING, CP_STRING_IMPORTER]]
+			promises: ARRAYED_LIST [CP_RESULT_PROMISE_PROXY [STRING, CP_STRING_IMPORTER]]
 			task: FILE_READER_TASK
 			l_result: detachable STRING
 		do
-			create brokers.make (paths.count)
+			create promises.make (paths.count)
 
 			across
 				paths as path_cursor
@@ -157,17 +157,17 @@ feature -- Basic operations
 					-- Create the tasks.
 				create task.make (path_cursor.item)
 
-					-- Submit the task and store the broker.
-				brokers.extend (executor.put_future (task))
+					-- Submit the task and store the promise.
+				promises.extend (executor.put_future (task))
 			end
 
 				-- All three files are being read concurrently now.
 
 			across
-				brokers as broker_cursor
+				promises as promise_cursor
 			loop
 					-- Collect the results.
-				l_result := broker_cursor.item.item
+				l_result := promise_cursor.item.item
 
 					-- Check if the result is still `content', as it was written earlier.
 				check same_result: attached l_result and then l_result.ends_with (content) end

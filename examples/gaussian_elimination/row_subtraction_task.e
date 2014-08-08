@@ -33,7 +33,7 @@ feature {CP_DYNAMIC_TYPE_IMPORTER} -- Initialization
 			create subtrahend.make_from_separate (other.subtrahend)
 			create minuend.make_from_separate (other.minuend)
 			pivot := other.pivot
-			broker := other.broker
+			promise := other.promise
 		end
 
 feature -- Access

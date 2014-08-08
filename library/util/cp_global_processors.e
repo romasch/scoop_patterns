@@ -19,14 +19,14 @@ feature -- Constants
 
 feature -- Access
 
-	broker_processor: separate CP_PROMISE_UTILS
-			-- A processor for broker objects.
+	promise_processor: separate CP_PROMISE_UTILS
+			-- A processor for promise objects.
 		once ("PROCESS")
 			create Result
 		end
 
-	result_broker_processor: separate CP_DYNAMIC_TYPE_IMPORTER [CP_IMPORTABLE]
-			-- A processor for result broker objects.
+	result_promise_processor: separate CP_DYNAMIC_TYPE_IMPORTER [CP_IMPORTABLE]
+			-- A processor for result promise objects.
 			-- New objects on this processor are created by importing an existing object.
 		once ("PROCESS")
 			create Result
@@ -40,13 +40,13 @@ feature -- Access
 
 feature -- Utilities
 
-	new_broker (a_processor: like broker_processor): separate CP_SHARED_PROMISE
-			-- Create a new broker on `a_processor'.
+	new_promise (a_processor: like promise_processor): separate CP_SHARED_PROMISE
+			-- Create a new promise on `a_processor'.
 		do
 			Result := a_processor.new_promise
 		end
 
-	new_result_broker (a_processor: like result_broker_processor; a_template: CP_IMPORTABLE): separate CP_IMPORTABLE
+	new_result_promise (a_processor: like result_promise_processor; a_template: CP_IMPORTABLE): separate CP_IMPORTABLE
 			-- Export `a_template' to `a_processor'.
 		do
 			Result := a_processor.import (a_template)

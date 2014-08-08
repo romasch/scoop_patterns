@@ -65,7 +65,7 @@ feature --  Basic operations
 		local
 			worker_pool: separate CP_TASK_WORKER_POOL
 			executor: CP_FUTURE_EXECUTOR_PROXY [LINEAR_EQUATION, CP_STATIC_TYPE_IMPORTER [LINEAR_EQUATION]]
-			brokers: ARRAYED_QUEUE [CP_RESULT_PROMISE_PROXY [LINEAR_EQUATION, CP_STATIC_TYPE_IMPORTER [LINEAR_EQUATION]]]
+			promises: ARRAYED_QUEUE [CP_RESULT_PROMISE_PROXY [LINEAR_EQUATION, CP_STATIC_TYPE_IMPORTER [LINEAR_EQUATION]]]
 
 			task: ROW_SUBTRACTION_TASK
 			index: INTEGER
@@ -78,7 +78,7 @@ feature --  Basic operations
 
 			from
 				index := 1
-				create brokers.make (equations.count)
+				create promises.make (equations.count)
 			until
 				index > equations.count
 			loop
@@ -96,7 +96,7 @@ feature --  Basic operations
 						k > equations.count
 					loop
 						create task.make (equations [index], equations [k], index)
-						brokers.put (executor.put_future (task))
+						promises.put (executor.put_future (task))
 						k := k + 1
 					end
 
@@ -107,10 +107,10 @@ feature --  Basic operations
 						k > equations.count
 					loop
 							-- May block if the result is not yet available.
-						check attached brokers.item.item as l_item then
+						check attached promises.item.item as l_item then
 							equations [k] := l_item
 						end
-						brokers.remove
+						promises.remove
 						k := k + 1
 					end
 

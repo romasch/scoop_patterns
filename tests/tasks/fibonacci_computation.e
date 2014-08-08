@@ -20,7 +20,7 @@ feature -- Initialization
 			-- Initialize `Current' from `other'.
 		do
 			input := other.input
-			broker := other.broker
+			promise := other.promise
 		end
 
 	make (a_input: INTEGER)

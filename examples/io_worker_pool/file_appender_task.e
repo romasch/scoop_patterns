@@ -30,7 +30,7 @@ feature {CP_DYNAMIC_TYPE_IMPORTER} -- Initialization
 		do
 			create path.make_from_separate (other.path)
 			create content.make_from_separate (other.content)
-			broker := other.broker
+			promise := other.promise
 		end
 
 feature -- Access

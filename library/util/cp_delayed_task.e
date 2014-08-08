@@ -25,9 +25,8 @@ feature {NONE} -- Initialization
 			initialize (a_delay)
 		ensure
 			delay_set: delay = a_delay
-			broker_set: broker = a_task.broker
+			promise_set: promise = a_task.promise
 			equal_task: task ~ a_task
-			initialized: is_initialized
 		end
 
 	initialize (a_delay: like delay)
@@ -36,13 +35,10 @@ feature {NONE} -- Initialization
 			task_initialized: attached task
 		do
 			delay := a_delay
---			broker := task.broker
 			create environment
-			is_initialized := True
 		ensure
 			delay_set: delay = a_delay
-			broker_set: broker = task.broker
-			initialized: is_initialized
+			promise_set: promise = task.promise
 		end
 
 feature {CP_DYNAMIC_TYPE_IMPORTER}-- Initialization
@@ -57,16 +53,14 @@ feature {CP_DYNAMIC_TYPE_IMPORTER}-- Initialization
 			initialize (other.delay)
 		ensure then
 			same_delay: delay = other.delay
-			same_broker: broker = other.broker
-			initialized: is_initialized
 		end
 
 feature -- Access
 
-	broker: detachable separate CP_SHARED_PROMISE
+	promise: detachable separate CP_SHARED_PROMISE
 			-- A stable communication object.
 		do
-			Result := task.broker
+			Result := task.promise
 		end
 
 	delay: INTEGER_64
@@ -77,13 +71,12 @@ feature -- Access
 
 feature -- Basic operations
 
-	set_broker (a_broker: like broker)
-			-- Always alias the broker object.
+	set_promise (a_promise: like promise)
+			-- Set the promise in the actual task object.
 		do
---			broker := a_broker
-			task.set_broker (a_broker)
+			task.set_promise (a_promise)
 		ensure then
-			aliased: a_broker = task.broker
+			aliased: a_promise = task.promise
 		end
 
 	run
@@ -96,12 +89,7 @@ feature -- Basic operations
 
 feature {NONE} -- Implementation
 
-	is_initialized: BOOLEAN
-			-- Is `Current' correctly initialized?
-
 	environment: EXECUTION_ENVIRONMENT
 			-- An execution environment instance.
 
-invariant
-	broker_aliased: is_initialized implies broker = task.broker
 end

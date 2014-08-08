@@ -21,23 +21,23 @@ feature {CP_DYNAMIC_TYPE_IMPORTER}-- Initialization
 			-- Initialize `Current' from `other'.
 		deferred
 		ensure then
-			same_token: broker = other.broker
+			same_token: promise = other.promise
 		end
 
 feature -- Access
 
-	broker: detachable separate CP_SHARED_PROMISE
-			-- A stable communication object.
+	promise: detachable separate CP_SHARED_PROMISE
+			-- A promise object to update the status of the current task.
 		deferred
 		end
 
 feature -- Element change
 
-	set_broker (a_broker: like broker)
-			-- Set `broker' to `a_broker'.
+	set_promise (a_promise: like promise)
+			-- Set `promise' to `a_promise'.
 		deferred
 		ensure
-			promise_set: broker = a_broker
+			promise_set: promise = a_promise
 		end
 
 feature -- Basic operations
@@ -50,8 +50,8 @@ feature -- Basic operations
 		do
 			if not l_retried then
 				run
-				if attached broker as l_broker then
-					promise_terminate (l_broker)
+				if attached promise as l_promise then
+					promise_terminate (l_promise)
 				end
 			end
 		rescue
@@ -60,9 +60,9 @@ feature -- Basic operations
 
 			if
 				attached l_exception_manager.last_exception as l_exception
-				and	attached broker as l_broker
+				and	attached promise as l_promise
 			then
-				promise_set_exception_and_terminate (l_broker, l_exception)
+				promise_set_exception_and_terminate (l_promise, l_exception)
 			end
 
 			retry

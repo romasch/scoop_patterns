@@ -29,7 +29,7 @@ feature {CP_DYNAMIC_TYPE_IMPORTER} -- Initialization
 			-- <Precursor>
 		do
 			input := other.input
-			broker := other.broker
+			promise := other.promise
 		end
 
 feature -- Access

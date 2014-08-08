@@ -1,5 +1,5 @@
 note
-	description: "A normal CP_TASK with a broker attribute."
+	description: "A normal CP_TASK with a promise attribute."
 	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
@@ -12,14 +12,14 @@ inherit
 
 feature -- Access
 
-	broker: detachable separate CP_SHARED_PROMISE
+	promise: detachable separate CP_SHARED_PROMISE
 			-- <Precursor>
 
 feature -- Element change
 
-	set_broker (a_broker: like broker)
+	set_promise (a_promise: like promise)
 			-- <Precursor>
 		do
-			broker := a_broker
+			promise := a_promise
 		end
 end

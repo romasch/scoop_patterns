@@ -25,48 +25,48 @@ feature -- Tests
 			-- Test if it is possible to cancel a task.
 		local
 			task: CANCELABLE_TEST
-			broker: CP_PROMISE_PROXY
+			promise: CP_PROMISE_PROXY
 		do
 			create task
-			assert ("has_broker", not attached task.broker)
+			assert ("has_promise", not attached task.promise)
 
 
-			broker := executor.put_with_broker (task)
+			promise := executor.put_with_promise (task)
 
-			assert ("different_broker", task.broker = broker.subject)
+			assert ("different_promise", task.promise = promise.subject)
 
-			assert ("not_running", not broker.is_terminated)
-			assert ("cancelled", not broker.is_cancelled)
-			assert ("has_exception", not broker.is_exceptional)
+			assert ("not_running", not promise.is_terminated)
+			assert ("cancelled", not promise.is_cancelled)
+			assert ("has_exception", not promise.is_exceptional)
 
-			broker.cancel
+			promise.cancel
 
-			assert ("not_cancelled", broker.is_cancelled)
+			assert ("not_cancelled", promise.is_cancelled)
 
-			broker.await_termination
+			promise.await_termination
 
-			assert ("not_cancelled", broker.is_cancelled)
-			assert ("not_terminated", broker.is_terminated)
-			assert ("has_exception", not broker.is_exceptional)
+			assert ("not_cancelled", promise.is_cancelled)
+			assert ("not_terminated", promise.is_terminated)
+			assert ("has_exception", not promise.is_exceptional)
 		end
 
 	test_failing
 			-- Test if a failing task doesn't break the executor.
 		local
 			failure: FAILING_TASK
-			broker: CP_PROMISE_PROXY
+			promise: CP_PROMISE_PROXY
 		do
 			create failure
-			assert ("has_broker", not attached failure.broker)
+			assert ("has_promise", not attached failure.promise)
 
-			broker := executor.put_with_broker (failure)
+			promise := executor.put_with_promise (failure)
 
-			assert ("different_broker", failure.broker = broker.subject)
+			assert ("different_promise", failure.promise = promise.subject)
 
-			broker.await_termination
+			promise.await_termination
 
-			assert ("no_exception", broker.is_exceptional)
-			assert ("trace_not_available", attached broker.last_exception_trace)
+			assert ("no_exception", promise.is_exceptional)
+			assert ("trace_not_available", attached promise.last_exception_trace)
 
 			assert ("executor_count_wrong", executor.worker_count = {CP_GLOBAL_PROCESSORS}.worker_count)
 		end
@@ -76,29 +76,29 @@ feature -- Tests
 		local
 			delayer: CP_DELAYED_TASK
 			task: CANCELABLE_TEST
-			broker: CP_PROMISE_PROXY
+			promise: CP_PROMISE_PROXY
 		do
 			create task
 			create delayer.make (task, 2 * second)
 
-			assert ("has_broker", not attached task.broker)
+			assert ("has_promise", not attached task.promise)
 
-			broker := executor.put_with_broker (delayer)
+			promise := executor.put_with_promise (delayer)
 
-			assert ("broker_missing", attached task.broker)
-			assert ("different_broker", task.broker = delayer.broker and broker.subject = delayer.broker)
+			assert ("promise_missing", attached task.promise)
+			assert ("different_promise", task.promise = delayer.promise and promise.subject = delayer.promise)
 
-			broker.cancel
-			assert ("not_cancelled", broker.is_cancelled)
+			promise.cancel
+			assert ("not_cancelled", promise.is_cancelled)
 
 			env.sleep (second)
 
-			assert ("not_delayed", not broker.is_terminated)
+			assert ("not_delayed", not promise.is_terminated)
 
-			broker.await_termination
+			promise.await_termination
 
-			assert ("not_terminated", broker.is_terminated)
-			assert ("has_exception", not broker.is_exceptional)
+			assert ("not_terminated", promise.is_terminated)
+			assert ("has_exception", not promise.is_exceptional)
 		end
 
 	test_timer

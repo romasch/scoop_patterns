@@ -28,7 +28,7 @@ feature {CP_DYNAMIC_TYPE_IMPORTER} -- Initialization
 			-- <Precursor>
 		do
 			create path.make_from_separate (other.path)
-			broker := other.broker
+			promise := other.promise
 		end
 
 feature -- Access
