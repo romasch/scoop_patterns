@@ -542,9 +542,52 @@ However, producers and consumers still have to deal with a nasty separate refere
 To overcome this problem we implemented a non-separate proxy class which automatically deals with the separate reference and imports.
 This idea proved to be so successful that eventually it was turned into its own pattern: the separate proxy.
 
-\todo {Bon-style graphics of CP_QUEUE and related items.}
+\todo {Bon-style graphics of CP\_QUEUE and related items.}
 
 \subsection{Worker pool}
+
+A worker pool is a set of threads that are ready to execute tasks.
+The intention of the worker pool is to make use of parallelism but avoid the overhead of thread creation, which can be quite expensive especially for small tasks.
+
+The main component of the worker pool is a shared buffer, where clients can insert tasks to be executed.
+A worker thread will then repeatedly retrieve a task from the buffer and execute it.
+Thus the worker pool pattern makes itself use of the producer / consumer pattern, with the library client as a producer and the worker threads as consumers.
+
+An important part of the worker pool is also the ability to increase or decrease the amount of worker threads, or to completely stop all worker threads such that the application can terminate.
+
+The representation of a task to be executed varies between different languages.
+In Java for instance a Runnable \todo{ref} object is used, whereas in C\# the task is represented as a delegate \todo{ref}.
+
+In SCOOP there's the usual problem that an object can't be migrated.
+This is especially bad for objects that encapsulate a task to be executed, as the task will be executed on the processor that created the object.
+This fact seems to make worker pools in SCOOP effectively useless.
+If the task object is created on its own processor, you cancel out the performance gain you tried to achieve with the worker pool.
+And if the task object is created on the client processor, you may introduce deadlocks, or in the best case just a straightforward sequential execution.
+
+However, there are two solutions to this problem: You can either use the import mechanism, or make the worker class deferred and let clients implement the task directly.
+In the library we support both approaches, although the latter can be used to implement the import solution.
+
+The basic worker pool module therefore has three main classes:
+\begin{itemize}
+ \item \lstinline!CP_WORKER_POOL!
+ \item \lstinline!CP_WORKER!
+ \item \lstinline!CP_WORKER_FACTORY!
+\end{itemize}
+
+The \lstinline!CP_WORKER_POOL! provides the shared buffer and some additional functionality to adjust the pool size.
+The type of the task object alongside its import strategy can be specified with a generic argument.
+This allows a very flexible use of the worker pool, it is for example possible to use it just as an advanced producer / consumer module where consumers are automatically created and destroyed.
+
+The deferred class \lstinline!CP_WORKER! corresponds to the worker thread in other languages.
+Users need to implement the feature \lstinline!do_run!, which takes a task object and executes it.
+The exact type of the task object depends on the generic arguments of \lstinline!CP_WORKER!, which should be the same as in \lstinline!CP_WORKER_POOL!.
+The non-deferred part in \lstinline!CP_WORKER! is the main loop itself, which fetches a new task, calls \lstinline!do_run!, and checks if the worker needs to terminate.
+
+The last class, \lstinline!CP_WORKER_FACTORY!, just provides a deferred factory function for a new worker.
+This is necessary because the exact type of \lstinline!CP_WORKER! is not known to the library.
+With a user-defined factory, the \lstinline!CP_WORKER_POOL! can create new workers on demand.
+
+\todo{Tell how it's possible to back off from precondition waits.}
 
 \subsection{Future}
 
