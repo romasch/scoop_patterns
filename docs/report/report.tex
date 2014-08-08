@@ -469,6 +469,8 @@ The producer / consumer is a very popular pattern in concurrent programming, and
 The basic idea is to have a shared, concurrent buffer.
 Producer threads put new items into the buffer, whereas consumer threads remove items from this buffer.
 
+\todo{BON-style diagram and ``migration graphics''}
+
 In threaded systems, this buffer is usually accessed by several threads at the same time.
 Careful synchronization has to be enforced to ensure that the buffer remains in a consistent state.
 The data items on the other hand ``migrate'' from a producer to the buffer, and then to exactly one consumer.
@@ -495,9 +497,52 @@ This has to be paid every time the consumer wants to access the separate object.
 Another problem of this approach is related to ease of programming.
 Dealing with a separate object can be very annoying, because you need to write small wrapper functions for every little feature call.
 
-Due to these problems we decided to go for a different strategy: cloning objects.
-\todo {more text}
+\begin{lstlisting}
+class
+  CONSUMER
 
+feature -- Basic operations
+  
+  retrieve
+      -- Retrieve a string and print its length.
+    local
+      l_string: separate STRING
+    do
+      l_string := buffer_consume (a_queue)
+      print (string_count (l_string))
+    end
+    
+feature {NONE} -- Implementation
+  
+  buffer: separate BUFFER [STRING]
+
+  buffer_consume (a_buffer: like buffer): separate STRING
+      -- An annoying small wrapper function for a buffer.
+    do
+      Result := a_buffer.item
+      a_buffer.remove
+    end
+    
+  string_count (a_string: separate STRING): INTEGER
+      -- An annoying small wrapper function for a string.
+    do
+      Result := a_string.count
+    end
+end
+\end{lstlisting}
+
+
+Due to these problems we decided to go for a different strategy: cloning objects.
+Using the import module it is possible to ``teach'' the shared buffer how to clone any user-defined object by just providing a generic argument.
+A first library for the producer / consumer pattern thus consisted of the class \lstinline!CP_QUEUE! and \lstinline!CP_IMPORT_STRATEGY!, along with some predefined importers.
+
+The import trick solves the main problem of the producer / consumer, namely migrating objects from producer to consumer efficiently.
+However, producers and consumers still have to deal with a nasty separate reference (the shared buffer), and there's also the problem that a user of the library might forget to import objects on the consumer side.
+
+To overcome this problem we implemented a non-separate proxy class which automatically deals with the separate reference and imports.
+This idea proved to be so successful that eventually it was turned into its own pattern: the separate proxy.
+
+\todo {Bon-style graphics of CP_QUEUE and related items.}
 
 \subsection{Worker pool}
 
