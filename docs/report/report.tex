@@ -437,7 +437,7 @@ The \lstinline!CP_WORKER_POOL! also implements the separate proxy pattern, which
 
 \subsection{Broker}
 
-
+\todo{}
 
 \subsection{Executor}
 
@@ -588,6 +588,8 @@ The last class, \lstinline!CP_WORKER_FACTORY!, just provides a deferred factory 
 This is necessary because the exact type of \lstinline!CP_WORKER! is not known to the library.
 With a user-defined factory, the \lstinline!CP_WORKER_POOL! can create new workers on demand.
 
+To simplify the handling of a worker pool we also applied the Separate Proxy pattern on \lstinline!CP_WORKER_POOL!.
+
 \subsubsection{Terminating workers}
 
 An important functionality of a worker pool is to adjust the number of workers.
@@ -654,6 +656,21 @@ The combination of these two classes is very close to the Java worker pool imple
 The only difference is that a \lstinline!CP_TASK! object needs to be imported, whereas a Java Runnable object doesn't.
 
 \subsection{Future}
+
+The future pattern is used to perform a computation asynchronously.
+Instead of computing a value directly, the computation gets wrapped into an object and the user only receives a handle to retrieve the value when it's ready.
+This handle is often called Future, Promise or Delay.
+In this thesis we'll use the term Future for the whole pattern, and Promise only refers to the handle.
+
+The representation of the computation is a Callable object in Java and a delegate in C\#.
+The Promise is usually a class with a generic argument that matches the result type of the computation.
+A distinguishing feature of the Promise is that it blocks if the result is not yet available.
+
+The execution of a computation object can vary.
+In most cases the future pattern is backed by a worker pool, which executes the computation objects and updates the Promise with the correct result.
+
+The main advantage of the future pattern is that it allows to make use of parallelism in an easy way.
+A user just has to spot computations which may run asynchronously, and the future pattern takes care of thread management, synchronization and result propagation.
 
 
 
