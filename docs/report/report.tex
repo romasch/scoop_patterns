@@ -566,6 +566,7 @@ And if the task object is created on the client processor, you may introduce dea
 
 However, there are two solutions to this problem: You can either use the import mechanism, or make the worker class deferred and let clients implement the task directly.
 In the library we support both approaches, although the latter can be used to implement the import solution.
+Section~\ref{sec:arbitrary-operations} shows how to do this.
 
 The basic worker pool module therefore has three main classes:
 \begin{itemize}
@@ -587,9 +588,74 @@ The last class, \lstinline!CP_WORKER_FACTORY!, just provides a deferred factory 
 This is necessary because the exact type of \lstinline!CP_WORKER! is not known to the library.
 With a user-defined factory, the \lstinline!CP_WORKER_POOL! can create new workers on demand.
 
-\todo{Tell how it's possible to back off from precondition waits.}
+\subsubsection{Terminating workers}
+
+An important functionality of a worker pool is to adjust the number of workers.
+Increasing the worker count is not a problem, as you can just create new \lstinline!CP_WORKER! instances using the factory.
+However, decreasing the amount of workers is not that easy.
+
+Java provides two builtin mechanisms to shut down a thread.
+You can either force it to stop, which immediately throws an exception in the thread \todo{ref}, or you can use the more collaborative interrupt mechanism \todo{ref}.
+The idea is that the thread will regularly check its interrupted flag and terminate on its own if requested.
+
+The latter is also possible to do in SCOOP, except that there's no builtin interrupt flag.
+Instead a query \lstinline!is_stop_requested! in \lstinline!CP_WORKER_POOL! can be used.
+The main problem however are wait conditions.
+
+In Java, blocking calls like \lstinline!wait()! and \lstinline!sleep()! may throw an \lstinline!InterruptedException! \todo{ref}.
+This avoids the problem that a thread may wait forever instead of shutting down, because all signaller threads have already terminated.
+Unfortunately, there's no such mechanism in SCOOP.
+It is possible however to work around this limitation by refining the wait condition:
+\begin{lstlisting}
+
+class
+  CP_WORKER
+  
+  -- ...
+  
+feature -- Implementation
+
+  fetch (pool: separate CP_WORKER_POOL)
+    require
+      not pool.is_empty or pool.is_stop_requested
+    do
+      if is_stop_requested then
+	-- Stop the currrent worker.
+      else
+	-- Grab the next item.
+      end
+    end
+
+end
+\end{lstlisting}
+The additional \lstinline!if! statement is not very nice, but luckily it can be encapsulated completely in \lstinline!CP_WORKER!.
+
+This code snippet is useful to break free of any wait condition if the requirements have changed.
+
+\subsubsection{Arbitrary operations}
+\label{sec:arbitrary-operations}
+
+So far the task of a worker is defined in a user-defined \lstinline!CP_WORKER! class, and the object submitted to the worker pool mostly contains data.
+The worker pool implementations in Java and C\# only accept Runnable (or delegate) objects.
+This enables arbitrary operations that can be executed by the worker threads.
+
+The SCOOP version of the worker pool can be enhanced to act like the Java / C\# counterparts.
+To do that we need a class that represents an operation, and which can be moved across processor boundaries.
+
+The agent classes in Eiffel (i.e. ROUTINE and descendants) may be used to represent operations, but they can't be easily imported.
+That's why we added a new, deferred class \lstinline!CP_TASK!.
+Users of the library can inherit from it and implement the feature \lstinline!run!.
+\todo {Tell about agent integration?}
+
+Using this interface it is possible to have a predefined \lstinline!CP_TASK_WORKER! that just runs \lstinline!CP_TASK! objects.
+The associated \lstinline!CP_TASK_WORKER_POOL! implements the factory function and refines the raw \lstinline!CP_WORKER_POOL!.
+
+The combination of these two classes is very close to the Java worker pool implementation.
+The only difference is that a \lstinline!CP_TASK! object needs to be imported, whereas a Java Runnable object doesn't.
 
 \subsection{Future}
+
+
 
 \subsection{Evaluation and Benchmarks}
 
