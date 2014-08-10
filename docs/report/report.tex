@@ -435,7 +435,9 @@ The \lstinline!CP_WORKER_POOL! is the central management instance.
 Its primary task is to accept new work items from clients, but it can also be used to adjust the number of workers in the pool and to terminate all workers.
 The \lstinline!CP_WORKER_POOL! also implements the separate proxy pattern, which means that clients should access it through \lstinline!CP_WORKER_POOL_PROXY!.
 
-\subsection{Broker}
+\subsection{Promise}
+
+The promise cluster contains a set of classes which can be used to monitor the state of an asynchronous operation.
 
 \todo{}
 
@@ -697,9 +699,13 @@ The solution is - surprisingly - the import module.
 We can create a promise object with the correct types on the client processor, and then ask the global processor to import it.
 This way the promise object finally ends up on the correct processor.
 
+In the library, the Promise object is provided by the class \lstinline!CP_PROMISE! and its descendants.
+The computation is represented with \lstinline!CP_COMPUTATION!, or \lstinline!CP_TASK! for operations that don't return a result.
+The execution service is the deferred class \lstinline!CP_EXECUTOR! and \lstinline!CP_TASK_WORKER_POOL! is the main implementation.
 
-
-
+The separate proxy pattern is applied on \lstinline!CP_EXECUTOR! and \lstinline!CP_PROMISE!.
+Besides acting as a processor-local proxy to a separate \lstinline!CP_EXECUTOR!, 
+the classes \lstinline!CP_EXECUTOR_PROXY! and \lstinline!CP_FUTURE_EXECUTOR_PROXY! are also responsible to create Promise objects on the global processor.
 
 \subsection{Evaluation and Benchmarks}
 
