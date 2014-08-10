@@ -672,6 +672,33 @@ In most cases the future pattern is backed by a worker pool, which executes the 
 The main advantage of the future pattern is that it allows to make use of parallelism in an easy way.
 A user just has to spot computations which may run asynchronously, and the future pattern takes care of thread management, synchronization and result propagation.
 
+The implementation of the future pattern in SCOOP hits two problems:
+\begin{itemize}
+ \item Operations can't be easily moved from the client to an execution service.
+ The same is also true for the result of a computation in the reverse direction.
+ \item The promise object should neither be placed on the client processor nor on the executor service.
+ The reason in both cases is that one processor may execute a main loop, which means the other processor never gets access to the promise object.
+\end{itemize}
+
+We'll use the standard procedure to deal with the first problem, namely the import mechanism.
+The second problem is more interesting however.
+One way to solve it is to create a third processor, which only takes care of the Promise object.
+This ensures that both the library client and the execution service can access the Promise object, but it introduces a huge overhead.
+For every computation one extra thread must be created!
+
+A better tradeoff would be to introduce one global processor, which takes care of all promise objects.
+This may introduce contention if multiple futures are submitted, but we think that this is acceptable.
+
+However, this approach brings another problem.
+A promise object has two generic arguments for the return type and the import strategy.
+As these arguments are not known in advance, and because SCOOP processor tags \todo{ref} are not implemented yet, it is not possible to create a promise object on this dedicated processor.
+
+The solution is - surprisingly - the import module.
+We can create a promise object with the correct types on the client processor, and then ask the global processor to import it.
+This way the promise object finally ends up on the correct processor.
+
+
+
 
 
 \subsection{Evaluation and Benchmarks}
