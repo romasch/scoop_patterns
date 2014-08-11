@@ -410,7 +410,40 @@ The import then happens automatically in both the queue and its proxy.
 
 The process module provides a set of classes that all implement some sort of skeleton for a main loop.
 
-\todo{more text}
+The class \lstinline!CP_PROCESS! defines the interface.
+It inherits from \lstinline!CP_STARTABLE!, such that clients have a simple way to start a separate process using \lstinline!CP_STARTABLE_UTILS!.
+
+The feature \lstinline!start! is used to start the main loop.
+As the process module defines the skeleton for a main loop, users are just required to implement \lstinline!step!, which should contain the body of the loop.
+The loop can be exited by setting the attribute \lstinline!is_stopped! to \lstinline!True!.
+
+\lstinline!CP_PROCESS! also introduces the two methods \lstinline!setup! and \lstinline!cleanup!.
+They are called in the beginning or at the end of the main loop, and must be explicitly redefined by descendants if needed.
+
+There are two different implementations for the main loop itself.
+\lstinline!CP_CONTINUOUS_PROCESS! implements the main loop in a straightforward manner:
+\begin{lstlisting}
+from setup
+until is_stopped
+loop
+  step
+end
+\end{lstlisting}
+The advantage of this approach is its simplicity.
+However, other processors never get a chance to access data which is handled by the processor of the \lstinline!CP_CONTINUOUS_PROCESS!, unless the main loop is exited completely.
+This class is a simple implementation of the \lstinline!Active Object! pattern described in \todo{ref}.
+
+The second implementation in \lstinline!CP_INTERMITTENT_PROCESS! is more interesting.
+The basic idea is to perform only one iteration, and then tell another processor to inoke the loop body again in \lstinline!Current!.
+This ping-pong approach ensures that after every iteration other processors may get a chance to access and modify data in \lstinline!CP_INTERMITTENT_PROCESS!.
+In practice this is especially useful to stop a \lstinline!CP_INTERMITTENT_PROCESS! from the outside.
+
+\lstinline!CP_INTERMITTENT_PROCESS! implements the Self Asynch pattern described in \todo{ref}.
+The callback service is provided by the class \lstinline!CP_PACEMAKER!, and every \lstinline!CP_INTERMITTENT_PROCESS! automatically creates an associated pacemaker.
+
+The \lstinline!CP_PERIODIC_PROCESS! is a refinement of the \lstinline!CP_INTERMITTENT_PROCESS!, which allows to add a small delay between executions.
+It also adds a simple command \lstinline!stop!, which can be used to stop the process from the outside.
+It is an implementation of the Timer: Periodic pattern in \todo{ref}.
 
 \subsection{Worker pool}
 
