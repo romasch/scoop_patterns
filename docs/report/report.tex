@@ -24,13 +24,46 @@
 
 \section{Introduction}
 
-\section {The SCOOP model}
-% Introduction, differences to Java etc... (short)
-
 \section {Pattern overview}
+
+
+
 % Overview of all patterns, maybe tabular
 
 \input{pattern_list}
+
+\section {The SCOOP model}
+% Introduction, differences to Java etc... (short)
+
+SCOOP is an extension to the Eiffel language \todo{ref} that aims to make concurrent programming easier.
+The basic idea is that every object can only be accessed by exactly one computational unit.
+This unit is called processor, or handler of an object.
+
+The keyword \lstinline!separate! is used to indicate that an object may be handled by a processor with respect to the handler for \lstinline!Current!.
+Calls to a separate object (``separate calls'') then correspond to sending a message to the foreign processor.
+There are two types of separate calls: synchronous and asynchronous.
+If the called feature returns a result, the call is synchronous, which means that the current processor has to wait for the foreign processor to finish its task.
+An asynchonous call happens when the feature is a command, i.e. not returning any result.
+In that case, both processors can proceed concurrently.
+
+A separate call is only allowed if the target of the call is ``controlled''.
+Having an object controlled means that the user has exclusive access to that object - in that sense controlling an object corresponds a bit to locking in other languages.
+In order to control an object it has to appear as a formal argument in the enclosing routine.
+
+SCOOP guarantees that all messages sent by the current processor are handled in the foreign processor in the correct order.
+A consequence of this and the exclusive access guarantee is that within a feature body, a separate object can be treated as if it were in a sequential program.
+This is the reason why the SCOOP model is so simple: 
+It allows reasoning about a feature body without the need to consider all possible interleavings of two parallel executions.
+
+To create a new processor, one has to use the creation instruction on an object which is declared as separate.
+The new processor is then initialized automatically, and the new object is handled by the new processor.
+
+There are many advantages to the SCOOP model, such as easier reasoning and absence of data races, but it also has some shortcomings.
+One of them is the fact that it's a bit tedious to write SCOOP programs.
+Due to the fact that every call to a separate object needs to be controlled, a user often has to write little helper functions that take a separate reference and just perform a single call on it.
+It also has some performance problems, because encapsulating a separate call in a message may be expensive (especially for small functions like array access).
+Additionally, a processor is currently implemented as an operating system thread, and creating them is an expensive operation that involves context switches.
+The SCOOP model however encourages the creation of many processors, which is not ideal for performance reasons.
 
 \section {Library}
 
