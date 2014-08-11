@@ -470,9 +470,28 @@ The \lstinline!CP_WORKER_POOL! also implements the separate proxy pattern, which
 
 \subsection{Promise}
 
-The promise cluster contains a set of classes which can be used to monitor the state of an asynchronous operation.
+The promise module contains a set of classes which can be used to monitor the state of an asynchronous operation.
 
-\todo{}
+The main class is \lstinline!CP_PROMISE!, which defines several queries like \lstinline!is_terminated! or \lstinline!is_exceptional!.
+It also defines the interface to cancel a task or to get the progress percentage (e.g. for a download task), but these queries need to be supported by the task itself.
+
+The Separate Proxy mechanism is available for promise objects, because they are usually declared separate to the client.
+In this case the pattern is implemented with four classes, i.e.
+\begin{itemize}
+ \item \lstinline!CP_PROMISE! defines a common interface,
+ \item \lstinline!CP_SHARED_PROMISE! defines the actual separate object,
+ \item \lstinline!CP_PROMISE_UTILS! defines helper functions to access a \lstinline!separate CP_PROMISE! and
+ \item \lstinline!CP_PROMISE_PROXY! is the proxy object.
+\end{itemize}
+
+There's an important descendant, the \lstinline!CP_RESULT_PROMISE!, which is used for asynchronous operations that return a result.
+It also has a set of associated classes that implement the Separate Proxy pattern.
+
+The \lstinline!CP_RESULT_PROMISE! contains a query \lstinline!item! to retrieve the result as soon as it's available.
+The return type of \lstinline!item! depends on a generic argument.
+To migrate the result back to the client, this class makes use of the import module - i.e. the \lstinline!CP_SHARED_RESULT_PROMISE! and \lstinline!CP_RESULT_PROMISE_PROXY! both have an additional generic argument which defines the import strategy.
+
+The \lstinline!CP_RESULT_PROMISE! is used for the future pattern.
 
 \subsection{Executor}
 
