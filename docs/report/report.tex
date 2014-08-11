@@ -7,6 +7,7 @@
 \usepackage{todo}
 
 \newcommand{\dir} [1] [] {#1} 
+\newcommand{\todoref}{\todo{ref}}
 
 % Title Page
 \title{Concurrency Patterns in SCOOP}
@@ -24,10 +25,26 @@
 
 \section{Introduction}
 
+Due to the advent of multicore processors, concurrent programming has become an important part in software engineering.
+Dealing with parallelism isn't easy however.
+There are many pitfalls, such as race conditions and deadlocks.
+
+In practice programmers have learned to avoid tricky concurrency problems with the use of some well-known patterns \todo{is it ok to take introduction from project plan almost word for word?}.
+These patterns are often shipped with the standard library of the language, such that users rarely have to implement them.
+
+The Eiffel language \todo{ref} has a new concurrency extension called SCOOP, which stands for Simple Concurrent Object-Oriented Programming.
+SCOOP simplifies concurrent programming a lot and eliminates one source of errors completely, namely race conditions \todo{ref}.
+However, there is little experience on how to implement popular concurrency patterns, such as a worker pool, in SCOOP.
+
+The goal of this thesis is therefore to implement a standard library for concurrency patterns in Eiffel.
+
+Section \todoref introduces a list of concurrency patterns which we found and categorized by studying literature and the standard libraries.
+A brief introduction to the SCOOP model is given in Section \todoref.
+The focus of Section \todoref is to describe the library itself.
+The first part contains an API tutorial, whereas the second part focuses on the design of the library itself.
+Finally, Section \todoref describes some interesting patterns with special problems and the solutions to them.
+
 \section {Pattern overview}
-
-
-
 % Overview of all patterns, maybe tabular
 
 \input{pattern_list}
