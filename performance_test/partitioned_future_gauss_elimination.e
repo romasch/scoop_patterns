@@ -1,6 +1,6 @@
 note
-	description: "Summary description for {PARTITIONED_FUTURE_GAUSS_ELIMINATION}."
-	author: ""
+	description: "A system of linear equations that uses the future pattern with several worker pools."
+	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 

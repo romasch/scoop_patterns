@@ -1,6 +1,6 @@
 note
-	description: "Summary description for {PARTITIONING_FUTURE_EXECUTOR}."
-	author: ""
+	description: "A future executor proxy that can use its own broker processor."
+	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 

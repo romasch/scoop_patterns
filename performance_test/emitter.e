@@ -1,8 +1,9 @@
 note
-	description: "Utility to measure time and write the output to a file."
+	description: "Utility to measure time and write the output to a file. %
+		% Note: File copied and adapted from ABEL project."
 	author: "Roman Schmocker"
-	date: "$Date: 2013-12-11 00:11:31 +0100 (Mit, 11. Dez 2013) $"
-	revision: "$Revision: 93688 $"
+	date: "$Date$"
+	revision: "$Revision$"
 
 class
 	EMITTER

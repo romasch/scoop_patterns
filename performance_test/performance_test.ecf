@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-13-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-13-0 http://www.eiffel.com/developers/xml/configuration-1-13-0.xsd" name="performance_test" uuid="23ACDA9D-E9DF-4F87-A700-1D9E7D864389" library_target="common">
-	<target name="common">
-		<root all_classes="true"/>
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-13-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-13-0 http://www.eiffel.com/developers/xml/configuration-1-13-0.xsd" name="performance_test" uuid="23ACDA9D-E9DF-4F87-A700-1D9E7D864389" library_target="performance_test">
+	<target name="performance_test">
+		<root class="PERFORMANCE_TEST" feature="make"/>
 		<option warning="true" void_safety="all" syntax="standard">
 			<assertions precondition="true" supplier_precondition="true"/>
 		</option>
@@ -9,8 +9,8 @@
 		<setting name="inlining_size" value="4"/>
 		<setting name="concurrency" value="scoop"/>
 		<library name="base" location="$ISE_LIBRARY\library\base\base-safe.ecf"/>
-		<library name="examples" location="..\examples\all_examples.ecf" readonly="false"/>
-		<library name="scoop_patterns" location="..\library\scoop_patterns.ecf" readonly="false"/>
+		<library name="examples" location="..\examples\all_examples.ecf"/>
+		<library name="scoop_patterns" location="..\library\scoop_patterns.ecf"/>
 		<library name="time" location="$ISE_LIBRARY\library\time\time-safe.ecf"/>
 		<cluster name="performance_test" location=".\" recursive="true">
 			<file_rule>
@@ -19,15 +19,5 @@
 				<exclude>/.svn$</exclude>
 			</file_rule>
 		</cluster>
-	</target>
-	<target name="scoop_pattern" extends="common">
-		<root class="PERFORMANCE_TEST" feature="make"/>
-	</target>
-	<target name="scoop_naive" extends="common">
-		<root class="PERFORMANCE_TEST" feature="make"/>
-	</target>
-	<target name="sequential" extends="common">
-		<root class="PERFORMANCE_TEST" feature="make"/>
-		<setting name="concurrency" value="none"/>
 	</target>
 </system>

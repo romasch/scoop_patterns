@@ -1,5 +1,5 @@
 note
-	description: "Entry points for performance testing."
+	description: "Entry point for performance testing."
 	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
@@ -22,13 +22,14 @@ feature
 		do
 			create emitter.make ("results.csv")
 
-			io.put_string ("Enter number of elements: ")
+			io.put_string ("Enter number of elements:%N")
 			io.read_integer
 			element_count := io.last_integer
+			io.put_string ("Testing with " + element_count.out + " elements.%N")
 
 			emitter.annotate ("count", element_count.out)
 
-			test_partitioned_future
+--			test_partitioned_future
 			test_future
 			test_scoop_raw
 			test_sequential
