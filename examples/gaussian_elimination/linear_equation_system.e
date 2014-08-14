@@ -1,46 +1,32 @@
 note
-	description: "Representation for a system of linear equations."
+	description: "A solver for a system of linear equations which uses the future pattern."
 	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 
 class
-	LINEAR_EQUATION_SYSTEM
+	LES_FUTURE_SOLVER
 
 inherit
-	ANY
-		redefine
-			out
-		end
+	LINEAR_EQUATION_SYSTEM
 
 create
-	make, make_from_array
+	make, make_random, make_from_array
 
 feature {NONE} -- Initialization
 
-	make_from_array (array: ARRAY [ARRAY [DOUBLE]])
-			-- Initialize `Current' with the values in `array'.
-		require
-			correct_dimensions: array.count = array [1].count - 1
-			uniform: across array as cursor all cursor.item.count = array [1].count end
+	make_zero (a_count: INTEGER)
+			-- <Precursor>
 		local
 			l_equation: LINEAR_EQUATION
 		do
-			create equations.make (array.count)
-
 			across
-				array as cursor
+				1 |..| a_count as i
 			from
-				create equations.make (array.count)
+				create equations.make (a_count)
 			loop
-				across
-					cursor.item as cell
-				from
-					create l_equation.make (cursor.item.count)
-					equations.extend (l_equation)
-				loop
-					l_equation.extend (cell.item)
-				end
+				create l_equation.make_filled (a_count + 1)
+				equations.extend (l_equation)
 			end
 		end
 
@@ -55,10 +41,37 @@ feature {NONE} -- Initialization
 
 feature -- Access
 
+	item (row_index, column_index: INTEGER): DOUBLE
+			-- <Precursor>
+		do
+			Result := equations [row_index].i_th (column_index)
+		end
+
+	count: INTEGER
+			-- <Precursor>
+		do
+			Result := equations.count
+		end
+
 	equations: ARRAYED_LIST [LINEAR_EQUATION]
 			-- The linear equations in the system.
 
-feature --  Basic operations
+feature -- Basic operations
+
+	set_item (i, k: INTEGER; value: DOUBLE)
+			-- Assign `value' to matrix position [i,k].
+		do
+			equations [i].put_i_th (value, k)
+		end
+
+	swap (i, k: INTEGER)
+			-- Swap rows i and k.
+		do
+			equations.go_i_th (i)
+			equations.swap (k)
+		end
+
+feature -- Advanced operations
 
 	solve
 			-- Solve the system of linear equations using gaussian elimination.
@@ -72,7 +85,7 @@ feature --  Basic operations
 			k: INTEGER
 		do
 				-- Initialize the worker pool.
-			create worker_pool.make (20, 4)
+			create worker_pool.make (50, 4)
 			create executor.make (worker_pool)
 
 
@@ -128,39 +141,4 @@ feature --  Basic operations
 			executor.stop
 		end
 
-	adjust_rows (pivot: INTEGER)
-			-- Swap row if necessary to get a non-zero pivot element.
-		local
-			k: INTEGER
-		do
-			from
-				k := pivot + 1
-			until
-				k > equations.count or (equations [pivot]) [pivot] /= 0.0
-			loop
-				if (equations [k])[pivot] /= 0.0 then
-					equations.go_i_th (k)
-					equations.swap (pivot)
-				end
-				k := k + 1
-			end
-		end
-
-feature -- Output
-
-	out: STRING
-			-- <Precursor>
-		do
-			create Result.make_empty
-			across
-				equations as eq
-			loop
-				across
-					eq.item  as cell
-				loop
-					Result.append (cell.item.out + "%T")
-				end
-				Result.append ("%N")
-			end
-		end
 end

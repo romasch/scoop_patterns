@@ -16,8 +16,13 @@ inherit
 			copy, is_equal
 		end
 
+	MEMORY
+		undefine
+			copy, is_equal
+		end
+
 create
-	make, make_from_separate
+	make, make_filled, make_from_separate
 
 feature {CP_DYNAMIC_TYPE_IMPORTER} -- Initialization
 
@@ -27,23 +32,29 @@ feature {CP_DYNAMIC_TYPE_IMPORTER} -- Initialization
 			idx, l_count: INTEGER
 		do
 			l_count := other.count
-			make (l_count)
+			make_filled (l_count)
 
-			from
-				idx := 1
-			until
-				idx > l_count
-			loop
-				extend (other [idx])
-				idx := idx + 1
-			variant
-				l_count - idx + 1
-			end
+			collection_off
+			area.base_address.memory_copy (other.area.base_address, l_count * {PLATFORM}.real_64_bytes)
+			collection_on
+
+--			from
+--				idx := 1
+--			until
+--				idx > l_count
+--			loop
+--				extend (other [idx])
+--				idx := idx + 1
+--			variant
+--				l_count - idx + 1
+--			end
+		rescue
+			collection_on
 		end
 
 feature -- Mathematical operations
 
-	subtract (scalar: DOUBLE; subtrahend: LINEAR_EQUATION): LINEAR_EQUATION
+	subtract (scalar: DOUBLE; subtrahend: LINEAR_EQUATION)
 			-- Subtract `scalar' times `subtrahend' from `Current'.
 		require
 			same_count: subtrahend.count = count
@@ -51,17 +62,35 @@ feature -- Mathematical operations
 			minuend: LINEAR_EQUATION
 			idx: INTEGER
 		do
+--			create Result.make_filled (count)
+			minus (subtrahend, Current, scalar)
+		end
+
+	separate_subtract (scalar: DOUBLE; subtrahend: separate LINEAR_EQUATION)
+		do
+			minus (subtrahend, Current, scalar)
+		end
+
+	minus (subtrahend, difference: separate LINEAR_EQUATION; scalar: DOUBLE)
+			-- Compute `Current' - `scalar' * `subtrahend' and store the result in `difference'.
+			-- `difference' may be the same as `Current'.
+		require
+			same_count: count = subtrahend.count and subtrahend.count = difference.count
+			not_equal: Current /= subtrahend
+		local
+			i: INTEGER
+			minuend: LINEAR_EQUATION
+		do
 			from
-				idx := 1
+				i := 1
 				minuend := Current
-				create Result.make (count)
 			until
-				idx > count
+				i > count
 			loop
-				Result.extend ( minuend [idx] - scalar * subtrahend [idx])
-				idx := idx + 1
+				difference [i] :=  minuend [i] - scalar * subtrahend [i]
+				i := i + 1
 			variant
-				count - idx + 1
+				count - i + 1
 			end
 		end
 

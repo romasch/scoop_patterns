@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-13-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-13-0 http://www.eiffel.com/developers/xml/configuration-1-13-0.xsd" name="performance_test" uuid="23ACDA9D-E9DF-4F87-A700-1D9E7D864389" library_target="common">
+	<target name="common">
+		<root all_classes="true"/>
+		<option profile="true" warning="true" void_safety="all" syntax="standard">
+			<assertions precondition="true" postcondition="true" check="true" invariant="true" loop="true" supplier_precondition="true"/>
+		</option>
+		<setting name="console_application" value="true"/>
+		<setting name="concurrency" value="scoop"/>
+		<library name="base" location="$ISE_LIBRARY\library\base\base-safe.ecf"/>
+		<library name="examples" location="..\examples\all_examples.ecf" readonly="false">
+			<option profile="true">
+			</option>
+		</library>
+		<library name="scoop_patterns" location="..\library\scoop_patterns.ecf">
+			<option profile="true">
+			</option>
+		</library>
+		<library name="time" location="$ISE_LIBRARY\library\time\time-safe.ecf"/>
+		<cluster name="performance_test" location=".\" recursive="true">
+			<file_rule>
+				<exclude>/EIFGENs$</exclude>
+				<exclude>/CVS$</exclude>
+				<exclude>/.svn$</exclude>
+			</file_rule>
+		</cluster>
+	</target>
+	<target name="scoop_pattern" extends="common">
+		<root class="PERFORMANCE_TEST" feature="make_scoop_pattern"/>
+	</target>
+	<target name="scoop_naive" extends="common">
+		<root class="PERFORMANCE_TEST" feature="make_scoop_naive"/>
+	</target>
+	<target name="sequential" extends="common">
+		<root class="PERFORMANCE_TEST" feature="make_sequential"/>
+		<setting name="concurrency" value="none"/>
+	</target>
+</system>

@@ -58,7 +58,9 @@ feature -- Basic operations
 			scalar := minuend [pivot] / subtrahend [pivot]
 
 				-- Do the row subtraction.
-			Result := minuend.subtract (scalar, subtrahend)
+			minuend.subtract (scalar, subtrahend)
+			
+			Result := minuend
 		end
 
 end

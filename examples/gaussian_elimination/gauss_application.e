@@ -57,7 +57,7 @@ feature {NONE} -- Initialization
 	make
 			-- Initialization for `Current'.
 		local
-			system: LINEAR_EQUATION_SYSTEM
+			system: LES_FUTURE_SOLVER
 		do
 			create system.make_from_array (normal_matrix)
 
