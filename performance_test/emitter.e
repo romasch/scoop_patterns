@@ -34,7 +34,6 @@ feature -- Access
 
 	test_execution: DATE_TIME
 
-
 feature -- Access: Test execution
 
 	is_running: BOOLEAN
@@ -46,9 +45,19 @@ feature -- Access: Test execution
 	start_time: detachable DATE_TIME
 			-- The start time of the currently running test.
 
-	results: HASH_TABLE [REAL_64, STRING]
+	results: HASH_TABLE [STRING, STRING]
 
 feature -- Element change
+
+	annotate (a_description: STRING; a_text: STRING)
+			-- Write an annotation.
+		require
+			not_running: not is_running
+			not_empty: not a_description.is_empty
+		do
+			check not_yet_present: not results.has (a_description) end
+			results.extend (a_text, a_description)
+		end
 
 	start (a_description: STRING)
 			-- Start the test with description `a_description'.
@@ -87,7 +96,7 @@ feature -- Element change
 
 				write ("%TRequired time: " + diff.out + "%N")
 
-				results.extend (diff, l_description)
+				results.extend (trim_double (diff), l_description)
 
 			end
 			is_running := False
@@ -209,7 +218,7 @@ feature -- Element change
 					trim_integer (test_execution.second)
 					, "Date")
 			loop
-				new_result.extend (trim_double (res_cursor.item), res_cursor.key)
+				new_result.extend (res_cursor.item, res_cursor.key)
 			end
 
 				-- Write the content of the CSV file.

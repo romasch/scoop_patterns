@@ -5,7 +5,7 @@ note
 	revision: "$Revision$"
 
 deferred class
-	LINEAR_EQUATION_SYSTEM
+	LINEAR_EQUATION_SYSTEM [G -> separate LINEAR_EQUATION]
 
 inherit
 	ANY
@@ -17,7 +17,21 @@ feature {NONE} -- Initialization
 
 	make_zero (a_count: INTEGER)
 			-- Create a new, zero-filled linear equation system.
-		deferred
+		local
+			i: INTEGER
+		do
+			create equations.make (a_count)
+
+			from
+				i := 1
+			until
+				i > a_count
+			loop
+				equations.extend (new_equation (a_count + 1))
+				i := i + 1
+			variant
+				a_count + 1 - i
+			end
 		ensure
 			correct_count: count = a_count
 		end
@@ -79,16 +93,20 @@ feature {NONE} -- Initialization
 
 feature -- Access
 
+	equations: ARRAYED_LIST [G]
+			-- The linear equations in the system.
+
+	count: INTEGER
+			-- Number of equations (rows) in the system.
+		do
+			Result := equations.count
+		end
+
 	item (row_index, column_index: INTEGER): DOUBLE
 			-- Element at position [row_index, column_index].
 		require
 			valid_row: 0 < row_index and row_index <= count
 			valid_column: 0 < column_index and column_index <= count+1
-		deferred
-		end
-
-	count: INTEGER
-			-- Number of equations (rows) in the system.
 		deferred
 		end
 
@@ -107,7 +125,9 @@ feature -- Basic operations
 
 	swap (i, k: INTEGER)
 			-- Swap rows i and k.
-		deferred
+		do
+			equations.go_i_th (i)
+			equations.swap (k)
 		end
 
 feature -- Advanced operations
@@ -190,6 +210,13 @@ feature -- Output
 			if is_singular then
 				Result.append ("Note: Matrix was singular!%N")
 			end
+		end
+
+feature {NONE} -- Implementation
+
+	new_equation (a_count: INTEGER): G
+			-- Create a new, zero,filled equation with `a_count' elements.
+		deferred
 		end
 
 end

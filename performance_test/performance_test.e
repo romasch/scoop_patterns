@@ -8,63 +8,94 @@ class
 	PERFORMANCE_TEST
 
 create
-	make_scoop_pattern, make_scoop_naive, make_sequential
+	make
 
 feature
 
-	Element_count: INTEGER = 200
+	element_count: INTEGER
 
 	emitter: EMITTER
 
-	make_scoop_pattern
-		local
-			test: LES_FUTURE_SOLVER
-		do
-			create emitter.make ("pattern.csv")
+	is_singular: BOOLEAN
 
-			emitter.start ("pattern_init")
+	make
+		do
+			create emitter.make ("results.csv")
+
+			io.put_string ("Enter number of elements: ")
+			io.read_integer
+			element_count := io.last_integer
+
+			emitter.annotate ("count", element_count.out)
+
+			test_partitioned_future
+			test_future
+			test_scoop_raw
+			test_sequential
+
+			emitter.annotate ("is_singular", is_singular.out)
+
+			emitter.write_results
+		end
+
+	test_partitioned_future
+		local
+			test: PARTITIONED_FUTURE_GAUSS_ELIMINATION
+		do
+			emitter.start ("part_init")
 			create test.make_random (Element_count)
 			emitter.stop
 
-			emitter.start ("pattern_solve")
+			emitter.start ("part_solve")
 			test.solve
 			emitter.stop
 
-			if not test.is_singular then
-				emitter.write_results
-			else
-				print ("Error: singular matrix.%N")
-			end
-
-			make_scoop_naive
-
-
+			is_singular := is_singular or test.is_singular
 		end
 
-	make_scoop_naive
+	test_future
 		local
-			test: LES_RAW_SCOOP_SOLVER
+			test: FUTURE_GAUSS_ELIMINATION
 		do
-			create emitter.make ("naive.csv")
-			emitter.start ("naive_init")
+			emitter.start ("future_init")
 			create test.make_random (Element_count)
 			emitter.stop
 
-			emitter.start ("naive_solve")
+			emitter.start ("future_solve")
 			test.solve
 			emitter.stop
 
-			if not test.is_singular then
-				emitter.write_results
-			else
-				print ("Error: singular matrix.%N")
-			end
+			is_singular := is_singular or test.is_singular
 		end
 
-	make_sequential
+	test_scoop_raw
+		local
+			test: RAW_SCOOP_GAUSS_ELIMINATION
 		do
-			create emitter.make ("sequential.csv")
-			make_scoop_pattern
+			emitter.start ("rawscoop_init")
+			create test.make_random (Element_count)
+			emitter.stop
+
+			emitter.start ("rawscoop_solve")
+			test.solve
+			emitter.stop
+
+			is_singular := is_singular or test.is_singular
+		end
+
+	test_sequential
+		local
+			test: SEQUENTIAL_GAUSS_ELIMINATION
+		do
+			emitter.start ("sequential_init")
+			create test.make_random (Element_count)
+			emitter.stop
+
+			emitter.start ("sequential_solve")
+			test.solve
+			emitter.stop
+
+			is_singular := is_singular or test.is_singular
 		end
 
 end

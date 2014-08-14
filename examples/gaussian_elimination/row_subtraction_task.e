@@ -59,7 +59,8 @@ feature -- Basic operations
 
 				-- Do the row subtraction.
 			minuend.subtract (scalar, subtrahend)
-			
+
+				-- We can reuse the minuend object, since we have a private copy anyway.
 			Result := minuend
 		end
 

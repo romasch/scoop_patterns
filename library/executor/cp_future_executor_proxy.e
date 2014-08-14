@@ -25,14 +25,14 @@ feature -- Basic operations
 		do
 				-- Create a promise on the global result processor.
 			create l_template_promise.make
-			l_importable := new_result_promise (result_promise_processor, l_template_promise)
+			l_importable := new_result_promise (my_result_promise_processor, l_template_promise)
 
 				-- Check must succeed because we're importing based on the dynamic type.
 			check attached {separate CP_SHARED_RESULT_PROMISE [G, IMPORTER]} l_importable as l_checked then
 				l_promise := l_checked
 			end
 
-				-- Initialiye the computation and the result.
+				-- Initialize the computation and the result.
 			a_computation.set_promise (l_promise)
 
 			create Result.make (l_promise)
@@ -41,6 +41,14 @@ feature -- Basic operations
 			put (a_computation)
 		ensure
 			same_promise: Result.subject = a_computation.promise
+		end
+
+feature {NONE} -- Implementation
+
+	my_result_promise_processor: separate CP_DYNAMIC_TYPE_IMPORTER [CP_IMPORTABLE]
+			-- The processor to be used for result promise objects.
+		attribute
+			Result := result_promise_processor
 		end
 
 end

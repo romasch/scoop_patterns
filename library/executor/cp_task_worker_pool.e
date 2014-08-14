@@ -10,6 +10,9 @@ class
 inherit
 
 	CP_EXECUTOR
+		undefine
+			is_full
+		end
 
 	CP_WORKER_POOL [CP_TASK, CP_DYNAMIC_TYPE_IMPORTER [CP_TASK]]
 

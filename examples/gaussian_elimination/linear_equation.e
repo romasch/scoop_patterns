@@ -43,7 +43,7 @@ feature {CP_DYNAMIC_TYPE_IMPORTER} -- Initialization
 --			until
 --				idx > l_count
 --			loop
---				extend (other [idx])
+--				put_i_th (other [idx], idx)
 --				idx := idx + 1
 --			variant
 --				l_count - idx + 1
@@ -54,40 +54,20 @@ feature {CP_DYNAMIC_TYPE_IMPORTER} -- Initialization
 
 feature -- Mathematical operations
 
-	subtract (scalar: DOUBLE; subtrahend: LINEAR_EQUATION)
+	subtract (scalar: DOUBLE; subtrahend: separate LINEAR_EQUATION)
 			-- Subtract `scalar' times `subtrahend' from `Current'.
 		require
 			same_count: subtrahend.count = count
-		local
-			minuend: LINEAR_EQUATION
-			idx: INTEGER
-		do
---			create Result.make_filled (count)
-			minus (subtrahend, Current, scalar)
-		end
-
-	separate_subtract (scalar: DOUBLE; subtrahend: separate LINEAR_EQUATION)
-		do
-			minus (subtrahend, Current, scalar)
-		end
-
-	minus (subtrahend, difference: separate LINEAR_EQUATION; scalar: DOUBLE)
-			-- Compute `Current' - `scalar' * `subtrahend' and store the result in `difference'.
-			-- `difference' may be the same as `Current'.
-		require
-			same_count: count = subtrahend.count and subtrahend.count = difference.count
-			not_equal: Current /= subtrahend
+			not_equal: subtrahend /= Current
 		local
 			i: INTEGER
-			minuend: LINEAR_EQUATION
 		do
 			from
 				i := 1
-				minuend := Current
 			until
 				i > count
 			loop
-				difference [i] :=  minuend [i] - scalar * subtrahend [i]
+				Current [i] :=  Current [i] - scalar * subtrahend [i]
 				i := i + 1
 			variant
 				count - i + 1

@@ -7,10 +7,20 @@ note
 class
 	CP_EXECUTOR_UTILS
 
+feature -- Status report
+
+	is_executor_full (a_executor: separate CP_EXECUTOR): BOOLEAN
+			-- Is `a_executor' full?
+		do
+			Result := a_executor.is_full
+		end
+
 feature -- Basic operations
 
 	executor_put (a_executor: separate CP_EXECUTOR; a_task: separate CP_TASK)
 			-- Put `a_task' in `a_executor'.
+		require
+			not_full: not a_executor.is_full
 		do
 			a_executor.put (a_task)
 		end

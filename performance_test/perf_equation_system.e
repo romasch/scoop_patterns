@@ -1,60 +1,34 @@
 note
-	description: "Summary description for {LES_RAW_SCOOP_SOLVER}."
-	author: ""
+	description: "A system of linear equations that uses raw SCOOP mechanisms for gaussian elimination."
+	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 
 class
-	LES_RAW_SCOOP_SOLVER
+	RAW_SCOOP_GAUSS_ELIMINATION
 
 inherit
-	LINEAR_EQUATION_SYSTEM
+	LINEAR_EQUATION_SYSTEM [separate LINEAR_EQUATION]
 
 create
 	make_from_array, make_random
 
-feature {NONE} -- Initialization
-
-	make_zero (a_count: INTEGER)
-			-- <Precursor>
-		local
-			l_equation: separate LINEAR_EQUATION
-		do
-			across
-				1 |..| a_count as i
-			from
-				create equations.make (a_count)
-			loop
-				create l_equation.make_filled (a_count + 1)
-				equations.extend (l_equation)
-			end
-		end
-
 feature -- Access
-
-	equations: ARRAYED_LIST [separate LINEAR_EQUATION]
 
 	item (i,k: INTEGER): DOUBLE
 		do
 			Result := eq_get (equations[i], k)
 		end
 
-	count: INTEGER
-		do
-			Result := equations.count
-		end
-
-	swap (i,k: INTEGER)
-		do
-			equations.go_i_th (i)
-			equations.swap (k)
-		end
+feature -- Basic operations
 
 	set_item (i, k: INTEGER; value: DOUBLE)
 			-- Assign `value' to matrix position [i,k].
 		do
 			eq_set (equations[i], k, value)
 		end
+
+feature -- Advanced operations
 
 	solve
 			-- Solve the system of linear equations using gaussian elimination.
@@ -67,7 +41,7 @@ feature -- Access
 			from
 				pivot := 1
 			until
-				pivot > equations.count or is_singular
+				pivot > count or is_singular
 			loop
 					-- Find the pivot with the biggest absolute value.
 				adjust_rows (pivot)
@@ -94,6 +68,14 @@ feature -- Access
 
 feature {NONE} -- Implemntation
 
+	new_equation (a_count: INTEGER): separate LINEAR_EQUATION
+			-- <Precursor>
+		do
+			create Result.make_filled (a_count)
+		end
+
+feature {NONE} -- Implementation: SCOOP helper functions
+
 	eq_get (equation: separate LINEAR_EQUATION; i:  INTEGER): DOUBLE
 		do
 			Result := equation [i]
@@ -109,7 +91,7 @@ feature {NONE} -- Implemntation
 			scalar: DOUBLE
 		do
 			scalar := minuend [pivot] / pivot_value
-			minuend.separate_subtract (scalar, equations [pivot])
+			minuend.subtract (scalar, equations [pivot])
 		end
 
 end

@@ -33,6 +33,7 @@ feature -- Basic operations
 
 	put (a_task: separate CP_TASK)
 			-- <Precursor>
+			-- May block if full.
 		do
 			utils.executor_put (subject, a_task)
 		end
@@ -42,7 +43,7 @@ feature -- Basic operations
 		local
 			l_promise: separate CP_SHARED_PROMISE
 		do
-			l_promise := new_promise (promise_processor)
+			l_promise := new_promise (my_promise_processor)
 			a_task.set_promise (l_promise)
 			create Result.make (l_promise)
 			put (a_task)
@@ -54,6 +55,14 @@ feature -- Basic operations
 			-- <Precursor>
 		do
 			utils.executor_stop (subject)
+		end
+
+feature {NONE} -- Implementation
+
+	my_promise_processor: separate CP_PROMISE_UTILS
+			-- The processor to be used for promise objects.
+		attribute
+			Result := promise_processor
 		end
 
 end
