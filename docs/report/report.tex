@@ -50,7 +50,7 @@ Finally, Section \todoref describes some interesting patterns with special probl
 \input{pattern_list}
 
 \section {The SCOOP model}
-% Introduction, differences to Java etc... (short)
+% Introduction, differences to Java etthirdc... (short)
 
 SCOOP is an extension to the Eiffel language \todo{ref} that aims to make concurrent programming easier.
 The basic idea is that every object can only be accessed by exactly one computational unit.
@@ -88,222 +88,126 @@ The library is designed as a set of modules which simplify concurrent programmin
 Section ~\ref{sec:tutorial} explains how to use the library for commonly used patterns,
 while Section ~\ref{sec:modules} concentrates on the design of the library itself.
 
-\subsection {API tutorial}
-\label{sec:tutorial}
+\subsection{Goals}
 
-\subsubsection{Producer / Consumer}
+- Provide solutions to common problems
+- Easy programming, avoid ``many little wrappers''
+- Avoid common SCOOP pitfalls (e.g. unintentional lock passing, or deadlock problems)
+- Reduce overhead and thread creation, esp. for a lot of small data items.
 
-The producer / consumer example is pretty common in concurrent programming.
-At its core is usually a shared buffer.
-A producer can add items to the buffer, whereas a consumer removes items from the buffer.
+\subsection{Concepts}
 
-The library class \lstinline!CP_QUEUE! can be used as a shared buffer.
-If we want to use \lstinline!STRING! objects to be passed from producer to consumer, we have to declare the queue like this:
+\subsubsection{Import}
 
+Passing data from one processor to another is often necessary when programming in SCOOP.
+The most obvious example is the producer/consumer pattern, but it also applies to other situations where one just wants to provide some arguments to an asynchronous command.
+
+There are basically three ways to safely pass reference objects from a sender to a receiver processor.
+The first and easiest solution is to create data on its own, separate processor: 
 \begin{lstlisting}
-class PRODUCER_CONSUMER feature
-
-  make
-      -- Launch producers and consumers.
+class SENDER feature
+  send (a_receiver: separate RECEIVER)
+      -- Invoke an asynchronous operation with
+      -- an argument on `a_receiver'.
     local
-      queue: separate CP_QUEUE [STRING, CP_STRING_IMPORTER]
-	-- ...
+      args: separate ANY
     do
-      create queue.make_bounded (10)
-	-- ...
+      create args
+      a_receiver.do_something (args)
+    end
+end
+
+class RECEIVER feature 
+  do_something (args: separate ANY)
+      -- Perform some operation with `args'.
+    do
+      print (args)
     end
 end
 \end{lstlisting}
+This approach is conceptually easy, but it has the drawback that it's not very efficient, especially when the argument object is very small.
+We'll call this solution the Data Processor approach.
 
-Note that there are two generic arguments:
-\begin{itemize}
-\item The first argument (\lstinline!STRING!) denotes the type of items in the queue.
-\item The second argument (\lstinline!CP_STRING_IMPORTER!) defines the import strategy.
-\end{itemize}
-
-The import strategy is an important concept of the library.
-An import in the SCOOP context means that an object on a separate processor should be copied to the local processor.
-This is done recursively for any non-separate reference, i.e. for  \lstinline!STRING! you also have to copy the \lstinline!area! attribute.
-The import strategy can be used to tell a component if a given object should be imported, and if yes, how it is done.
-
-In our example we're using the \lstinline!CP_STRING_IMPORTER! to import strings.
-An alternative would be to use \lstinline!CP_NO_IMPORTER [STRING]! if we want to disable imports.
-
-The next step we need to do is to define the producer and consumer.
-
-\lstinputlisting [firstline=7] {../../examples/producer_consumer/producer.e}
-
-You may notice three things in this example:
-
-\begin{itemize}
- \item \lstinline!PRODUCER! inherits from \lstinline!CP_STARTABLE!.
- \item The \lstinline!PRODUCER! uses a \lstinline!CP_QUEUE_PROXY! instead of the \lstinline!CP_QUEUE!.
- \item The generated strings are not separate.
-\end{itemize}
-
-The classes \lstinline!CP_STARTABLE! and \lstinline!CP_STARTABLE_UTILS! are a useful combination.
-They allow to start some operation on a separate object without the need for a specialized wrapper function.
-
-Another nice utility is the \lstinline!CP_QUEUE_PROXY!.
-It is part of a pattern which is often used throughout the library - the separate proxy \todo{add reference}.
-Basically it allows to access a separate queue without the need to deal with separate references.
-
-The really interesting thing however is that the producer can generate strings on its local processor.
-Usually this is not possible, because if the string is later passed to a consumer object, the latter needs to lock the producer in order to get access to the string.
-But in this case we instructed the queue object to import all string objects. During a call to \lstinline!queue_wrapper.put(item)! the following happens:
-\begin{itemize}
- \item The producer waits until it gets exclusive access to the queue.
- \item The separate call is executed. Because \lstinline!item! is a non-separate reference, the call is synchronous and lock passing happens.
- \item The queue object imports the separate string, creating a local copy.
- \item The separate call terminates, both processors can proceed autonomously.
-\end{itemize}
-Creating the strings on a separate processor is therefore unnecessary.
-
-The import trick avoids a lot of unnecessary thread creation:
-Instead of creating a new processor for every single produced item we just copy it, which is much faster for small objects.
-
-The consumer is basically the same as the producer, except for the feature \lstinline!start!:
-
+Another solution is to create the object on the same handler as the sender object:
 \begin{lstlisting}
-class
-  CONSUMER
---...
+class SENDER feature
+  send (a_receiver: separate RECEIVER)
+      -- Invoke an asynchronous operation with
+      -- an argument on `a_receiver'.
+    local
+      args: ANY
+    do
+      create args
+      a_receiver.do_something (args)
+    end
+end
+
+class RECEIVER feature 
+  do_something (args: separate ANY)
+      -- Perform some operation with `args'.
+    do
+      print (args)
+    end
+end
+\end{lstlisting}
+This solution (the Lock Passing approach) looks almost like the first one - the only change is a missing separate keyword.
+However, it's semantics are radically different:
+
+\begin{itemize}
+ \item Due to a technique called ``lock passing'' \todo{ref: piotr and eiffel docs}, \lstinline!do_something! is executed synchronously, i.e. the sender has to wait for it to finish.
+ \item \lstinline!RECEIVER! can't access the argument object any more after the call \lstinline!do_something! is finished.
+ This is because \lstinline!SENDER! will continue it's execution, and an attempt to lock the argument object again will probably result in starvation of the sender processor.
+ \item Compared to the first approach, no new processor is created.
+\end{itemize}
+
+The last method makes use of a special SCOOP function called \lstinline!import!:
+\begin{lstlisting}
+class SENDER feature
+  send (a_receiver: separate RECEIVER)
+      -- Invoke an asynchronous operation with
+      -- an argument on `a_receiver'.
+    local
+      args: ANY
+    do
+      create args
+      a_receiver.receive_args (args)
+      a_receiver.do_something
+    end
+end
+
+class RECEIVER feature
   
-	start
-			-- Consume `item_count' items.
-		local
-			i: INTEGER
-			item: STRING
-		do
-			from
-				i := 1
-			until
-				i > item_count
-			loop
-				queue_wrapper.consume
+  received: ANY
+  
+  receive_args (args: separate ANY)
+      -- Receive some arguments
+    do
+      received := import (args)
+    end
 
-				check attached queue_wrapper.last_consumed_item as l_item then
-
-						-- Note that `item' is not declared as separate, because it has been
-						-- imported automatically.
-					item := l_item
-					print (item + " // Consumer " + identifier.out + ": item " + i.out + "%N")
-				end
-				i := i + 1
-			end
-		end
+  do_something
+      -- Perform some operation.
+    do
+      print (received)
+    end
 end
 \end{lstlisting}
+The \lstinline!import! feature copies its argument object, along with all non-separate references, to the local processor.
+It is somewhat similar to \lstinline!{ANY}.deep_copy!, except that it doesn't clone separate references.
 
-You might notice again that the consumed string is not declared as separate.
-This is again because of the import mechanism within \lstinline!CP_QUEUE!.
+This import solution has several advantages.
+There's no need for a new processor, and the receiver can keep the data and do the operation asynchronously.
+The drawback however is that the data needs to be copied.
+However, for small data items this is actually faster than creating a new thread.
 
-The last thing we need to do is to create and launch the producers and consumers in the main application:
+The feature \lstinline!import! was first described in \todo{ref: Piotr}, but unfortunately it is not implemented in current SCOOP.
+Instead the library implements a substitute mechanism, which requires some user support.
+The exact details of the library solution are described in Section \ref{sec:modules:import}.
 
-\lstinputlisting [firstline=7] {../../examples/producer_consumer/producer_consumer.e}
+\subsubsection{Processor triangle}
+\todo{?}
 
-
-\subsubsection{Server thread}
-
-In networking you often need a dedicated thread that listens on a socket.
-In a SCOOP environment it is not hard to create such a processor, but it is hard to stop it.
-The main problem is that the server processor will run its own main loop, and other threads ususally never get exclusive access to call some feature \lstinline!stop!.
-
-The library addresses this issue with the \lstinline!CP_INTERMITTENT_PROCESS!.
-This class defines a special main loop, where other processors can access the object after every iteration.
-
-To use \lstinline!CP_INTERMITTENT_PROCESS! you need to inherit from it and implement the deferred feature \lstinline!step!.
-The following example defines a simple echo server that just listens and replies with the same string:
-
-\lstinputlisting [firstline=7] {../../examples/echo_server/echo_server.e}
-
-To break out of the main loop, you need to set \lstinline!is_stopped! to \lstinline!True!.
-This can be done from within the \lstinline!CP_INTERMITTENT_PROCESS! or from a separate processor by calling \lstinline!stop!.
-
-To start the echo server you can use \lstinline!CP_STARTABLE_UTILS! and the feature \lstinline!asynch_start!:
-
-\lstinputlisting [firstline=7] {../../examples/echo_server/echo_application.e}
-
-\subsubsection{Futures}
-
-A future is a computation which may run asynchronously, possibly returning a result.
-The future is a very popular pattern in other languages like Java.
-
-The idea is that the computation is encapsulated in an object which may be executed by another thread.
-If there's a result to the computation, the client thread also gets a token back to access the result at some point in the future.
-This token is usually called ``Future'' or ``Promise''.
-
-The library mechanism to support futures are the class hierarchies rooted at \lstinline!CP_TASK!, \lstinline!CP_BROKER! and \lstinline!CP_EXECUTOR!.
-
-The \lstinline!CP_DEFAULT_TASK! class is used to define the operation.
-To use it you need to inherit from it and implement \lstinline!run! and \lstinline!make_from_separate!.
-The latter is needed because SCOOP doesn't allow shared access to objects, which is why a \lstinline!CP_TASK! needs to be imported from one processor to another.
-If the operation is returning a result, it is necessary to inherit from \lstinline!CP_COMPUTATION! and implement \lstinline!computed!.
-
-\lstinline!CP_EXECUTOR! is used to submit a task to be executed.
-The main implementation is \lstinline!CP_TASK_WORKER_POOL!, which is using a worker pool to execute \lstinline!CP_TASK! objects.
-The executor shoud be accessed using a local \lstinline!CP_EXECUTOR_PROXY! and \lstinline!CP_FUTURE_EXECUTOR_PROXY!, which simplify access to the \lstinline!separate CP_EXECUTOR! and also initialize the Promise object.
-
-The \lstinline!CP_BROKER! serves as the token to store the status of the computation and a possible result.
-It is created on a separate processor, such that both the client and the task object can access it without the risk of a deadlock.
-If you use \lstinline!CP_EXECUTOR_PROXY!, you can submit a task and receive a token object by using \lstinline!put_with_broker!.
-
-\todo{integrate example}
-
-
-\subsection {Architecture and modules}
-\label{sec:modules}
-
-The library consists of several modules, which often build on each other.
-
-\subsection{Import}
-
-The import module is one of the most important mechanisms in the library.
-It consists of all classes in the directory \dir{library/import}.
-
-The main class is the deferred \lstinline!CP_IMPORT_STRATEGY [G]!, which has the simple interface:
-
-
-\lstinputlisting [firstline=7] {../../library/import/cp_import_strategy.e}
-
-By implementing \lstinline!import!, descendants can decide if an object of type \lstinline!G! shall be imported and if yes, how it's done.
-
-The class \lstinline!CP_NO_IMPORTER[G]! is the default class to disable import and just perform a reference copy.
-Every other importer can inherit from \lstinline!CP_IMPORTER!, which narrows the return type of \lstinline!import! to a non-separate \lstinline!G!.
-
-Because writing an extra importer for every importable object may be tedious, there's a support class \lstinline!CP_IMPORTABLE!:
-
-\lstinputlisting [firstline=7] {../../library/import/cp_importable.e}
-
-That way an import function can be written right inside the class that needs to be imported.
-There are two main import classes that make use of it: \lstinline!CP_DYNAMIC_TYPE_IMPORTER! and \lstinline!CP_STATIC_TYPE_IMPORTER!.
-The latter uses bounded genericity to directly create an object of type \lstinline!G!.
-This has the drawback however that the type is statically \lstinline!G!, even if the argument to \lstinline!import! was of a subtype of \lstinline!G!.
-
-The \lstinline!CP_DYNAMIC_TYPE_IMPORTER! tries to avoid this problem by using reflection.
-This introduces a new problem with respect to void safety however, as the new object will not be initialized.
-Therefore it is strongly advised to declare \lstinline!make_from_separate! as a creation procedure for every descendant of \lstinline!CP_IMPORTABLE!.
-
-Another problem of the \lstinline!CP_DYNAMIC_TYPE_IMPORTER! are the invariants of an object.
-There's a short time interval between the creation of an object (using reflection) and the call to \lstinline!{CP_IMPORTABLE}.make_from_separate! where the invariants are broken.
-Due to this, it is not possible to have invariants in a class that will be imported using the dynamic type importer.
-
-In the future, there will hopefully exist an import routine natively supported by the SCOOP runtime.
-In that case \lstinline!CP_IMPORTER! can be made effective and use the native import, and all its descendants will become obsolete.
-
-
-Other components of the library often use the import module via bounded genericity.
-The class \lstinline!CP_QUEUE! for example has the ability to import objects, and it's class header looks like this:
-\begin{lstlisting}
-class
-  [G, IMPORTER -> CP_IMPORT_STRATEGY [G] create default_create end]
-feature
-  ...
-end
-\end{lstlisting}
-That way a user can decide on the precise semantics of the import strategy by just declaring the right type.
-
-\subsection{Separate proxy}
+\subsubsection{Separate Proxy}
 
 The separate proxy pattern is a SCOOP specific mechanism.
 The goal of the pattern is to provide a nice interface to a separate object, by providing a processor-local proxy which hides the separate reference.
@@ -326,6 +230,8 @@ Furthermore, not all features in the business class may be necessary in the prox
 Unfortunately this pattern cannot be fully turned into a module, because it's highly dependent on the precise interface of the business class.
 There is however some support in the library: 
 \lstinline!CP_PROXY! defines the creation procedure and the attributes \lstinline!subject! for a business class object and \lstinline!utils! for a helper object.
+
+\todo{Put the remaining section into an appendix?}
 
 The following example shows a general recipe on how to create a separate proxy for the small class \lstinline!EXAMPLE!:
 
@@ -437,6 +343,74 @@ feature -- Element change
 
 end
 \end{lstlisting}
+
+
+\subsection {Architecture and modules}
+\label{sec:modules}
+
+The library consists of several modules, which often build on each other.
+
+\subsubsection{Import}
+\label{sec:modules:import}
+
+The import module is one of the most important mechanisms in the library.
+It consists of all classes in the directory \dir{library/import}.
+
+The main class is the deferred \lstinline!CP_IMPORT_STRATEGY [G]!, which has the simple interface:
+
+
+\lstinputlisting [firstline=7] {../../library/import/cp_import_strategy.e}
+
+By implementing \lstinline!import!, descendants can decide if an object of type \lstinline!G! shall be imported and if yes, how it's done.
+
+The class \lstinline!CP_NO_IMPORTER[G]! is the default class to disable import and just perform a reference copy.
+Every other importer can inherit from \lstinline!CP_IMPORTER!, which narrows the return type of \lstinline!import! to a non-separate \lstinline!G!.
+
+Because writing an extra importer for every importable object may
+The import module is one of the most important mechanisms in the library.
+It consists of all classes in the directory \dir{library/import}.
+
+The main class is the deferred \lstinline!CP_IMPORT_STRATEGY [G]!, which has the simple interface:
+
+
+\lstinputlisting [firstline=7] {../../library/import/cp_import_strategy.e}
+
+By implementing \lstinline!import!, descendants can decide if an object of type \lstinline!G! shall be imported and if yes, how it's done.
+
+The class \lstinline!CP_NO_IMPORTER[G]! is the default class to disable import and just perform a reference copy.
+Every other importer can inherit from \lstinline!CP_IMPORTER!, which narrows the return type of \lstinline!import! to a non-separate \lstinline!G!.
+
+Because writing an extra importer for every importable object may be tedious, there's a support class \lstinline!CP_IMPORTABLE!:
+
+\lstinputlisting [firstline=7] {../../library/import/cp_importable.e}
+
+That way an import function can be written right inside the class that needs to be imported.
+There are two main import classes that make use of it: \lstinline!CP_DYNAMIC_TYPE_IMPORTER! and \lstinline!CP_STATIC_TYPE_IMPORTER!.
+The latter uses bounded genericity to directly create an object of type \lstinline!G!.
+This has the drawback however that the type is statically \lstinline!G!, even if the argument to \lstinline!import! was of a subtype of \lstinline!G!.
+
+The \lstinline!CP_DYNAMIC_TYPE_IMPORTER! tries to avoid this problem by using reflection.
+This introduces a new problem with respect to void safety however, as the new object will not be initialized.
+Therefore it is strongly advised to declare \lstinline!make_from_separate! as a creation procedure for every descendant of \lstinline!CP_IMPORTABLE!.
+
+Another problem of the \lstinline!CP_DYNAMIC_TYPE_IMPORTER! are the invariants of an object.
+There's a short time interval between the creation of an object (using reflection) and the call to \lstinline!{CP_IMPORTABLE}.make_from_separate! where the invariants are broken.
+Due to this, it is not possible to have invariants in a class that will be imported using the dynamic type importer.
+
+In the future, there will hopefully exist an import routine natively supported by the SCOOP runtime.
+In that case \lstinline!CP_IMPORTER! can be made effective and use the native import, and all its descendants will become obsolete.
+
+
+Other components of the library often use the import module via bounded genericity.
+The class \lstinline!CP_QUEUE! for example has the ability to import objects, and it's class header looks like this:
+\begin{lstlisting}
+class
+  [G, IMPORTER -> CP_IMPORT_STRATEGY [G] create default_create end]
+feature
+  ...
+end
+\end{lstlisting}
+That way a user can decide on the precise semantics of the import strategy by just declaring the right type.
  
 \subsection{Queue}
 
@@ -811,6 +785,7 @@ the classes \lstinline!CP_EXECUTOR_PROXY! and \lstinline!CP_FUTURE_EXECUTOR_PROX
 
 \subsection{Evaluation and Benchmarks}
 
+\input{tutorial}
 
 \section{Conclusion}
 

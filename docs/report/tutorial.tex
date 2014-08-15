@@ -1,0 +1,162 @@
+
+\section {API tutorial}
+\label{sec:tutorial}
+
+\subsubsection{Producer / Consumer}
+
+The producer / consumer example is pretty common in concurrent programming.
+At its core is usually a shared buffer.
+A producer can add items to the buffer, whereas a consumer removes items from the buffer.
+
+The library class \lstinline!CP_QUEUE! can be used as a shared buffer.
+If we want to use \lstinline!STRING! objects to be passed from producer to consumer, we have to declare the queue like this:
+
+\begin{lstlisting}
+class PRODUCER_CONSUMER feature
+
+  make
+      -- Launch producers and consumers.
+    local
+      queue: separate CP_QUEUE [STRING, CP_STRING_IMPORTER]
+	-- ...
+    do
+      create queue.make_bounded (10)
+	-- ...
+    end
+end
+\end{lstlisting}
+
+Note that there are two generic arguments:
+\begin{itemize}
+\item The first argument (\lstinline!STRING!) denotes the type of items in the queue.
+\item The second argument (\lstinline!CP_STRING_IMPORTER!) defines the import strategy.
+\end{itemize}
+
+The import strategy is an important concept of the library.
+An import in the SCOOP context means that an object on a separate processor should be copied to the local processor.
+This is done recursively for any non-separate reference, i.e. for  \lstinline!STRING! you also have to copy the \lstinline!area! attribute.
+The import strategy can be used to tell a component if a given object should be imported, and if yes, how it is done.
+
+In our example we're using the \lstinline!CP_STRING_IMPORTER! to import strings.
+An alternative would be to use \lstinline!CP_NO_IMPORTER [STRING]! if we want to disable imports.
+
+The next step we need to do is to define the producer and consumer.
+
+\lstinputlisting [firstline=7] {../../examples/producer_consumer/producer.e}
+
+You may notice three things in this example:
+
+\begin{itemize}
+ \item \lstinline!PRODUCER! inherits from \lstinline!CP_STARTABLE!.
+ \item The \lstinline!PRODUCER! uses a \lstinline!CP_QUEUE_PROXY! instead of the \lstinline!CP_QUEUE!.
+ \item The generated strings are not separate.
+\end{itemize}
+
+The classes \lstinline!CP_STARTABLE! and \lstinline!CP_STARTABLE_UTILS! are a useful combination.
+They allow to start some operation on a separate object without the need for a specialized wrapper function.
+
+Another nice utility is the \lstinline!CP_QUEUE_PROXY!.
+It is part of a pattern which is often used throughout the library - the separate proxy \todo{add reference}.
+Basically it allows to access a separate queue without the need to deal with separate references.
+
+The really interesting thing however is that the producer can generate strings on its local processor.
+Usually this is not possible, because if the string is later passed to a consumer object, the latter needs to lock the producer in order to get access to the string.
+But in this case we instructed the queue object to import all string objects. During a call to \lstinline!queue_wrapper.put(item)! the following happens:
+\begin{itemize}
+ \item The producer waits until it gets exclusive access to the queue.
+ \item The separate call is executed. Because \lstinline!item! is a non-separate reference, the call is synchronous and lock passing happens.
+ \item The queue object imports the separate string, creating a local copy.
+ \item The separate call terminates, both processors can proceed autonomously.
+\end{itemize}
+Creating the strings on a separate processor is therefore unnecessary.
+
+The import trick avoids a lot of unnecessary thread creation:
+Instead of creating a new processor for every single produced item we just copy it, which is much faster for small objects.
+
+The consumer is basically the same as the producer, except for the feature \lstinline!start!:
+
+\begin{lstlisting}
+class
+  CONSUMER
+--...
+  
+	start
+			-- Consume `item_count' items.
+		local
+			i: INTEGER
+			item: STRING
+		do
+			from
+				i := 1
+			until
+				i > item_count
+			loop
+				queue_wrapper.consume
+
+				check attached queue_wrapper.last_consumed_item as l_item then
+
+						-- Note that `item' is not declared as separate, because it has been
+						-- imported automatically.
+					item := l_item
+					print (item + " // Consumer " + identifier.out + ": item " + i.out + "%N")
+				end
+				i := i + 1
+			end
+		end
+end
+\end{lstlisting}
+
+You might notice again that the consumed string is not declared as separate.
+This is again because of the import mechanism within \lstinline!CP_QUEUE!.
+
+The last thing we need to do is to create and launch the producers and consumers in the main application:
+
+\lstinputlisting [firstline=7] {../../examples/producer_consumer/producer_consumer.e}
+
+
+\subsubsection{Server thread}
+
+In networking you often need a dedicated thread that listens on a socket.
+In a SCOOP environment it is not hard to create such a processor, but it is hard to stop it.
+The main problem is that the server processor will run its own main loop, and other threads ususally never get exclusive access to call some feature \lstinline!stop!.
+
+The library addresses this issue with the \lstinline!CP_INTERMITTENT_PROCESS!.
+This class defines a special main loop, where other processors can access the object after every iteration.
+
+To use \lstinline!CP_INTERMITTENT_PROCESS! you need to inherit from it and implement the deferred feature \lstinline!step!.
+The following example defines a simple echo server that just listens and replies with the same string:
+
+\lstinputlisting [firstline=7] {../../examples/echo_server/echo_server.e}
+
+To break out of the main loop, you need to set \lstinline!is_stopped! to \lstinline!True!.
+This can be done from within the \lstinline!CP_INTERMITTENT_PROCESS! or from a separate processor by calling \lstinline!stop!.
+
+To start the echo server you can use \lstinline!CP_STARTABLE_UTILS! and the feature \lstinline!asynch_start!:
+
+\lstinputlisting [firstline=7] {../../examples/echo_server/echo_application.e}
+
+\subsubsection{Futures}
+
+A future is a computation which may run asynchronously, possibly returning a result.
+The future is a very popular pattern in other languages like Java.
+
+The idea is that the computation is encapsulated in an object which may be executed by another thread.
+If there's a result to the computation, the client thread also gets a token back to access the result at some point in the future.
+This token is usually called ``Future'' or ``Promise''.
+
+The library mechanism to support futures are the class hierarchies rooted at \lstinline!CP_TASK!, \lstinline!CP_BROKER! and \lstinline!CP_EXECUTOR!.
+
+The \lstinline!CP_DEFAULT_TASK! class is used to define the operation.
+To use it you need to inherit from it and implement \lstinline!run! and \lstinline!make_from_separate!.
+The latter is needed because SCOOP doesn't allow shared access to objects, which is why a \lstinline!CP_TASK! needs to be imported from one processor to another.
+If the operation is returning a result, it is necessary to inherit from \lstinline!CP_COMPUTATION! and implement \lstinline!computed!.
+
+\lstinline!CP_EXECUTOR! is used to submit a task to be executed.
+The main implementation is \lstinline!CP_TASK_WORKER_POOL!, which is using a worker pool to execute \lstinline!CP_TASK! objects.
+The executor shoud be accessed using a local \lstinline!CP_EXECUTOR_PROXY! and \lstinline!CP_FUTURE_EXECUTOR_PROXY!, which simplify access to the \lstinline!separate CP_EXECUTOR! and also initialize the Promise object.
+
+The \lstinline!CP_BROKER! serves as the token to store the status of the computation and a possible result.
+It is created on a separate processor, such that both the client and the task object can access it without the risk of a deadlock.
+If you use \lstinline!CP_EXECUTOR_PROXY!, you can submit a task and receive a token object by using \lstinline!put_with_broker!.
+
+\todo{integrate example} 
