@@ -22,7 +22,7 @@ feature {NONE}
 			-- <Precursor>
 			-- The return type is narrowed to non-separate, which avoids processor creation.
 		do
-			create Result.make (a_count)
+			create Result.make_filled (a_count)
 		end
 
 end

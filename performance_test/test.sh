@@ -1,7 +1,7 @@
 #!/bin/bash
 
-COUNTS=(10, 50, 100, 200)
-REPETITIONS=1
+COUNTS=(1000)
+REPETITIONS=4
 
 # Compile
 
