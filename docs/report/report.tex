@@ -84,18 +84,33 @@ The SCOOP model however encourages the creation of many processors, which is not
 
 \section {Library}
 
-The library is designed as a set of modules which simplify concurrent programming in SCOOP.
-Section ~\ref{sec:tutorial} explains how to use the library for commonly used patterns,
-while Section ~\ref{sec:modules} concentrates on the design of the library itself.
-
+% The library is designed as a set of modules which simplify concurrent programming in SCOOP.
+% Section ~\ref{sec:tutorial} explains how to use the library for commonly used patterns,
+% while Section ~\ref{sec:modules} concentrates on the design of the library itself.
+ 
 \subsection{Goals}
+\label{sec:goals}
 
-- Provide solutions to common problems
-- Easy programming, avoid ``many little wrappers''
-- Avoid common SCOOP pitfalls (e.g. unintentional lock passing, or deadlock problems)
-- Reduce overhead and thread creation, esp. for a lot of small data items.
+The goal of the library is to provide a set of tools that simplify programming in SCOOP.
+Specifically, we want to provide implementations for common concurrency patterns like the worker pool.
+The result should be a new SCOOP library similar to the standard concurrency libraries in Java \todoref or C\# \todoref.
+
+The library was developed with the following design goals:
+
+\begin{itemize}
+ \item Avoid common SCOOP pitfalls, like deadlock problems, starvation of a processor, or unintentional lock passing.
+ \item Shield the user from having to write ``small wrapper'' features, i.e. features that need to be written just to lock an object for a separate call.
+ \item Reduce the overhead of thread creation, especially for concurrent programs that involve dealing with a lot of small separate objects.
+\end{itemize}
 
 \subsection{Concepts}
+
+This section describes the core concepts of the library: Import and Separate Proxies.
+The import concept deals with the problem of how to pass data from one processor to another.
+It is usefol to achieve design goal \#3\todoref and to some extent \#1\todoref in Section \ref{sec:goals}.
+
+The Separate Proxy is a pattern to hide separate references behind a proxy object.
+It provides a solution to design goal \#2 \todoref.
 
 \subsubsection{Import}
 
@@ -154,7 +169,7 @@ This solution (the Lock Passing approach) looks almost like the first one - the 
 However, it's semantics are radically different:
 
 \begin{itemize}
- \item Due to a technique called ``lock passing'' \todo{ref: piotr and eiffel docs}, \lstinline!do_something! is executed synchronously, i.e. the sender has to wait for it to finish.
+ \item Due to the lock passing mechanism \todo{ref: piotr and eiffel docs} the feature \lstinline!do_something! is executed synchronously, i.e. the sender has to wait for it to finish.
  \item \lstinline!RECEIVER! can't access the argument object any more after the call \lstinline!do_something! is finished.
  This is because \lstinline!SENDER! will continue it's execution, and an attempt to lock the argument object again will probably result in starvation of the sender processor.
  \item Compared to the first approach, no new processor is created.
@@ -200,12 +215,12 @@ There's no need for a new processor, and the receiver can keep the data and do t
 The drawback however is that the data needs to be copied.
 However, for small data items this is actually faster than creating a new thread.
 
+Note that \lstinline!receive_args! is executed synchronously just like in the Lock Passing approach.
+Therefore, to execute \lstinline!do_something! asynchronously, it has to be divided into an execution and argument receiving part.
+
 The feature \lstinline!import! was first described in \todo{ref: Piotr}, but unfortunately it is not implemented in current SCOOP.
 Instead the library implements a substitute mechanism, which requires some user support.
 The exact details of the library solution are described in Section \ref{sec:modules:import}.
-
-\subsubsection{Processor triangle}
-\todo{?}
 
 \subsubsection{Separate Proxy}
 
@@ -217,7 +232,7 @@ Usually the pattern consists of three classes:
  \item\label{item:sep-proxy:first} The class for the actual separate object.
  \item\label{item:sep-proxy:second} A class that provides helper functions to access a separate object of type \ref{item:sep-proxy:first}, usually with the ending \lstinline!_UTILS!.
  \item\label{item:sep-proxy:third} A proxy class with the a similar interface as \ref{item:sep-proxy:first}, usually ending on \lstinline!_PROXY!.
- Using \ref{item:sep-proxy:second}, the proxy forwards all calls to an object of type \ref{item:sep-proxy:first}.
+    Using \ref{item:sep-proxy:second}, the proxy forwards all calls to an object of type \ref{item:sep-proxy:first}.
 \end{enumerate}
 
 \todo{A little diagram showing the class relations.}
@@ -345,6 +360,10 @@ end
 \end{lstlisting}
 
 
+\subsubsection{Processor triangle}
+\todo{?}
+
+
 \subsection {Architecture and modules}
 \label{sec:modules}
 
@@ -429,6 +448,89 @@ The class \lstinline!CP_QUEUE_PROXY! can be used to access such a shared, separa
 The interesting thing about this queue implementation is that it makes use of the import module.
 Along with the generic argument \lstinline!G! you can also provide an \lstinline!CP_IMPORT_STRATEGY [G]!.
 The import then happens automatically in both the queue and its proxy.
+
+\subsubsection{Producer / Consumer}
+
+
+The producer / consumer is a very popular pattern in concurrent programming, and it is a building block for other patterns like pipeline as well.
+The basic idea is to have a shared, concurrent buffer.
+Producer threads put new items into the buffer, whereas consumer threads remove items from this buffer.
+
+\todo{BON-style diagram and ``migration graphics''}
+
+In threaded systems, this buffer is usually accessed by several threads at the same time.
+Careful synchronization has to be enforced to ensure that the buffer remains in a consistent state.
+The data items on the other hand ``migrate'' from a producer to the buffer, and then to exactly one consumer.
+They therefore don't need to be thread-safe as long as the producer promises never to touch the item again.
+
+In SCOOP things look a bit different however.
+Due to the exclusive access guarantee it is not necessary to establish a synchronization policy.
+The downside however is a loss of potential concurrency when a producer and a consumer accesses the buffer simultaneously, but this is a minor problem.
+
+The main problem in SCOOP are the data items, especially if they are not of an expanded type.
+If the object is created on the producer processor, then the consumer needs to control the producer in order to get access to the object.
+This is clearly a situation that we want to avoid, because it couples the producer and consumer in a vicious hidden way, and the whole point of the producer / consumer pattern is to decouple the two.
+
+A nice solution would be if it's somehow possible to migrate data items, like it's done in threaded languages.
+However, this is not possible with the current semantics of SCOOP, because an object always stays on the processor it was created on.
+
+One approach to solve this problem is to create a new processor for every data item.
+This actually works, but it can be very slow, especially for a lot of small data items.
+There are two reasons for this:
+First, every SCOOP processor is mapped to an operating system thread, therefore creating a new processor involves creating a new thread which is an expensive operation.
+The second reason is the overhead of separate calls itself.
+This has to be paid every time the consumer wants to access the separate object.
+
+Another problem of this approach is related to ease of programming.
+Dealing with a separate object can be very annoying, because you need to write small wrapper functions for every little feature call.
+
+\begin{lstlisting}
+class
+  CONSUMER
+
+feature -- Basic operations
+  
+  retrieve
+      -- Retrieve a string and print its length.
+    local
+      l_string: separate STRING
+    do
+      l_string := buffer_consume (a_queue)
+      print (string_count (l_string))
+    end
+    
+feature {NONE} -- Implementation
+  
+  buffer: separate BUFFER [STRING]
+
+  buffer_consume (a_buffer: like buffer): separate STRING
+      -- An annoying small wrapper function for a buffer.
+    do
+      Result := a_buffer.item
+      a_buffer.remove
+    end
+    
+  string_count (a_string: separate STRING): INTEGER
+      -- An annoying small wrapper function for a string.
+    do
+      Result := a_string.count
+    end
+end
+\end{lstlisting}
+
+
+Due to these problems we decided to go for a different strategy: cloning objects.
+Using the import module it is possible to ``teach'' the shared buffer how to clone any user-defined object by just providing a generic argument.
+A first library for the producer / consumer pattern thus consisted of the class \lstinline!CP_QUEUE! and \lstinline!CP_IMPORT_STRATEGY!, along with some predefined importers.
+
+The import trick solves the main problem of the producer / consumer, namely migrating objects from producer to consumer efficiently.
+However, producers and consumers still have to deal with a nasty separate reference (the shared buffer), and there's also the problem that a user of the library might forget to import objects on the consumer side.
+
+To overcome this problem we implemented a non-separate proxy class which automatically deals with the separate reference and imports.
+This idea proved to be so successful that eventually it was turned into its own pattern: the separate proxy.
+
+\todo {Bon-style graphics of CP\_QUEUE and related items.}
+
 
 \subsection{Process}
 
@@ -541,86 +643,6 @@ As the name suggests, this is a worker pool where each worker repeatedly execute
 \section {Individual patterns}
 % Description of a few patterns
 
-\subsection{Producer / Consumer}
-
-The producer / consumer is a very popular pattern in concurrent programming, and it is a building block for other patterns like pipeline as well.
-The basic idea is to have a shared, concurrent buffer.
-Producer threads put new items into the buffer, whereas consumer threads remove items from this buffer.
-
-\todo{BON-style diagram and ``migration graphics''}
-
-In threaded systems, this buffer is usually accessed by several threads at the same time.
-Careful synchronization has to be enforced to ensure that the buffer remains in a consistent state.
-The data items on the other hand ``migrate'' from a producer to the buffer, and then to exactly one consumer.
-They therefore don't need to be thread-safe as long as the producer promises never to touch the item again.
-
-In SCOOP things look a bit different however.
-Due to the exclusive access guarantee it is not necessary to establish a synchronization policy.
-The downside however is a loss of potential concurrency when a producer and a consumer accesses the buffer simultaneously, but this is a minor problem.
-
-The main problem in SCOOP are the data items, especially if they are not of an expanded type.
-If the object is created on the producer processor, then the consumer needs to control the producer in order to get access to the object.
-This is clearly a situation that we want to avoid, because it couples the producer and consumer in a vicious hidden way, and the whole point of the producer / consumer pattern is to decouple the two.
-
-A nice solution would be if it's somehow possible to migrate data items, like it's done in threaded languages.
-However, this is not possible with the current semantics of SCOOP, because an object always stays on the processor it was created on.
-
-One approach to solve this problem is to create a new processor for every data item.
-This actually works, but it can be very slow, especially for a lot of small data items.
-There are two reasons for this:
-First, every SCOOP processor is mapped to an operating system thread, therefore creating a new processor involves creating a new thread which is an expensive operation.
-The second reason is the overhead of separate calls itself.
-This has to be paid every time the consumer wants to access the separate object.
-
-Another problem of this approach is related to ease of programming.
-Dealing with a separate object can be very annoying, because you need to write small wrapper functions for every little feature call.
-
-\begin{lstlisting}
-class
-  CONSUMER
-
-feature -- Basic operations
-  
-  retrieve
-      -- Retrieve a string and print its length.
-    local
-      l_string: separate STRING
-    do
-      l_string := buffer_consume (a_queue)
-      print (string_count (l_string))
-    end
-    
-feature {NONE} -- Implementation
-  
-  buffer: separate BUFFER [STRING]
-
-  buffer_consume (a_buffer: like buffer): separate STRING
-      -- An annoying small wrapper function for a buffer.
-    do
-      Result := a_buffer.item
-      a_buffer.remove
-    end
-    
-  string_count (a_string: separate STRING): INTEGER
-      -- An annoying small wrapper function for a string.
-    do
-      Result := a_string.count
-    end
-end
-\end{lstlisting}
-
-
-Due to these problems we decided to go for a different strategy: cloning objects.
-Using the import module it is possible to ``teach'' the shared buffer how to clone any user-defined object by just providing a generic argument.
-A first library for the producer / consumer pattern thus consisted of the class \lstinline!CP_QUEUE! and \lstinline!CP_IMPORT_STRATEGY!, along with some predefined importers.
-
-The import trick solves the main problem of the producer / consumer, namely migrating objects from producer to consumer efficiently.
-However, producers and consumers still have to deal with a nasty separate reference (the shared buffer), and there's also the problem that a user of the library might forget to import objects on the consumer side.
-
-To overcome this problem we implemented a non-separate proxy class which automatically deals with the separate reference and imports.
-This idea proved to be so successful that eventually it was turned into its own pattern: the separate proxy.
-
-\todo {Bon-style graphics of CP\_QUEUE and related items.}
 
 \subsection{Worker pool}
 
