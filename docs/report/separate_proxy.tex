@@ -1,0 +1,115 @@
+\section{HowTo: Separate Proxy}
+
+
+\todo{Adapt for appendix}
+
+The following example shows a general recipe on how to create a separate proxy for the small class \lstinline!EXAMPLE!:
+
+\begin{lstlisting}
+deferred class
+  EXAMPLE [G]
+
+feature -- Status report
+
+  is_available: BOOLEAN
+      -- Is `item' available?
+  
+feature -- Access
+
+  item: separate G
+      -- Item in `Current'.
+    require
+      available: is_available
+    deferred
+    end
+
+feature -- Element change
+
+  put (a_item: separate G)
+      -- Set `item' to `a_item'.
+    deferred
+    end
+
+end
+\end{lstlisting}
+
+First we need to create the helper class.
+This is done according to these rules:
+ \begin{itemize}
+  \item The name should be \lstinline!EXAMPLE_UTILS!.
+  \item The generic arguments are the same as in \lstinline!EXAMPLE!
+  \item Any feature to access the separate \lstinline!EXAMPLE! object can be prefixed by \lstinline!example_!.
+  This helps to avoid name clashes if someone wants to inherit from \lstinline!EXAMPLE_UTILS!
+  \item The first argument of each feature is \lstinline!example: separate EXAMPLE [G]!.
+  All other arguments are the same as the ones in the corresponding feature in \lstinline!EXAMPLE!.
+  \item Preconditions in \lstinline!EXAMPLE! should be rewritten as wait conditions with the same meaning in \lstinline!EXAMPLE_UTILS!.
+  \item If there's a non-expanded return type to a feature, you can decide if it should be declared separate in \lstinline!EXAMPLE_UTILS! or if it should be imported.
+ \end{itemize}
+
+\begin{lstlisting}
+class
+  EXAMPLE_UTILS [G]
+  
+feature -- Access
+
+  example_item (example: separate EXAMPLE [G]): separate G
+      -- Get the item from `example'.
+      -- May block if not yet available.
+    require
+      available: example.is_available
+    do
+      Result := example.item
+    end
+
+feature -- Element change
+ 
+  example_put (example: separate EXAMPLE [G]; item: separate G)
+      -- Put `item' into `example'.
+    do
+      example.put (item)
+    end
+end
+\end{lstlisting}
+
+In this example we also dropped the feature \lstinline!is_available!, because it's not considered to be important for separate clients.
+
+The proxy class has also has some simple rules:
+
+ \begin{itemize}
+  \item The name should be \lstinline!EXAMPLE_PROXY!.
+  \item The generic arguments are the same as in \lstinline!EXAMPLE!
+  \item The class can inherit from \lstinline!CP_PROXY [EXAMPLE [G], EXAMPLE_UTILS [G]]! and declare \lstinline!make! as a creation procedure.
+  \item The feature names and arguments are the same as in \lstinline!EXAMPLE!.
+  \item Preconditions in \lstinline!EXAMPLE! are usually not present in \lstinline!EXAMPLE_PROXY!. They are wait conditions in \lstinline!EXAMPLE_UTILS! instead.
+  \item Every feature implementation makes use of \lstinline!utils! to forward the request to the \lstinline!subject!.
+ \end{itemize}
+
+\begin{lstlisting}
+class
+  EXAMPLE_PROXY [G]
+
+inherit
+  CP_PROXY [EXAMPLE [G], EXAMPLE_UTILS [G]]
+
+create
+  make
+  
+feature -- Access
+
+  item: separate G
+      -- Item in the example object.
+      -- May block if not yet available.
+    do
+      Result := utils.cell_item (subject)
+    end
+
+feature -- Element change
+
+  put (a_item: separate G)
+      -- Set `item' to `a_item'.
+    do
+      utils.cell_put (subject, a_item)
+    end
+
+end
+\end{lstlisting}

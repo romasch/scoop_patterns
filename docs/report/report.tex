@@ -5,6 +5,7 @@
 \usepackage{listings}
 \usepackage{enumitem}
 \usepackage{todo}
+\usepackage{appendix}
 
 \newcommand{\dir} [1] [] {#1} 
 \newcommand{\todoref}{\todo{ref}}
@@ -82,40 +83,15 @@ It also has some performance problems, because encapsulating a separate call in 
 Additionally, a processor is currently implemented as an operating system thread, and creating them is an expensive operation that involves context switches.
 The SCOOP model however encourages the creation of many processors, which is not ideal for performance reasons.
 
-\section {Library}
+\section{Challenges in SCOOP}
+% This section describes recurring challenges in SCOOP and how to solve them...
 
-% The library is designed as a set of modules which simplify concurrent programming in SCOOP.
-% Section ~\ref{sec:tutorial} explains how to use the library for commonly used patterns,
-% while Section ~\ref{sec:modules} concentrates on the design of the library itself.
- 
-\subsection{Goals}
-\label{sec:goals}
-
-The goal of the library is to provide a set of tools that simplify programming in SCOOP.
-Specifically, we want to provide implementations for common concurrency patterns like the worker pool.
-The result should be a new SCOOP library similar to the standard concurrency libraries in Java \todoref or C\# \todoref.
-
-The library was developed with the following design goals:
-
-\begin{itemize}
- \item Avoid common SCOOP pitfalls, like deadlock problems, starvation of a processor, or unintentional lock passing.
- \item Shield the user from having to write ``small wrapper'' features, i.e. features that need to be written just to lock an object for a separate call.
- \item Reduce the overhead of thread creation, especially for concurrent programs that involve dealing with a lot of small separate objects.
-\end{itemize}
-
-\subsection{Concepts}
-
-This section describes the core concepts of the library: Import and Separate Proxies.
-The import concept deals with the problem of how to pass data from one processor to another.
-It is usefol to achieve design goal \#3\todoref and to some extent \#1\todoref in Section \ref{sec:goals}.
-
-The Separate Proxy is a pattern to hide separate references behind a proxy object.
-It provides a solution to design goal \#2 \todoref.
-
-\subsubsection{Import}
+\subsection{Object migration}
 
 Passing data from one processor to another is often necessary when programming in SCOOP.
 The most obvious example is the producer/consumer pattern, but it also applies to other situations where one just wants to provide some arguments to an asynchronous command.
+
+\todo{what about expanded objects?}
 
 There are basically three ways to safely pass reference objects from a sender to a receiver processor.
 The first and easiest solution is to create data on its own, separate processor: 
@@ -219,8 +195,81 @@ Note that \lstinline!receive_args! is executed synchronously just like in the Lo
 Therefore, to execute \lstinline!do_something! asynchronously, it has to be divided into an execution and argument receiving part.
 
 The feature \lstinline!import! was first described in \todo{ref: Piotr}, but unfortunately it is not implemented in current SCOOP.
-Instead the library implements a substitute mechanism, which requires some user support.
-The exact details of the library solution are described in Section \ref{sec:modules:import}.
+
+\todo{resolve cliffhanger}
+% Instead the library implements a substitute mechanism, which requires some user support.
+% The exact details of the library solution are described in Section \ref{sec:modules:import}.
+
+\subsection{Processor communication}
+% Problem that two concurrent, active processors can't communicate. Example downloader task.
+% Solution: a third, passive processor with a shared data structure.
+
+
+\subsection{Termination}
+% Problem: how to stop consumer waiting on empty buffer.
+% Solution: Query is_stopped in shared buffer.
+
+
+\section {Library}
+
+% The library is designed as a set of modules which simplify concurrent programming in SCOOP.
+% Section ~\ref{sec:tutorial} explains how to use the library for commonly used patterns,
+% while Section ~\ref{sec:modules} concentrates on the design of the library itself.
+ 
+\subsection{Goals}
+\label{sec:goals}
+
+The goal of the library is to provide a set of tools that simplify programming in SCOOP.
+Specifically, we want to provide implementations for common concurrency patterns like the worker pool.
+The result should be a new SCOOP library similar to the standard concurrency libraries in Java \todoref or C\# \todoref.
+
+The library was developed with the following design goals:
+
+\begin{itemize}
+ \item Avoid common SCOOP pitfalls, like deadlock problems, starvation of a processor, or unintentional lock passing.
+ \item Shield the user from having to write ``small wrapper'' features, i.e. features that need to be written just to lock an object for a separate call.
+ \item Reduce the overhead of thread creation, especially for concurrent programs that involve dealing with a lot of small separate objects.
+\end{itemize}
+
+\subsection{Concepts}
+
+This section describes the core concepts of the library: Import and Separate Proxies.
+The import concept deals with the problem of how to pass data from one processor to another.
+It is usefol to achieve design goal \#3\todoref and to some extent \#1\todoref in Section \ref{sec:goals}.
+
+The Separate Proxy is a pattern to hide separate references behind a proxy object.
+It provides a solution to design goal \#2 \todoref.
+
+\subsubsection{Import}
+% Describe how to use it, i.e. generic parameter and importer objects, and the fact that you can select between import and no import.
+
+The import concept is a central part of the library.
+It was developed to let users choose between two object passing strategies, namely the Data Processor \todoref and the Import \todoref approach.
+
+The main class is the deferred \lstinline!CP_IMPORT_STRATEGY [G]!, which has the simple interface:
+\lstinputlisting [firstline=7] {../../library/import/cp_import_strategy.e}
+
+The class has two descendants: \lstinline!CP_NO_IMPORTER[G]! can be used for the Data Processor strategy. 
+It just perform a reference copy of the object.
+The class \lstinline!CP_IMPORTER [G]! on the other hand narrows the return type of \lstinline!import! to a non-separate \lstinline!G!, meaning that it actually performs an import.
+
+As there's no general-purpose import feature available at the moment, a user has to implement his own feature for every class that needs to be imported.
+Descendants of \lstinline!CP_IMPORTER! simplify this task and provide predefined implementations for some standard classes such as \lstinline!STRING!.
+Those mechanisms are described in detail in Section \ref{sec:modules:import}.
+
+\todo{elaborate more, explain less specific}
+Other components of the library often use the import module via bounded genericity.
+The class \lstinline!CP_QUEUE! for example has the ability to import objects, and it's class header looks like this:
+\begin{lstlisting}
+class CP_QUEUE
+  [G, IMPORTER -> CP_IMPORT_STRATEGY [G] create default_create end]
+feature
+  ...
+end
+\end{lstlisting}
+That way a user can decide on the precise semantics of the import strategy by just declaring the right type.
+
+
 
 \subsubsection{Separate Proxy}
 
@@ -246,128 +295,15 @@ Unfortunately this pattern cannot be fully turned into a module, because it's hi
 There is however some support in the library: 
 \lstinline!CP_PROXY! defines the creation procedure and the attributes \lstinline!subject! for a business class object and \lstinline!utils! for a helper object.
 
-\todo{Put the remaining section into an appendix?}
+\todo{reference to appendix}
 
-The following example shows a general recipe on how to create a separate proxy for the small class \lstinline!EXAMPLE!:
-
-\begin{lstlisting}
-deferred class
-  EXAMPLE [G]
-
-feature -- Status report
-
-  is_available: BOOLEAN
-      -- Is `item' available?
-  
-feature -- Access
-
-  item: separate G
-      -- Item in `Current'.
-    require
-      available: is_available
-    deferred
-    end
-
-feature -- Element change
-
-  put (a_item: separate G)
-      -- Set `item' to `a_item'.
-    deferred
-    end
-
-end
-\end{lstlisting}
-
-First we need to create the helper class.
-This is done according to these rules:
- \begin{itemize}
-  \item The name should be \lstinline!EXAMPLE_UTILS!.
-  \item The generic arguments are the same as in \lstinline!EXAMPLE!
-  \item Any feature to access the separate \lstinline!EXAMPLE! object can be prefixed by \lstinline!example_!.
-  This helps to avoid name clashes if someone wants to inherit from \lstinline!EXAMPLE_UTILS!
-  \item The first argument of each feature is \lstinline!example: separate EXAMPLE [G]!.
-  All other arguments are the same as the ones in the corresponding feature in \lstinline!EXAMPLE!.
-  \item Preconditions in \lstinline!EXAMPLE! should be rewritten as wait conditions with the same meaning in \lstinline!EXAMPLE_UTILS!.
-  \item If there's a non-expanded return type to a feature, you can decide if it should be declared separate in \lstinline!EXAMPLE_UTILS! or if it should be imported.
- \end{itemize}
-
-\begin{lstlisting}
-class
-  EXAMPLE_UTILS [G]
-  
-feature -- Access
-
-  example_item (example: separate EXAMPLE [G]): separate G
-      -- Get the item from `example'.
-      -- May block if not yet available.
-    require
-      available: example.is_available
-    do
-      Result := example.item
-    end
-
-feature -- Element change
- 
-  example_put (example: separate EXAMPLE [G]; item: separate G)
-      -- Put `item' into `example'.
-    do
-      example.put (item)
-    end
-end
-\end{lstlisting}
-
-In this example we also dropped the feature \lstinline!is_available!, because it's not considered to be important for separate clients.
-
-The proxy class has also has some simple rules:
-
- \begin{itemize}
-  \item The name should be \lstinline!EXAMPLE_PROXY!.
-  \item The generic arguments are the same as in \lstinline!EXAMPLE!
-  \item The class can inherit from \lstinline!CP_PROXY [EXAMPLE [G], EXAMPLE_UTILS [G]]! and declare \lstinline!make! as a creation procedure.
-  \item The feature names and arguments are the same as in \lstinline!EXAMPLE!.
-  \item Preconditions in \lstinline!EXAMPLE! are usually not present in \lstinline!EXAMPLE_PROXY!. They are wait conditions in \lstinline!EXAMPLE_UTILS! instead.
-  \item Every feature implementation makes use of \lstinline!utils! to forward the request to the \lstinline!subject!.
- \end{itemize}
-
-\begin{lstlisting}
-class
-  EXAMPLE_PROXY [G]
-
-inherit
-  CP_PROXY [EXAMPLE [G], EXAMPLE_UTILS [G]]
-
-create
-  make
-  
-feature -- Access
-
-  item: separate G
-      -- Item in the example object.
-      -- May block if not yet available.
-    do
-      Result := utils.cell_item (subject)
-    end
-
-feature -- Element change
-
-  put (a_item: separate G)
-      -- Set `item' to `a_item'.
-    do
-      utils.cell_put (subject, a_item)
-    end
-
-end
-\end{lstlisting}
-
-
-\subsubsection{Processor triangle}
-\todo{?}
-
-
-\subsection {Architecture and modules}
+\subsection {Architecture}
 \label{sec:modules}
 
 The library consists of several modules, which often build on each other.
+\todo{Describe available modules, which patterns they're implementing, and which modules they depend upon.}
+
+\section{Library implementation}
 
 \subsubsection{Import}
 \label{sec:modules:import}
@@ -423,7 +359,7 @@ In that case \lstinline!CP_IMPORTER! can be made effective and use the native im
 Other components of the library often use the import module via bounded genericity.
 The class \lstinline!CP_QUEUE! for example has the ability to import objects, and it's class header looks like this:
 \begin{lstlisting}
-class
+class CP_QUEUE
   [G, IMPORTER -> CP_IMPORT_STRATEGY [G] create default_create end]
 feature
   ...
@@ -573,78 +509,27 @@ It is an implementation of the Timer: Periodic pattern in \todo{ref}.
 
 \subsection{Worker pool}
 
-The worker pool module provides support classes to build a worker pool.
-It makes use of the queue module to store the work items.
-
-The module consists of three classes:
-
-\begin{itemize}
- \item \lstinline!CP_WORKER!
- \item \lstinline!CP_WORKER_POOL!
- \item \lstinline!CP_WORKER_FACTORY!
-\end{itemize}
-
-The last one is just an factory class to create the user-defined \lstinline!CP_WORKER! objects.
-
-The deferred class \lstinline!CP_WORKER! has a predefined main loop, where the object first checks if it needs to terminate, then grabs a new work item, and processes it.
-The processing step is deferred and needs to be implemented by the user.
-Implemented
-
-The \lstinline!CP_WORKER_POOL! is the central management instance.
-Its primary task is to accept new work items from clients, but it can also be used to adjust the number of workers in the pool and to terminate all workers.
-The \lstinline!CP_WORKER_POOL! also implements the separate proxy pattern, which means that clients should access it through \lstinline!CP_WORKER_POOL_PROXY!.
-
-\subsection{Promise}
-
-The promise module contains a set of classes which can be used to monitor the state of an asynchronous operation.
-
-The main class is \lstinline!CP_PROMISE!, which defines several queries like \lstinline!is_terminated! or \lstinline!is_exceptional!.
-It also defines the interface to cancel a task or to get the progress percentage (e.g. for a download task), but these queries need to be supported by the task itself.
-
-The Separate Proxy mechanism is available for promise objects, because they are usually declared separate to the client.
-In this case the pattern is implemented with four classes, i.e.
-\begin{itemize}
- \item \lstinline!CP_PROMISE! defines a common interface,
- \item \lstinline!CP_SHARED_PROMISE! defines the actual separate object,
- \item \lstinline!CP_PROMISE_UTILS! defines helper functions to access a \lstinline!separate CP_PROMISE! and
- \item \lstinline!CP_PROMISE_PROXY! is the proxy object.
-\end{itemize}
-
-There's an important descendant, the \lstinline!CP_RESULT_PROMISE!, which is used for asynchronous operations that return a result.
-It also has a set of associated classes that implement the Separate Proxy pattern.
-
-The \lstinline!CP_RESULT_PROMISE! contains a query \lstinline!item! to retrieve the result as soon as it's available.
-The return type of \lstinline!item! depends on a generic argument.
-To migrate the result back to the client, this class makes use of the import module - i.e. the \lstinline!CP_SHARED_RESULT_PROMISE! and \lstinline!CP_RESULT_PROMISE_PROXY! both have an additional generic argument which defines the import strategy.
-
-The \lstinline!CP_RESULT_PROMISE! is used for the future pattern.
-
-\subsection{Executor}
-
-The executor module can be used to execute varying operations.
-The main class is \lstinline!CP_EXECUTOR!, which provides facilities to execute a \lstinline!CP_TASK! objects.
-
-\lstinline!CP_TASK! itself represents a user-defined operation.
-It can be imported across processor boundaries and provides exception handling.
-To define a new task a client needs to inherit from \lstinline!CP_DEFAULT_TASK! and implement the feature \lstinline!run! and \lstinline!make_from_separate!.
-
-A special kind of task is \lstinline!CP_COMPUTATION!, which can also return a value.
-This is needed to implement the future pattern.
-
-The \lstinline!CP_EXECUTOR! makes use of the separate proxy pattern.
-However, the proxy also enhances the raw \lstinline!CP_EXECUTOR! interface with the option to attach a \lstinline!CP_BROKER! object to a task.
-This can be used to query the status of a task, await termination, or get the computed result back in case of a \lstinline!CP_COMPUTATION!
-All \lstinline!CP_BROKER! objects are created on a dedicated processor to avoid unnecessary thread creation.
-
-An important implementation of the \lstinline!CP_EXECUTOR! is the \lstinline!CP_TASK_WORKER_POOL!.
-As the name suggests, this is a worker pool where each worker repeatedly executes \lstinline!CP_TASK! objects.
-\todo {More executor implementations?}
-
-\section {Individual patterns}
-% Description of a few patterns
-
-
-\subsection{Worker pool}
+% The worker pool module provides support classes to build a worker pool.
+% It makes use of the queue module to store the work items.
+% 
+% The module consists of three classes:
+% 
+% \begin{itemize}
+%  \item \lstinline!CP_WORKER!
+%  \item \lstinline!CP_WORKER_POOL!
+%  \item \lstinline!CP_WORKER_FACTORY!
+% \end{itemize}
+% 
+% The last one is just an factory class to create the user-defined \lstinline!CP_WORKER! objects.
+% 
+% The deferred class \lstinline!CP_WORKER! has a predefined main loop, where the object first checks if it needs to terminate, then grabs a new work item, and processes it.
+% The processing step is deferred and needs to be implemented by the user.
+% 
+% The \lstinline!CP_WORKER_POOL! is the central management instance.
+% Its primary task is to accept new work items from clients, but it can also be used to adjust the number of workers in the pool and to terminate all workers.
+% The \lstinline!CP_WORKER_POOL! also implements the separate proxy pattern, which means that clients should access it through \lstinline!CP_WORKER_POOL_PROXY!.
+% 
+% \subsection{Worker pool}
 
 A worker pool is a set of threads that are ready to execute tasks.
 The intention of the worker pool is to make use of parallelism but avoid the overhead of thread creation, which can be quite expensive especially for small tasks.
@@ -755,6 +640,59 @@ The associated \lstinline!CP_TASK_WORKER_POOL! implements the factory function a
 The combination of these two classes is very close to the Java worker pool implementation.
 The only difference is that a \lstinline!CP_TASK! object needs to be imported, whereas a Java Runnable object doesn't.
 
+
+\subsection{Promise}
+
+The promise module contains a set of classes which can be used to monitor the state of an asynchronous operation.
+
+The main class is \lstinline!CP_PROMISE!, which defines several queries like \lstinline!is_terminated! or \lstinline!is_exceptional!.
+It also defines the interface to cancel a task or to get the progress percentage (e.g. for a download task), but these queries need to be supported by the task itself.
+
+The Separate Proxy mechanism is available for promise objects, because they are usually declared separate to the client.
+In this case the pattern is implemented with four classes, i.e.
+\begin{itemize}
+ \item \lstinline!CP_PROMISE! defines a common interface,
+ \item \lstinline!CP_SHARED_PROMISE! defines the actual separate object,
+ \item \lstinline!CP_PROMISE_UTILS! defines helper functions to access a \lstinline!separate CP_PROMISE! and
+ \item \lstinline!CP_PROMISE_PROXY! is the proxy object.
+\end{itemize}
+
+There's an important descendant, the \lstinline!CP_RESULT_PROMISE!, which is used for asynchronous operations that return a result.
+It also has a set of associated classes that implement the Separate Proxy pattern.
+
+The \lstinline!CP_RESULT_PROMISE! contains a query \lstinline!item! to retrieve the result as soon as it's available.
+The return type of \lstinline!item! depends on a generic argument.
+To migrate the result back to the client, this class makes use of the import module - i.e. the \lstinline!CP_SHARED_RESULT_PROMISE! and \lstinline!CP_RESULT_PROMISE_PROXY! both have an additional generic argument which defines the import strategy.
+
+The \lstinline!CP_RESULT_PROMISE! is used for the future pattern.
+
+\subsection{Executor}
+
+The executor module can be used to execute varying operations.
+The main class is \lstinline!CP_EXECUTOR!, which provides facilities to execute a \lstinline!CP_TASK! objects.
+
+\lstinline!CP_TASK! itself represents a user-defined operation.
+It can be imported across processor boundaries and provides exception handling.
+To define a new task a client needs to inherit from \lstinline!CP_DEFAULT_TASK! and implement the feature \lstinline!run! and \lstinline!make_from_separate!.
+
+A special kind of task is \lstinline!CP_COMPUTATION!, which can also return a value.
+This is needed to implement the future pattern.
+
+The \lstinline!CP_EXECUTOR! makes use of the separate proxy pattern.
+However, the proxy also enhances the raw \lstinline!CP_EXECUTOR! interface with the option to attach a \lstinline!CP_BROKER! object to a task.
+This can be used to query the status of a task, await termination, or get the computed result back in case of a \lstinline!CP_COMPUTATION!
+All \lstinline!CP_BROKER! objects are created on a dedicated processor to avoid unnecessary thread creation.
+
+An important implementation of the \lstinline!CP_EXECUTOR! is the \lstinline!CP_TASK_WORKER_POOL!.
+As the name suggests, this is a worker pool where each worker repeatedly executes \lstinline!CP_TASK! objects.
+\todo {More executor implementations?}
+
+%\section {Individual patterns}
+% Description of a few patterns
+
+
+
+
 \subsection{Future}
 
 The future pattern is used to perform a computation asynchronously.
@@ -805,11 +743,18 @@ The separate proxy pattern is applied on \lstinline!CP_EXECUTOR! and \lstinline!
 Besides acting as a processor-local proxy to a separate \lstinline!CP_EXECUTOR!, 
 the classes \lstinline!CP_EXECUTOR_PROXY! and \lstinline!CP_FUTURE_EXECUTOR_PROXY! are also responsible to create Promise objects on the global processor.
 
-\subsection{Evaluation and Benchmarks}
+\section{Evaluation and Benchmarks}
 
-\input{tutorial}
+
+\todo{uncomment}%\input{tutorial}
 
 \section{Conclusion}
 
+\begin{appendix}
+%\input{separate_proxy}
+\end{appendix}
+
 \todos
+
+
 \end{document}          
