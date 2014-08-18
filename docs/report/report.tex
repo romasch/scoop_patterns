@@ -87,6 +87,7 @@ The SCOOP model however encourages the creation of many processors, which is not
 % This section describes recurring challenges in SCOOP and how to solve them...
 
 \subsection{Object migration}
+\label{sec:object-migration}
 
 Passing data from one processor to another is often necessary when programming in SCOOP.
 The most obvious example is the producer/consumer pattern, but it also applies to other situations where one just wants to provide some arguments to an asynchronous command.
@@ -216,7 +217,8 @@ This third processor is known to the other two, ``active'' processors, and it co
 In our example this means that the ``passive'' processor takes care of an object with an \lstinline!is_cancelled! and \lstinline!is_finished! boolean flag.
 The ``active'' processors then regularly need to check the status of these flags.
 
-\subsection{Termination}
+\subsection{Processor termination}
+\label{sec:processor-termination}
 % Problem: how to stop consumer waiting on empty buffer.
 % Solution: Query is_stopped in shared buffer.
 
@@ -319,6 +321,7 @@ The Separate Proxy is a pattern to hide separate references behind a proxy objec
 It provides a solution to design goal \#2 \todoref.
 
 \subsubsection{Import}
+\label{sec:concepts:import}
 % Describe how to use it, i.e. generic parameter and importer objects, and the fact that you can select between import and no import.
 
 The import concept is a central part of the library.
@@ -388,39 +391,30 @@ The library consists of several modules, which often build on each other.
 \subsubsection{Import}
 \label{sec:modules:import}
 
-The import module is one of the most important mechanisms in the library.
+The import module implements the SCOOP \lstinline!import! feature, which should be built-in but isn't implemented at the moment.
+It is one of the most important modules of the library.
 It consists of all classes in the directory \dir{library/import}.
 
-The main class is the deferred \lstinline!CP_IMPORT_STRATEGY [G]!, which has the simple interface:
+The basic concepts on how to use the module is described in Section \ref{sec:concepts:import}.
+This section only describes the descendants of \lstinline!CP_IMPORT!, which provide predefined import functions for some types and support for writing an import feature manually.
 
+The deferred class \lstinline!CP_IMPORT [G]! defines the basic interface for a manually defined import feature.
+To define an import feature for an arbitrary type, e.g. \lstinline!STRING!, one has to inherit from \lstinline!CP_IMPORT[STRING]! and provide an implementation for the deferred \lstinline!import! feature.
 
-\lstinputlisting [firstline=7] {../../library/import/cp_import_strategy.e}
-
-By implementing \lstinline!import!, descendants can decide if an object of type \lstinline!G! shall be imported and if yes, how it's done.
-
-The class \lstinline!CP_NO_IMPORTER[G]! is the default class to disable import and just perform a reference copy.
-Every other importer can inherit from \lstinline!CP_IMPORTER!, which narrows the return type of \lstinline!import! to a non-separate \lstinline!G!.
-
-Because writing an extra importer for every importable object may
-The import module is one of the most important mechanisms in the library.
-It consists of all classes in the directory \dir{library/import}.
-
-The main class is the deferred \lstinline!CP_IMPORT_STRATEGY [G]!, which has the simple interface:
-
-
-\lstinputlisting [firstline=7] {../../library/import/cp_import_strategy.e}
-
-By implementing \lstinline!import!, descendants can decide if an object of type \lstinline!G! shall be imported and if yes, how it's done.
-
-The class \lstinline!CP_NO_IMPORTER[G]! is the default class to disable import and just perform a reference copy.
-Every other importer can inherit from \lstinline!CP_IMPORTER!, which narrows the return type of \lstinline!import! to a non-separate \lstinline!G!.
+% The main class is the deferred \lstinline!CP_IMPORT_STRATEGY [G]!, which has the simple interface:
+% \lstinputlisting [firstline=7] {../../library/import/cp_import_strategy.e}
+% By implementing \lstinline!import!, descendants can decide if an object of type \lstinline!G! shall be imported and if yes, how it's done.
+% 
+% The class \lstinline!CP_NO_IMPORTER[G]! is the default class to disable import and just perform a reference copy.
+% Every other importer can inherit from \lstinline!CP_IMPORTER!, which narrows the return type of \lstinline!import! to a non-separate \lstinline!G!.
 
 Because writing an extra importer for every importable object may be tedious, there's a support class \lstinline!CP_IMPORTABLE!:
 
 \lstinputlisting [firstline=7] {../../library/import/cp_importable.e}
 
 That way an import function can be written right inside the class that needs to be imported.
-There are two main import classes that make use of it: \lstinline!CP_DYNAMIC_TYPE_IMPORTER! and \lstinline!CP_STATIC_TYPE_IMPORTER!.
+
+There are two classes which can be used for \lstinline!CP_IMPORTABLE! objects: \lstinline!CP_DYNAMIC_TYPE_IMPORTER! and \lstinline!CP_STATIC_TYPE_IMPORTER!.
 The latter uses bounded genericity to directly create an object of type \lstinline!G!.
 This has the drawback however that the type is statically \lstinline!G!, even if the argument to \lstinline!import! was of a subtype of \lstinline!G!.
 
@@ -436,116 +430,128 @@ In the future, there will hopefully exist an import routine natively supported b
 In that case \lstinline!CP_IMPORTER! can be made effective and use the native import, and all its descendants will become obsolete.
 
 
-Other components of the library often use the import module via bounded genericity.
-The class \lstinline!CP_QUEUE! for example has the ability to import objects, and it's class header looks like this:
-\begin{lstlisting}
-class CP_QUEUE
-  [G, IMPORTER -> CP_IMPORT_STRATEGY [G] create default_create end]
-feature
-  ...
-end
-\end{lstlisting}
-That way a user can decide on the precise semantics of the import strategy by just declaring the right type.
- 
+% Other components of the library often use the import module via bounded genericity.
+% The class \lstinline!CP_QUEUE! for example has the ability to import objects, and it's class header looks like this:
+% \begin{lstlisting}
+% class CP_QUEUE
+%   [G, IMPORTER -> CP_IMPORT_STRATEGY [G] create default_create end]
+% feature
+%   ...
+% end
+% \end{lstlisting}
+% That way a user can decide on the precise semantics of the import strategy by just declaring the right type.
+
 \subsection{Queue}
 
-The queue module is a simple queue implementation.
-It uses the separate proxy pattern, which means that it consists of three classes:
-
-\begin{itemize}
- \item \lstinline!CP_QUEUE!
- \item \lstinline!CP_QUEUE_UTILS!
- \item \lstinline!CP_QUEUE_PROXY!
-\end{itemize}
-
-The first one provides the actual queue, but internally it just relies on \lstinline!ARRAYED_QUEUE!.
-The class \lstinline!CP_QUEUE_PROXY! can be used to access such a shared, separate queue without having to deal with separate references.
-
-The interesting thing about this queue implementation is that it makes use of the import module.
-Along with the generic argument \lstinline!G! you can also provide an \lstinline!CP_IMPORT_STRATEGY [G]!.
-The import then happens automatically in both the queue and its proxy.
-
-\subsubsection{Producer / Consumer}
+The queue module is a simple queue implementation in class \lstinline!CP_QUEUE!.
+It is mostly used to easily implement the producer / consumer pattern in a concurrent context.
 
 
-The producer / consumer is a very popular pattern in concurrent programming, and it is a building block for other patterns like pipeline as well.
-The basic idea is to have a shared, concurrent buffer.
-Producer threads put new items into the buffer, whereas consumer threads remove items from this buffer.
+The pattern itself is all about data migration as described in Section \ref{sec:object-migration}.
+Therefore the queue module makes heavy use of the import mechanism.
+This means that, along with a generic argument for the data type, it is also necessary to provide a \lstinline!CP_IMPORT_STRATEGY!.
+The import strategy then basically ``teaches'' the queue how to import a given object.
 
-\todo{BON-style diagram and ``migration graphics''}
+Internally, \lstinline!CP_QUEUE! uses an \lstinline!ARRAYED_LIST! to store its elements.
 
-In threaded systems, this buffer is usually accessed by several threads at the same time.
-Careful synchronization has to be enforced to ensure that the buffer remains in a consistent state.
-The data items on the other hand ``migrate'' from a producer to the buffer, and then to exactly one consumer.
-They therefore don't need to be thread-safe as long as the producer promises never to touch the item again.
+As the \lstinline!CP_QUEUE! is intended to be used as a separate object, the module provides support classes that implement the Separate Proxy pattern.
 
-In SCOOP things look a bit different however.
-Due to the exclusive access guarantee it is not necessary to establish a synchronization policy.
-The downside however is a loss of potential concurrency when a producer and a consumer accesses the buffer simultaneously, but this is a minor problem.
+% It uses the separate proxy pattern, which means that it consists of three classes:
+% 
+% \begin{itemize}
+%  \item \lstinline!CP_QUEUE!
+%  \item \lstinline!CP_QUEUE_UTILS!
+%  \item \lstinline!CP_QUEUE_PROXY!
+% \end{itemize}
+% 
+% The first one provides the actual queue, but internally it just relies on \lstinline!ARRAYED_QUEUE!.
+% The class \lstinline!CP_QUEUE_PROXY! can be used to access such a shared, separate queue without having to deal with separate references.
+% 
+% The interesting thing about this queue implementation is that it makes use of the import module.
+% Along with the generic argument \lstinline!G! you can also provide an \lstinline!CP_IMPORT_STRATEGY [G]!.
+% The import then happens automatically in both the queue and its proxy.
 
-The main problem in SCOOP are the data items, especially if they are not of an expanded type.
-If the object is created on the producer processor, then the consumer needs to control the producer in order to get access to the object.
-This is clearly a situation that we want to avoid, because it couples the producer and consumer in a vicious hidden way, and the whole point of the producer / consumer pattern is to decouple the two.
-
-A nice solution would be if it's somehow possible to migrate data items, like it's done in threaded languages.
-However, this is not possible with the current semantics of SCOOP, because an object always stays on the processor it was created on.
-
-One approach to solve this problem is to create a new processor for every data item.
-This actually works, but it can be very slow, especially for a lot of small data items.
-There are two reasons for this:
-First, every SCOOP processor is mapped to an operating system thread, therefore creating a new processor involves creating a new thread which is an expensive operation.
-The second reason is the overhead of separate calls itself.
-This has to be paid every time the consumer wants to access the separate object.
-
-Another problem of this approach is related to ease of programming.
-Dealing with a separate object can be very annoying, because you need to write small wrapper functions for every little feature call.
-
-\begin{lstlisting}
-class
-  CONSUMER
-
-feature -- Basic operations
-  
-  retrieve
-      -- Retrieve a string and print its length.
-    local
-      l_string: separate STRING
-    do
-      l_string := buffer_consume (a_queue)
-      print (string_count (l_string))
-    end
-    
-feature {NONE} -- Implementation
-  
-  buffer: separate BUFFER [STRING]
-
-  buffer_consume (a_buffer: like buffer): separate STRING
-      -- An annoying small wrapper function for a buffer.
-    do
-      Result := a_buffer.item
-      a_buffer.remove
-    end
-    
-  string_count (a_string: separate STRING): INTEGER
-      -- An annoying small wrapper function for a string.
-    do
-      Result := a_string.count
-    end
-end
-\end{lstlisting}
-
-
-Due to these problems we decided to go for a different strategy: cloning objects.
-Using the import module it is possible to ``teach'' the shared buffer how to clone any user-defined object by just providing a generic argument.
-A first library for the producer / consumer pattern thus consisted of the class \lstinline!CP_QUEUE! and \lstinline!CP_IMPORT_STRATEGY!, along with some predefined importers.
-
-The import trick solves the main problem of the producer / consumer, namely migrating objects from producer to consumer efficiently.
-However, producers and consumers still have to deal with a nasty separate reference (the shared buffer), and there's also the problem that a user of the library might forget to import objects on the consumer side.
-
-To overcome this problem we implemented a non-separate proxy class which automatically deals with the separate reference and imports.
-This idea proved to be so successful that eventually it was turned into its own pattern: the separate proxy.
-
-\todo {Bon-style graphics of CP\_QUEUE and related items.}
+% \subsubsection{Producer / Consumer}
+% 
+% 
+% The producer / consumer is a very popular pattern in concurrent programming, and it is a building block for other patterns like pipeline as well.
+% The basic idea is to have a shared, concurrent buffer.
+% Producer threads put new items into the buffer, whereas consumer threads remove items from this buffer.
+% 
+% \todo{BON-style diagram and ``migration graphics''}
+% 
+% In threaded systems, this buffer is usually accessed by several threads at the same time.
+% Careful synchronization has to be enforced to ensure that the buffer remains in a consistent state.
+% The data items on the other hand ``migrate'' from a producer to the buffer, and then to exactly one consumer.
+% They therefore don't need to be thread-safe as long as the producer promises never to touch the item again.
+% 
+% In SCOOP things look a bit different however.
+% Due to the exclusive access guarantee it is not necessary to establish a synchronization policy.
+% The downside however is a loss of potential concurrency when a producer and a consumer accesses the buffer simultaneously, but this is a minor problem.
+% 
+% The main problem in SCOOP are the data items, especially if they are not of an expanded type.
+% If the object is created on the producer processor, then the consumer needs to control the producer in order to get access to the object.
+% This is clearly a situation that we want to avoid, because it couples the producer and consumer in a vicious hidden way, and the whole point of the producer / consumer pattern is to decouple the two.
+% 
+% A nice solution would be if it's somehow possible to migrate data items, like it's done in threaded languages.
+% However, this is not possible with the current semantics of SCOOP, because an object always stays on the processor it was created on.
+% 
+% One approach to solve this problem is to create a new processor for every data item.
+% This actually works, but it can be very slow, especially for a lot of small data items.
+% There are two reasons for this:
+% First, every SCOOP processor is mapped to an operating system thread, therefore creating a new processor involves creating a new thread which is an expensive operation.
+% The second reason is the overhead of separate calls itself.
+% This has to be paid every time the consumer wants to access the separate object.
+% 
+% Another problem of this approach is related to ease of programming.
+% Dealing with a separate object can be very annoying, because you need to write small wrapper functions for every little feature call.
+% 
+% \begin{lstlisting}
+% class
+%   CONSUMER
+% 
+% feature -- Basic operations
+%   
+%   retrieve
+%       -- Retrieve a string and print its length.
+%     local
+%       l_string: separate STRING
+%     do
+%       l_string := buffer_consume (a_queue)
+%       print (string_count (l_string))
+%     end
+%     
+% feature {NONE} -- Implementation
+%   
+%   buffer: separate BUFFER [STRING]
+% 
+%   buffer_consume (a_buffer: like buffer): separate STRING
+%       -- An annoying small wrapper function for a buffer.
+%     do
+%       Result := a_buffer.item
+%       a_buffer.remove
+%     end
+%     
+%   string_count (a_string: separate STRING): INTEGER
+%       -- An annoying small wrapper function for a string.
+%     do
+%       Result := a_string.count
+%     end
+% end
+% \end{lstlisting}
+% 
+% 
+% Due to these problems we decided to go for a different strategy: cloning objects.
+% Using the import module it is possible to ``teach'' the shared buffer how to clone any user-defined object by just providing a generic argument.
+% A first library for the producer / consumer pattern thus consisted of the class \lstinline!CP_QUEUE! and \lstinline!CP_IMPORT_STRATEGY!, along with some predefined importers.
+% 
+% The import trick solves the main problem of the producer / consumer, namely migrating objects from producer to consumer efficiently.
+% However, producers and consumers still have to deal with a nasty separate reference (the shared buffer), and there's also the problem that a user of the library might forget to import objects on the consumer side.
+% 
+% To overcome this problem we implemented a non-separate proxy class which automatically deals with the separate reference and imports.
+% This idea proved to be so successful that eventually it was turned into its own pattern: the separate proxy.
+% 
+% \todo {Bon-style graphics of CP\_QUEUE and related items.}
 
 
 \subsection{Process}
@@ -616,24 +622,31 @@ The intention of the worker pool is to make use of parallelism but avoid the ove
 
 The main component of the worker pool is a shared buffer, where clients can insert tasks to be executed.
 A worker thread will then repeatedly retrieve a task from the buffer and execute it.
-Thus the worker pool pattern makes itself use of the producer / consumer pattern, with the library client as a producer and the worker threads as consumers.
+The worker pool module makes use of the queue module, which provides the shared buffer.
+  %producer / consumer pattern, with the library client as a producer and the worker threads as consumers.
 
-An important part of the worker pool is also the ability to increase or decrease the amount of worker threads, or to completely stop all worker threads such that the application can terminate.
+%An important part of the worker pool is also the ability to increase or decrease the amount of worker threads, or to completely stop all worker threads such that the application can terminate.
 
 The representation of a task to be executed varies between different languages.
 In Java for instance a Runnable \todo{ref} object is used, whereas in C\# the task is represented as a delegate \todo{ref}.
 
-In SCOOP there's the usual problem that an object can't be migrated.
-This is especially bad for objects that encapsulate a task to be executed, as the task will be executed on the processor that created the object.
-This fact seems to make worker pools in SCOOP effectively useless.
-If the task object is created on its own processor, you cancel out the performance gain you tried to achieve with the worker pool.
-And if the task object is created on the client processor, you may introduce deadlocks, or in the best case just a straightforward sequential execution.
+In SCOOP there's the problem of object migration, as described in Section \ref{sec:object-migration}.
+If the task object is created on its own processor, as in the Data Processor approach, you cancel out the performance gain you tried to achieve with the worker pool.
+With the Lock Passing approach, a task object will be executed on the processor that created the object, which kind of makes the worker pool useless (not to mention the risks of processor starvation if applied wrong).
+This only leaves the Import mechanism as a sensible solution.
 
-However, there are two solutions to this problem: You can either use the import mechanism, or make the worker class deferred and let clients implement the task directly.
-In the library we support both approaches, although the latter can be used to implement the import solution.
-Section~\ref{sec:arbitrary-operations} shows how to do this.
+In the library we support two flavors of a worker pool.
+The first and more basic one is to have a deferred class \lstinline!CP_WORKER! where clients can directly implement an operation.
+The object submitted to the worker pool then corresponds to the arguments of the operation.
 
-The basic worker pool module therefore has three main classes:
+The second solution uses a special task class to encapsulate an operation.
+It is described in Section \ref{sec:arbitrary-operations}.
+
+% However, there are two solutions to this problem: You can either use the import mechanism, or make the worker class deferred and let clients implement the task directly.
+% In the library we support both approaches, although the latter can be used to implement the import solution.
+% Section~\ref{sec:arbitrary-operations} shows how to do this.
+
+The basic worker pool module has three main classes:
 \begin{itemize}
  \item \lstinline!CP_WORKER_POOL!
  \item \lstinline!CP_WORKER!
@@ -642,7 +655,7 @@ The basic worker pool module therefore has three main classes:
 
 The \lstinline!CP_WORKER_POOL! provides the shared buffer and some additional functionality to adjust the pool size.
 The type of the task object alongside its import strategy can be specified with a generic argument.
-This allows a very flexible use of the worker pool, it is for example possible to use it just as an advanced producer / consumer module where consumers are automatically created and destroyed.
+\lstinline!CP_WORKER_POOL! inherits from \lstinline!CP_QUEUE! and therefore uses the same import mechanisms.
 
 The deferred class \lstinline!CP_WORKER! corresponds to the worker thread in other languages.
 Users need to implement the feature \lstinline!do_run!, which takes a task object and executes it.
@@ -653,51 +666,66 @@ The last class, \lstinline!CP_WORKER_FACTORY!, just provides a deferred factory 
 This is necessary because the exact type of \lstinline!CP_WORKER! is not known to the library.
 With a user-defined factory, the \lstinline!CP_WORKER_POOL! can create new workers on demand.
 
-To simplify the handling of a worker pool we also applied the Separate Proxy pattern on \lstinline!CP_WORKER_POOL!.
 
-\subsubsection{Terminating workers}
+
+
+% \subsubsection{Terminating workers}
 
 An important functionality of a worker pool is to adjust the number of workers.
 Increasing the worker count is not a problem, as you can just create new \lstinline!CP_WORKER! instances using the factory.
-However, decreasing the amount of workers is not that easy.
+To decrease the amount of workers, the module makes use of the processor termination technique described in Section \ref{sec:processor-termination}.
 
-Java provides two builtin mechanisms to shut down a thread.
-You can either force it to stop, which immediately throws an exception in the thread \todo{ref}, or you can use the more collaborative interrupt mechanism \todo{ref}.
-The idea is that the thread will regularly check its interrupted flag and terminate on its own if requested.
 
-The latter is also possible to do in SCOOP, except that there's no builtin interrupt flag.
-Instead a query \lstinline!is_stop_requested! in \lstinline!CP_WORKER_POOL! can be used.
-The main problem however are wait conditions.
+% However, decreasing the amount of workers is not that easy.
+% 
+% Java provides two builtin mechanisms to shut down a thread.
+% You can either force it to stop, which immediately throws an exception in the thread \todo{ref}, or you can use the more collaborative interrupt mechanism \todo{ref}.
+% The idea is that the thread will regularly check its interrupted flag and terminate on its own if requested.
+% 
+% The latter is also possible to do in SCOOP, except that there's no builtin interrupt flag.
+% Instead a query \lstinline!is_stop_requested! in \lstinline!CP_WORKER_POOL! can be used.
+% The main problem however are wait conditions.
+% 
+% In Java, blocking calls like \lstinline!wait()! and \lstinline!sleep()! may throw an \lstinline!InterruptedException! \todo{ref}.
+% This avoids the problem that a thread may wait forever instead of shutting down, because all signaller threads have already terminated.
+% Unfortunately, there's no such mechanism in SCOOP.
+% It is possible however to work around this limitation by refining the wait condition:
+% \begin{lstlisting}
+% 
+% class
+%   CP_WORKER
+%   
+%   -- ...
+%   
+% feature -- Implementation
+% 
+%   fetch (pool: separate CP_WORKER_POOL)
+%     require
+%       not pool.is_empty or pool.is_stop_requested
+%     do
+%       if is_stop_requested then
+% 	-- Stop the currrent worker.
+%       else
+% 	-- Grab the next item.
+%       end
+%     end
+% 
+% end
+% \end{lstlisting}
+% The additional \lstinline!if! statement is not very nice, but luckily it can be encapsulated completely in \lstinline!CP_WORKER!.
+% 
+% This code snippet is useful to break free of any wait condition if the requirements have changed.
 
-In Java, blocking calls like \lstinline!wait()! and \lstinline!sleep()! may throw an \lstinline!InterruptedException! \todo{ref}.
-This avoids the problem that a thread may wait forever instead of shutting down, because all signaller threads have already terminated.
-Unfortunately, there's no such mechanism in SCOOP.
-It is possible however to work around this limitation by refining the wait condition:
-\begin{lstlisting}
 
-class
-  CP_WORKER
-  
-  -- ...
-  
-feature -- Implementation
+The Separate Proxy pattern is applied to \lstinline!CP_WORKER_POOL! to simplify the use of a separate worker pool object.
 
-  fetch (pool: separate CP_WORKER_POOL)
-    require
-      not pool.is_empty or pool.is_stop_requested
-    do
-      if is_stop_requested then
-	-- Stop the currrent worker.
-      else
-	-- Grab the next item.
-      end
-    end
+The basic worker pool module allows for a very flexible use. 
+It is for example possible to use it just as an advanced producer / consumer module where consumers are automatically created and destroyed.
+The next section introduces a more advanced implementation of the worker pool which builds on the basic module.
 
-end
-\end{lstlisting}
-The additional \lstinline!if! statement is not very nice, but luckily it can be encapsulated completely in \lstinline!CP_WORKER!.
 
-This code snippet is useful to break free of any wait condition if the requirements have changed.
+
+
 
 \subsubsection{Arbitrary operations}
 \label{sec:arbitrary-operations}
@@ -721,7 +749,9 @@ The combination of these two classes is very close to the Java worker pool imple
 The only difference is that a \lstinline!CP_TASK! object needs to be imported, whereas a Java Runnable object doesn't.
 
 
-\subsection{Promise}
+\subsection{Futures}
+
+\subsubsection{Promise}
 
 The promise module contains a set of classes which can be used to monitor the state of an asynchronous operation.
 
@@ -746,7 +776,7 @@ To migrate the result back to the client, this class makes use of the import mod
 
 The \lstinline!CP_RESULT_PROMISE! is used for the future pattern.
 
-\subsection{Executor}
+\subsubsection{Executor}
 
 The executor module can be used to execute varying operations.
 The main class is \lstinline!CP_EXECUTOR!, which provides facilities to execute a \lstinline!CP_TASK! objects.
@@ -773,7 +803,7 @@ As the name suggests, this is a worker pool where each worker repeatedly execute
 
 
 
-\subsection{Future}
+\subsubsection{Future}
 
 The future pattern is used to perform a computation asynchronously.
 Instead of computing a value directly, the computation gets wrapped into an object and the user only receives a handle to retrieve the value when it's ready.
