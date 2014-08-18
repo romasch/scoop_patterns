@@ -396,10 +396,10 @@ It is one of the most important modules of the library.
 It consists of all classes in the directory \dir{library/import}.
 
 The basic concepts on how to use the module is described in Section \ref{sec:concepts:import}.
-This section only describes the descendants of \lstinline!CP_IMPORT!, which provide predefined import functions for some types and support for writing an import feature manually.
+This section only describes the descendants of \lstinline!CP_IMPORTER!, which provide predefined import functions for some types and support for writing an import feature manually.
 
-The deferred class \lstinline!CP_IMPORT [G]! defines the basic interface for a manually defined import feature.
-To define an import feature for an arbitrary type, e.g. \lstinline!STRING!, one has to inherit from \lstinline!CP_IMPORT[STRING]! and provide an implementation for the deferred \lstinline!import! feature.
+The deferred class \lstinline!CP_IMPORTER [G]! defines the basic interface for a manually defined import feature.
+To define an import feature for an arbitrary type, e.g. \lstinline!STRING!, one has to inherit from \lstinline!CP_IMPORTER [STRING]! and provide an implementation for the deferred \lstinline!import! feature.
 
 % The main class is the deferred \lstinline!CP_IMPORT_STRATEGY [G]!, which has the simple interface:
 % \lstinputlisting [firstline=7] {../../library/import/cp_import_strategy.e}
