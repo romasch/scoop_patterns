@@ -195,19 +195,97 @@ Note that \lstinline!receive_args! is executed synchronously just like in the Lo
 Therefore, to execute \lstinline!do_something! asynchronously, it has to be divided into an execution and argument receiving part.
 
 The feature \lstinline!import! was first described in \todo{ref: Piotr}, but unfortunately it is not implemented in current SCOOP.
-
-\todo{resolve cliffhanger}
-% Instead the library implements a substitute mechanism, which requires some user support.
-% The exact details of the library solution are described in Section \ref{sec:modules:import}.
+It is possible however to implement it manually with some user support.
 
 \subsection{Processor communication}
+\label{sec:processor-communication}
 % Problem that two concurrent, active processors can't communicate. Example downloader task.
 % Solution: a third, passive processor with a shared data structure.
 
 
+It is often necessary that two threads need to communicate with each other.
+One example would be a user interface with a background downloader task.
+The user interface needs to be able to cancel the downloader, and the downloader needs to inform the GUI that it is finished.
+
+In SCOOP this is not easily done.
+Both processors are performing a long-running execution, which doesn't allow other processors to do separate calls on them.
+Specifically, the GUI processor is in a main loop to receive input and repaint the window, whereas the downloader task is busy receiving chunks of data.
+
+The solution to this kind of problem is to introduce a third processor which is ``passive'', meaning that it doesn't have a task to perform and only waits for incoming requests.
+This third processor is known to the other two, ``active'' processors, and it contains all the attributes which are necessary for communication.
+In our example this means that the ``passive'' processor takes care of an object with an \lstinline!is_cancelled! and \lstinline!is_finished! boolean flag.
+The ``active'' processors then regularly need to check the status of these flags.
+
 \subsection{Termination}
 % Problem: how to stop consumer waiting on empty buffer.
 % Solution: Query is_stopped in shared buffer.
+
+When an application needs to be shut down, it is necessary to stop any running threads.
+Sometimes this can be done via the ``passive'' third processor as seen in Section \ref{sec:processor-communication}.
+However, the active processor may be stuck in a wait condition.
+
+One example of this could be the producer/consumer pattern, where a consumer is waiting for a buffer to become non-empty.
+If all producers are already terminated, the consumer never gets the chance to break out of this wait condition and therefore it can't terminate successfully.
+
+The solution is to add a query \lstinline!is_stop_requested! right inside the shared buffer, and to adapt to adapt the wait condition to include the stop request:
+
+\begin{lstlisting}
+class
+  CONSUMER
+
+feature -- Status report
+
+  buffer: separate BUFFER
+  
+  last_item: INTEGER
+  
+  is_stopped: BOOLEAN
+  
+feature -- Basic operations
+  
+   start
+      -- Start the main loop
+    do
+      from 
+      until 
+	is_stopped
+      loop
+	fetch (buffer)
+	if not is_stopped then
+	  -- do something
+	end
+      end
+    end
+  
+feature -- Implementation
+
+  fetch (buf: separate BUFFER)
+      -- Get the next item from `buf'.
+    require
+      not buf.is_empty or buf.is_stop_requested
+    do
+      if buf.is_stop_requested then
+	is_stopped := True
+      else
+	last_item := buf.item
+	buf.remove
+      end
+    end
+end
+\end{lstlisting}
+% class
+%   BUFFER
+%   
+% feature -- Status report
+%   
+%   is_stop_requested: BOOLEAN
+%       -- Do the consumers need to stop?
+%       
+%   is_empty: BOOLEAN
+%       -- Is the buffer empty?
+% 
+% end
+% \end{lstlisting}
 
 
 \section {Library}
@@ -273,10 +351,10 @@ That way a user can decide on the precise semantics of the import strategy by ju
 
 \subsubsection{Separate Proxy}
 
-The separate proxy pattern is a SCOOP specific mechanism.
-The goal of the pattern is to provide a nice interface to a separate object, by providing a processor-local proxy which hides the separate reference.
+The separate proxy pattern provides a nice interface to a separate object, by providing a processor-local proxy which hides the separate reference.
+It is applied to all classes in the library which are meant to be shared among processors, i.e. which are usually accessed through a separate reference.
 
-Usually the pattern consists of three classes:
+The pattern consists of three classes:
 \begin{enumerate} [label=(\arabic*)]
  \item\label{item:sep-proxy:first} The class for the actual separate object.
  \item\label{item:sep-proxy:second} A class that provides helper functions to access a separate object of type \ref{item:sep-proxy:first}, usually with the ending \lstinline!_UTILS!.
@@ -299,6 +377,8 @@ There is however some support in the library:
 
 \subsection {Architecture}
 \label{sec:modules}
+
+
 
 The library consists of several modules, which often build on each other.
 \todo{Describe available modules, which patterns they're implementing, and which modules they depend upon.}
