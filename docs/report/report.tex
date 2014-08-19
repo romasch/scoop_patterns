@@ -379,7 +379,7 @@ There is however some support in the library:
 
 \todo{reference to appendix}
 
-\subsection {Architecture}
+\subsection {Module overview}
 \label{sec:modules}
 
 The library consists of several modules which implement some of the patterns described in the overview (Section \ref{sec:pattern_overview}).
@@ -403,7 +403,7 @@ The Timer: InvokeLater pattern \todoref is implemented by a single class \lstinl
 
 % \todo{Describe available modules, which patterns they're implementing, and which modules they depend upon.}
 
-\section{Library implementation}
+\section{Library modules}
 
 \subsection{Import}
 \label{sec:modules:import}
@@ -898,9 +898,36 @@ To migrate the result back to the client, this class makes use of the import mod
 \section{Evaluation and Benchmarks}
 
 
-%\input{tutorial}
-
 \section{Conclusion}
+
+In this thesis we've worked out many methods that simplify concurrent programming in one way or another.
+We've done a survey of concurrency patterns and described them in an extensive list.
+This list can be used by anyone searching for a particular pattern.
+
+From this list we selected some patterns which we thought to be especially useful.
+The selection was based on the study of other concurrency libraries as well as some input from the CME research group \todoref.
+
+The seleted patterns were then implemented and are now available as a new Eiffel library.
+Besides the actual pattern implementations, this library also provides some workarounds for current SCOOP limitations, such as the missing import statement.
+
+Performance measurements for the Future pattern implementation showed that the library is actually faster and uses less threads than the native SCOOP approach.
+
+Finally we also describe some challenges when programming in SCOOP, and how they can be solved.
+This is especially useful to programmers new to SCOOP, but which may have experience in concurrent programming with threads.
+
+\subsection{Future work}
+
+- Passive Processors integration and adaptions to library
+- GUI programming
+- Make existing libraries SCOOP ready
+- some more patterns maybe?
+- Agent integration
+- Built-in import
+- SCOOP performance!
+
+% Explain what is the impact of the selected patterns, and why they were selected.
+% Say that import was developed to overcome language limitation
+% Also: Future work
 
 
 \begin{appendix}
