@@ -1,28 +1,5 @@
- \subsection {Module overview}
-\label{sec:modules}
-
-The library consists of several modules which implement some of the patterns described in the overview (Section \ref{sec:pattern_overview}).
-
-One of the most basic modules is the Import module in \dir{library/import}.
-It implements the Import pattern \todoref and is at the same time one of the core concepts of the library.
-
-The queue module in \dir{library/queue} implements the Prdocuer / Consumer pattern \todoref.
-It depends upon the import module.
-
-The process module in \dir{library/process} provides skeleton classes for objects with a main loop.
-It provides implementations for the Active Object \todoref, Self Asynch \todoref and Timer: Periodic \todoref patterns.
-
-The worker pool module in \dir{library/worker\_pool} implements the Worker Pool pattern \todoref.
-It depends on the import, queue and process module.
-
-The future module is located in \dir{library/executor} and \dir{library/promise}.
-It provides an implementation for the Future \todoref as well as the Executor framework \todoref.
-
-The Timer: InvokeLater pattern \todoref is implemented by a single class \lstinline!CP_DEFAULT_TASK! in \dir{libary/util}.
-
-% \todo{Describe available modules, which patterns they're implementing, and which modules they depend upon.}
-
 \section{Library modules}
+\label{sec:modules}
 
 \subsection{Import}
 \label{sec:modules:import}

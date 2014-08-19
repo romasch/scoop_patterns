@@ -280,19 +280,6 @@ feature -- Implementation
     end
 end
 \end{lstlisting}
-% class
-%   BUFFER
-%   
-% feature -- Status report
-%   
-%   is_stop_requested: BOOLEAN
-%       -- Do the consumers need to stop?
-%       
-%   is_empty: BOOLEAN
-%       -- Is the buffer empty?
-% 
-% end
-% \end{lstlisting}
 
 
 \section {Library}
@@ -383,11 +370,66 @@ There is however some support in the library:
 
 \todo{reference to appendix}
 
+\subsection {Module overview}
+\label{sec:module-overview}
+
+The library consists of several modules which implement some of the patterns described in the overview (Section \ref{sec:pattern_overview}).
+
+One of the most basic modules is the Import module in \dir{library/import}.
+It implements the Import pattern \todoref and is at the same time one of the core concepts of the library.
+
+The queue module in \dir{library/queue} implements the Prdocuer / Consumer pattern \todoref.
+It depends upon the import module.
+
+The process module in \dir{library/process} provides skeleton classes for objects with a main loop.
+It provides implementations for the Active Object \todoref, Self Asynch \todoref and Timer: Periodic \todoref patterns.
+
+The worker pool module in \dir{library/worker\_pool} implements the Worker Pool pattern \todoref.
+It depends on the import, queue and process module.
+
+The future module is located in \dir{library/executor} and \dir{library/promise}.
+It provides an implementation for the Future \todoref as well as the Executor framework \todoref.
+
+The Timer: InvokeLater pattern \todoref is implemented by a single class \lstinline!CP_DEFAULT_TASK! in \dir{libary/util}.
+
+% \todo{Describe available modules, which patterns they're implementing, and which modules they depend upon.}
+
 
 \input{modules}
 
 \section{Evaluation and Benchmarks}
 
+To evaluate the library we implemented a small performance benchmark.
+We implemented the Gaussian elimination algorithm \todoref in three different ways: sequentially, with SCOOP only, and using the future module \todoref from the library.
+We chose to test the future pattern because it indirectly also measures many other parts of the library, like the worker pool or import mechanism.
+
+We ran the tests with randomly generated matrices and each test was repeated 5 times.
+A test matrix was square and its order always a power of two in the range from 32 to 1024.
+Additionally, there was one more column for the result vector in the system of linear equations.
+The test system was a quad-core AMD Phenom II X4 955 processor with 6 GB of RAM.
+
+The results of the tests are shown in the table below:
+
+\todo{calculate averages, insert table, write warning about special data size in Caption.}
+
+From the results we can get several observations:
+
+\begin{itemize}
+ \item The raw SCOOP solution fails for the biggest matrix. 
+ This is because it uses more than the maximum number of processors, and it's a known bug \todo{ref: https://docs.eiffel.com/book/solutions/scoop-implementation}.
+ The library solution doesn't suffer from this problem because it's using a fixed amount of processors.
+ \item The library is a lot faster than the raw SCOOP solution on large data sets.
+ \item For smaller data sets, raw SCOOP beats the library.
+ \item Sequential execution is a lot faster than SCOOP.
+\end{itemize}
+
+The last observation is probably the most fundamental.
+The SCOOP runtime really needs to be improved in order to make it competitive to threaded systems, or even sequential ones.
+Fortunately an improved version \todo{ref: Scott's thesis} is being developed at the time of writing.
+It will be integrated into a future EiffelStudio release.
+
+Another improvement which might be useful for the library is the Passive Processor concept \todoref.
+This might be useful especially for the Future module, as both the worker pool and the promise object could be declared passive.
 
 \section{Conclusion}
 
@@ -401,7 +443,7 @@ The selection was based on the study of other concurrency libraries as well as s
 The seleted patterns were then implemented and are now available as a new Eiffel library.
 Besides the actual pattern implementations, this library also provides some workarounds for current SCOOP limitations, such as the missing import statement.
 
-Performance measurements for the Future pattern implementation showed that the library is actually faster and uses less threads than the native SCOOP approach.
+Performance measurements for the Future pattern implementation showed that the library is actually faster foe large data sets and uses less threads than the native SCOOP approach.
 
 Finally we also describe some challenges when programming in SCOOP, and how they can be solved.
 This is especially useful to programmers new to SCOOP, but which may have experience in concurrent programming with threads.
