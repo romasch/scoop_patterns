@@ -2,7 +2,7 @@
 \section {API tutorial}
 \label{sec:tutorial}
 
-\subsubsection{Producer / Consumer}
+\subsection{Producer / Consumer}
 
 The producer / consumer example is pretty common in concurrent programming.
 At its core is usually a shared buffer.
@@ -114,7 +114,7 @@ The last thing we need to do is to create and launch the producers and consumers
 \lstinputlisting [firstline=7] {../../examples/producer_consumer/producer_consumer.e}
 
 
-\subsubsection{Server thread}
+\subsection{Server thread}
 
 In networking you often need a dedicated thread that listens on a socket.
 In a SCOOP environment it is not hard to create such a processor, but it is hard to stop it.
@@ -135,7 +135,7 @@ To start the echo server you can use \lstinline!CP_STARTABLE_UTILS! and the feat
 
 \lstinputlisting [firstline=7] {../../examples/echo_server/echo_application.e}
 
-\subsubsection{Futures}
+\subsection{Futures}
 
 A future is a computation which may run asynchronously, possibly returning a result.
 The future is a very popular pattern in other languages like Java.

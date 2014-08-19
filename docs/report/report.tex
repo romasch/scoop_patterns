@@ -393,7 +393,7 @@ It depends upon the import module.
 The process module in \dir{library/process} provides skeleton classes for objects with a main loop.
 It provides implementations for the Active Object \todoref, Self Asynch \todoref and Timer: Periodic \todoref patterns.
 
-The worker pool module in \dir{library/worker_pool} implements the Worker Pool pattern \todoref.
+The worker pool module in \dir{library/worker\_pool} implements the Worker Pool pattern \todoref.
 It depends on the import, queue and process module.
 
 The future module is located in \dir{library/executor} and \dir{library/promise}.
@@ -765,7 +765,7 @@ The combination of these two classes is very close to the Java worker pool imple
 The only difference is that a \lstinline!CP_TASK! object needs to be imported, whereas a Java Runnable object doesn't.
 
 
-\todo{Maybe merge subsections Arbitrary Operations and Promise into a new section that describes the ideas behind CP_TASK?}
+\todo{Maybe merge subsections Arbitrary Operations and Promise into a new section that describes the ideas behind CP\_TASK?}
 
 \subsection{Futures}
 
@@ -898,15 +898,16 @@ To migrate the result back to the client, this class makes use of the import mod
 \section{Evaluation and Benchmarks}
 
 
-\todo{uncomment}%\input{tutorial}
+%\input{tutorial}
 
 \section{Conclusion}
 
+
 \begin{appendix}
-%\input{separate_proxy}
+\input{tutorial}
+\input{separate_proxy}
 \end{appendix}
 
 \todos
-
 
 \end{document}          
