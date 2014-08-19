@@ -1,4 +1,4 @@
-\documentclass[a4paper,10pt]{report}
+\documentclass[a4paper,10pt]{article}
 \usepackage[utf8]{inputenc}
 
 \usepackage{pattern}
@@ -388,7 +388,7 @@ The library consists of several modules, which often build on each other.
 
 \section{Library implementation}
 
-\subsubsection{Import}
+\subsection{Import}
 \label{sec:modules:import}
 
 The import module implements the SCOOP \lstinline!import! feature, which should be built-in but isn't implemented at the moment.
@@ -594,6 +594,7 @@ It also adds a simple command \lstinline!stop!, which can be used to stop the pr
 It is an implementation of the Timer: Periodic pattern in \todo{ref}.
 
 \subsection{Worker pool}
+\label{sec:worker_pool} 
 
 % The worker pool module provides support classes to build a worker pool.
 % It makes use of the queue module to store the work items.
@@ -751,7 +752,81 @@ The only difference is that a \lstinline!CP_TASK! object needs to be imported, w
 
 \subsection{Futures}
 
+The future pattern is used to perform a computation asynchronously.
+Instead of computing a value directly, the computation gets wrapped into an object and the user only receives a handle to retrieve the value when it's ready.
+This handle is often called Future, Promise or Delay.
+In this section we'll use the term Future for the whole pattern, and Promise only refers to the handle.
+
+The main advantage of the future pattern is that it allows to make use of parallelism in an easy way.
+A user just has to spot computations which may run asynchronously, and the future pattern takes care of thread management, synchronization and result propagation.
+
+The future pattern consists of four building blocks:
+\begin{itemize}
+ \item The Promise object,
+ \item the computation,
+ \item the execution service,
+ \item and a ``frontent'' object which takes a computation, submits it to the executor, and returns a Promise object.
+\end{itemize}
+
+The representation of the computation is a Callable object in Java and a delegate in C\#.
+Our library uses the interface \lstinline!CP_COMPUTATION! with the deferred feature \lstinline!computed!.
+It is a descendant of \lstinline!CP_TASK! introduced in Section \ref{sec:arbitrary-operations}.
+
+The Promise object is defined by \lstinline!CP_PROMISE! and its descendants.
+The detailed implementation is described in Section \ref{sec:promise}.
+
+The execution service part of the Future pattern can vary.
+In most cases it is a worker pool which executes the computation objects and updates the Promise with the correct result.
+However, it is also possible to implement it as a single thread, or even to executing them synchronously in the current thread.
+
+To take this variation into account, we added a new interface \lstinline!CP_EXECUTOR!.
+The \lstinline!CP_TASK_WORKER_POOL! introduced in Section \ref{sec:worker_pool} implements this interface and thus can be used as an executor service for the Future pattern.
+We also applied the Separate Proxy pattern on \lstinline!CP_EXECUTOR!, as it is mostly accessed through a separate reference.
+
+\todo {Maybe highlight that EXECUTOR is not just for the future pattern, but a general implementation of the Executor pattern.}
+
+The ``frontend'' part is implemented in the \lstinline!CP_EXECUTOR_PROXY!.
+This is an example where the responsability of a proxy object has been expanded:
+Instead of just forwarding the \lstinline!CP_COMPUTATION! to the execution service, it also creates the Promise object and returns it to the user.
+
+The implementation of the future pattern in SCOOP hits two challenges:
+\begin{itemize}
+ \item Object Migration (see Section \ref{sec:object-migration}: Operations can't be easily moved from the client to an execution service.
+ The same is also true for the result of a computation in the reverse direction.
+ \item Processor Communication (see Section \ref{sec:processor-communication}: The promise object should neither be placed on the client processor nor on the executor service.
+% The reason in both cases is that one processor may execute a main loop, which means the other processor never gets access to the promise object.
+\end{itemize}
+
+The solution to the first problem is, once again, the import concept \todoref.
+% This means that both the Executor service and the Promise object have a generic argument to define the \lstinline!CP_IMPORT_STRATEGY!.
+% The executor service always uses \lstinline!CP_DYNAMIC_TYPE_IMPORTER!, because \lstinline!CP_COMPUTATION! inherits from \lstinline!CP_IMPORTABLE!.
+% The import strategy of the Promise object however is user-defined.
+The second problem is more interesting however.
+As we've seen in Section \ref{sec:processor-communication}, the Promise object needs to be placed on a third processor.
+
+However, if we start a new processor for every computation, we introduce a huge overhead.
+
+A better tradeoff would be to introduce one global processor, which takes care of all promise objects.
+This may introduce contention if multiple futures are submitted, but we think that this is acceptable.
+
+However, this approach brings another problem.
+A promise object has two generic arguments for the return type and the import strategy.
+As these arguments are not known in advance, and because SCOOP processor tags \todo{ref} are not implemented yet, it is not possible to create a promise object on this dedicated processor.
+
+The solution is - surprisingly - the import module.
+We can create a promise object with the correct types on the client processor, and then ask the global processor to import it.
+This way the promise object finally ends up on the correct processor.
+
+% In the library, the Promise object is provided by the class \lstinline!CP_PROMISE! and its descendants.
+% The computation is represented with \lstinline!CP_COMPUTATION!, or \lstinline!CP_TASK! for operations that don't return a result.
+% The execution service is the deferred class \lstinline!CP_EXECUTOR! and \lstinline!CP_TASK_WORKER_POOL! is the main implementation.
+% 
+% The separate proxy pattern is applied on \lstinline!CP_EXECUTOR! and \lstinline!CP_PROMISE!.
+% Besides acting as a processor-local proxy to a separate \lstinline!CP_EXECUTOR!, 
+% the classes \lstinline!CP_EXECUTOR_PROXY! and \lstinline!CP_FUTURE_EXECUTOR_PROXY! are also responsible to create Promise objects on the global processor.
+
 \subsubsection{Promise}
+\label {sec:promise}
 
 The promise module contains a set of classes which can be used to monitor the state of an asynchronous operation.
 
@@ -771,87 +846,37 @@ There's an important descendant, the \lstinline!CP_RESULT_PROMISE!, which is use
 It also has a set of associated classes that implement the Separate Proxy pattern.
 
 The \lstinline!CP_RESULT_PROMISE! contains a query \lstinline!item! to retrieve the result as soon as it's available.
+A distinguishing feature of this query is that it blocks if the result is not yet available.
 The return type of \lstinline!item! depends on a generic argument.
 To migrate the result back to the client, this class makes use of the import module - i.e. the \lstinline!CP_SHARED_RESULT_PROMISE! and \lstinline!CP_RESULT_PROMISE_PROXY! both have an additional generic argument which defines the import strategy.
 
-The \lstinline!CP_RESULT_PROMISE! is used for the future pattern.
+% The \lstinline!CP_RESULT_PROMISE! is used for the future pattern.
 
-\subsubsection{Executor}
-
-The executor module can be used to execute varying operations.
-The main class is \lstinline!CP_EXECUTOR!, which provides facilities to execute a \lstinline!CP_TASK! objects.
-
-\lstinline!CP_TASK! itself represents a user-defined operation.
-It can be imported across processor boundaries and provides exception handling.
-To define a new task a client needs to inherit from \lstinline!CP_DEFAULT_TASK! and implement the feature \lstinline!run! and \lstinline!make_from_separate!.
-
-A special kind of task is \lstinline!CP_COMPUTATION!, which can also return a value.
-This is needed to implement the future pattern.
-
-The \lstinline!CP_EXECUTOR! makes use of the separate proxy pattern.
-However, the proxy also enhances the raw \lstinline!CP_EXECUTOR! interface with the option to attach a \lstinline!CP_BROKER! object to a task.
-This can be used to query the status of a task, await termination, or get the computed result back in case of a \lstinline!CP_COMPUTATION!
-All \lstinline!CP_BROKER! objects are created on a dedicated processor to avoid unnecessary thread creation.
-
-An important implementation of the \lstinline!CP_EXECUTOR! is the \lstinline!CP_TASK_WORKER_POOL!.
-As the name suggests, this is a worker pool where each worker repeatedly executes \lstinline!CP_TASK! objects.
-\todo {More executor implementations?}
+% \subsubsection{Executor}
+% 
+% The executor module can be used to execute varying operations.
+% The main class is \lstinline!CP_EXECUTOR!, which provides facilities to execute a \lstinline!CP_TASK! objects.
+% 
+% \lstinline!CP_TASK! itself represents a user-defined operation.
+% It can be imported across processor boundaries and provides exception handling.
+% To define a new task a client needs to inherit from \lstinline!CP_DEFAULT_TASK! and implement the feature \lstinline!run! and \lstinline!make_from_separate!.
+% 
+% A special kind of task is \lstinline!CP_COMPUTATION!, which can also return a value.
+% This is needed to implement the future pattern.
+% 
+% The \lstinline!CP_EXECUTOR! makes use of the separate proxy pattern.
+% However, the proxy also enhances the raw \lstinline!CP_EXECUTOR! interface with the option to attach a \lstinline!CP_PROMISE! object to a task.
+% This can be used to query the status of a task, await termination, or get the computed result back in case of a \lstinline!CP_COMPUTATION!
+% All \lstinline!CP_PROMISE! objects are created on a dedicated processor to avoid unnecessary thread creation.
+% 
+% An important implementation of the \lstinline!CP_EXECUTOR! is the \lstinline!CP_TASK_WORKER_POOL!.
+% As the name suggests, this is a worker pool where each worker repeatedly executes \lstinline!CP_TASK! objects.
+% 
+% \todo {More executor implementations?}
 
 %\section {Individual patterns}
 % Description of a few patterns
 
-
-
-
-\subsubsection{Future}
-
-The future pattern is used to perform a computation asynchronously.
-Instead of computing a value directly, the computation gets wrapped into an object and the user only receives a handle to retrieve the value when it's ready.
-This handle is often called Future, Promise or Delay.
-In this thesis we'll use the term Future for the whole pattern, and Promise only refers to the handle.
-
-The representation of the computation is a Callable object in Java and a delegate in C\#.
-The Promise is usually a class with a generic argument that matches the result type of the computation.
-A distinguishing feature of the Promise is that it blocks if the result is not yet available.
-
-The execution of a computation object can vary.
-In most cases the future pattern is backed by a worker pool, which executes the computation objects and updates the Promise with the correct result.
-
-The main advantage of the future pattern is that it allows to make use of parallelism in an easy way.
-A user just has to spot computations which may run asynchronously, and the future pattern takes care of thread management, synchronization and result propagation.
-
-The implementation of the future pattern in SCOOP hits two problems:
-\begin{itemize}
- \item Operations can't be easily moved from the client to an execution service.
- The same is also true for the result of a computation in the reverse direction.
- \item The promise object should neither be placed on the client processor nor on the executor service.
- The reason in both cases is that one processor may execute a main loop, which means the other processor never gets access to the promise object.
-\end{itemize}
-
-We'll use the standard procedure to deal with the first problem, namely the import mechanism.
-The second problem is more interesting however.
-One way to solve it is to create a third processor, which only takes care of the Promise object.
-This ensures that both the library client and the execution service can access the Promise object, but it introduces a huge overhead.
-For every computation one extra thread must be created!
-
-A better tradeoff would be to introduce one global processor, which takes care of all promise objects.
-This may introduce contention if multiple futures are submitted, but we think that this is acceptable.
-
-However, this approach brings another problem.
-A promise object has two generic arguments for the return type and the import strategy.
-As these arguments are not known in advance, and because SCOOP processor tags \todo{ref} are not implemented yet, it is not possible to create a promise object on this dedicated processor.
-
-The solution is - surprisingly - the import module.
-We can create a promise object with the correct types on the client processor, and then ask the global processor to import it.
-This way the promise object finally ends up on the correct processor.
-
-In the library, the Promise object is provided by the class \lstinline!CP_PROMISE! and its descendants.
-The computation is represented with \lstinline!CP_COMPUTATION!, or \lstinline!CP_TASK! for operations that don't return a result.
-The execution service is the deferred class \lstinline!CP_EXECUTOR! and \lstinline!CP_TASK_WORKER_POOL! is the main implementation.
-
-The separate proxy pattern is applied on \lstinline!CP_EXECUTOR! and \lstinline!CP_PROMISE!.
-Besides acting as a processor-local proxy to a separate \lstinline!CP_EXECUTOR!, 
-the classes \lstinline!CP_EXECUTOR_PROXY! and \lstinline!CP_FUTURE_EXECUTOR_PROXY! are also responsible to create Promise objects on the global processor.
 
 \section{Evaluation and Benchmarks}
 
