@@ -43,11 +43,18 @@ However, there is little experience on how to implement popular concurrency patt
 
 The goal of this thesis is therefore to implement a standard library for concurrency patterns in Eiffel.
 
-Section \todoref introduces a list of concurrency patterns which we found and categorized by studying literature and the standard libraries.
-A brief introduction to the SCOOP model is given in Section \todoref.
-The focus of Section \todoref is to describe the library itself.
-The first part contains an API tutorial, whereas the second part focuses on the design of the library itself.
-Finally, Section \todoref describes some interesting patterns with special problems and the solutions to them.
+\subsection{Overview}
+
+Section \ref{sec:pattern_overview} introduces a list of concurrency patterns which we found and categorized by studying literature and the standard libraries.
+A brief introduction to the SCOOP model is given in Section \ref{sec:scoop-model}.
+Section \ref{sec:scoop-challenges} describes some challenges when programming in SCOOP and how to solve them.
+The latter two sections may be interesting for programmers with experience in threaded programming, but who wish to learn SCOOP.
+
+The focus of Section \ref{sec:library} describes the goals and concepts of the concurrency patterns library.
+It also provides a brief overview over the available modules, and which patterns are implemented by which modules.
+
+A detailed explanation over the individual modules is provided by Section \ref{sec:modules}.
+Finally, Section \ref{sec:evaluation} provides a small performance evaluation of the library.
 
 \section {Pattern overview}
 \label{sec:pattern_overview}
@@ -56,6 +63,7 @@ Finally, Section \todoref describes some interesting patterns with special probl
 \input{pattern_list}
 
 \section {The SCOOP model}
+\label {sec:scoop-model}
 % Introduction, differences to Java etthirdc... (short)
 
 SCOOP is an extension to the Eiffel language \todo{ref} that aims to make concurrent programming easier.
@@ -81,6 +89,8 @@ It allows reasoning about a feature body without the need to consider all possib
 To create a new processor, one has to use the creation instruction on an object which is declared as separate.
 The new processor is then initialized automatically, and the new object is handled by the new processor.
 
+\todo{sortly describe wait conditions.}
+
 There are many advantages to the SCOOP model, such as easier reasoning and absence of data races, but it also has some shortcomings.
 One of them is the fact that it's a bit tedious to write SCOOP programs.
 Due to the fact that every call to a separate object needs to be controlled, a user often has to write little helper functions that take a separate reference and just perform a single call on it.
@@ -89,6 +99,7 @@ Additionally, a processor is currently implemented as an operating system thread
 The SCOOP model however encourages the creation of many processors, which is not ideal for performance reasons.
 
 \section{Challenges in SCOOP}
+\label{sec:scoop-challenges}
 % This section describes recurring challenges in SCOOP and how to solve them...
 
 \subsection{Object migration}
@@ -283,6 +294,7 @@ end
 
 
 \section {Library}
+\label{sec:library}
 
 % The library is designed as a set of modules which simplify concurrent programming in SCOOP.
 % Section ~\ref{sec:tutorial} explains how to use the library for commonly used patterns,
@@ -397,7 +409,8 @@ The Timer: InvokeLater pattern \todoref is implemented by a single class \lstinl
 
 \input{modules}
 
-\section{Evaluation and Benchmarks}
+\section{Evaluation}
+\label {sec:evaluation}
 
 To evaluate the library we implemented a small performance benchmark.
 We implemented the Gaussian elimination algorithm \todoref in three different ways: sequentially, with SCOOP only, and using the future module \todoref from the library.
@@ -432,6 +445,10 @@ Another improvement which might be useful for the library is the Passive Process
 This might be useful especially for the Future module, as both the worker pool and the promise object could be declared passive.
 
 \section{Conclusion}
+% Explain what is the impact of the selected patterns, and why they were selected.
+% Say that import was developed to overcome language limitation
+% Also: Future work
+
 
 In this thesis we've worked out many methods that simplify concurrent programming in one way or another.
 We've done a survey of concurrency patterns and described them in an extensive list.
@@ -450,17 +467,34 @@ This is especially useful to programmers new to SCOOP, but which may have experi
 
 \subsection{Future work}
 
-- Passive Processors integration and adaptions to library
-- GUI programming
-- Make existing libraries SCOOP ready
-- some more patterns maybe?
-- Agent integration
-- Built-in import
-- SCOOP performance!
+The library provides several opportunities for future work.
 
-% Explain what is the impact of the selected patterns, and why they were selected.
-% Say that import was developed to overcome language limitation
-% Also: Future work
+\begin{description}
+ \item [More patterns] The library can be extended with further patterns.
+ It may be useful to include Pipeline or Dataflow network.
+ \item [Separate Proxies] It may be useful to apply the Separate Proxy patterns to some EiffelBase classes, such as \lstinline!ARRAYED_LIST!, \lstinline!HASH_TABLE! or \lstinline!ROUTINE!.
+ \item [Separate Proxy Wizard] The creation of a separate proxy can be mostly automated with a wizard.
+% \item [EiffelVision support] \todo{maybe?}
+% \item [Agent integration] \todo{maybe?}
+ \item [Concurrent Datastructures] Sometimes it may be useful to have truly concurrent data structures for performance reasons.
+ Pure SCOOP doesn't allow to do this, but it can be done in a C library. 
+\end{description}
+
+A important step is to improve SCOOP itself.
+There are various ways to do it, most of them related to performance improvements.
+
+\begin{description}
+ \item [Faster runtime] The SCOOP runtime needs to become faster. 
+ This is currently being developed \todoref.
+ \item [Native Import] A native SCOOP import feature is a good tool to deal with a lot of small objects.
+ It will also make the library code and usage simpler, as the manual import workaround can be removed.
+ \item [Passive Processors] The passive processors concept could be integrated into EiffelStudio.
+ It can make a big performance improvement to situations where one needs to pass data from one processor to another.
+ \item [Separate references] The handling of separate references should become more simple.
+ At the moment a programmer is forced to write a lot of small, annoying features to perform separate calls.
+ Some syntactic sugar would really be helpful.
+\end{description}
+
 
 
 \begin{appendix}
