@@ -1,24 +1,14 @@
 
 \subsection{Data centered patterns}
 
-\pattern [ name={Producer / Consumer}
+\pattern [name={Producer / Consumer}
   ,category={Program structuring}
-  ,intent={Pass data items from producers to consumers via a shared buffer}
-  ,applicability={Shared memory systems}
+  ,intent={Provide a synchronized shared buffer. Producer threads put items into the buffer, and consumers remove items.}
+  ,applicability={When participants should not know each other. Also applicable if there's no one-to-one relation between producers and consumers or when buffering is desired.}
   ,status={Implemented library component.}
   ,example={A logger service, where many producers submit log messages to a buffer and a single consumer writes them to a file.}
-  ,knownapps={Logging, input processing, pipeline...}
-  ,relation={The worker pool uses this pattern to pass along tasks.}
-]
-
-\pattern [name={Handshake}
-  ,category={Synchronization primitive}
-  ,intent={Send a message from sender to receiver synchronously, where both must wait until the operation has completed.}
-%   ,applicability={}
-%   ,status={}
-%   ,example={}
-%   ,knownapps={}
-%   ,relation={}
+  ,knownapps={Very widely used. E.g. logging, input processing, buffering web server requests.}
+  ,relation={The worker pool uses this pattern to pass along tasks. Pipeline and Dataflow networks are several chained Producer / Consumer patterns.}
 ]
 
 \pattern [name={Pipeline}
@@ -39,6 +29,16 @@
   ,example={A video player application that internally has a file decoder stage, which splits the input in an audio and video part, which then gets further processed.}
 %   ,knownapps={}
   ,relation={This is a more generalized form of the pipeline pattern.}
+]
+
+\pattern [name={Exchanger}
+  ,category={Synchronization primitive}
+%   ,intent={Control the amount of threads that may pass a certain section.}
+%   ,applicability={}
+%   ,status={Possible library component.}
+%   ,example={}
+%   ,knownapps={}
+%   ,relation={Similar to a barrier.}
 ]
 
 \subsection{Task centered patterns}
@@ -261,6 +261,15 @@
 %   ,relation={}
 ]
 
+\pattern [name={Handshake}
+  ,category={Synchronization primitive\todo{what category?}}
+  ,intent={Send a message from sender to receiver synchronously, where both must wait until the operation has completed.}
+  ,applicability={When the sender needs a delievery guarantee.}
+  ,status={Possible library component}
+%   ,example={}
+%   ,knownapps={}
+%   ,relation={}
+]
 
 \pattern [name={TryLock}
   ,category={Synchronization primitive}
