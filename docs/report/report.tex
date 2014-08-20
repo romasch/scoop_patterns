@@ -35,10 +35,10 @@ Due to the advent of multicore processors, concurrent programming has become an 
 Dealing with parallelism isn't easy however.
 There are many pitfalls, such as race conditions and deadlocks.
 
-In practice programmers have learned to avoid tricky concurrency problems with the use of some well-known patterns \todo{is it ok to take introduction from project plan almost word for word?}.
+In practice programmers have learned to avoid tricky concurrency problems with the use of some well-known patterns.
 These patterns are often shipped with the standard library of the language, such that users rarely have to implement them.
 
-The Eiffel language \todoref has a new concurrency extension called SCOOP, which stands for Simple Concurrent Object-Oriented Programming.
+The Eiffel programming language \todoref has a new concurrency extension called SCOOP, which stands for Simple Concurrent Object-Oriented Programming.
 SCOOP simplifies concurrent programming a lot and eliminates one source of errors completely, namely race conditions \todoref.
 However, there is little experience on how to implement popular concurrency patterns, such as a worker pool, in SCOOP.
 
@@ -58,7 +58,7 @@ A brief introduction to the SCOOP model is given in Section \ref{sec:scoop-model
 Section \ref{sec:scoop-challenges} describes some challenges when programming in SCOOP and how to solve them.
 The latter two sections may be interesting for programmers with experience in threaded programming, but who wish to learn SCOOP.
 
-The focus of Section \ref{sec:library} describes the goals and concepts of the concurrency patterns library.
+The focus of Section \ref{sec:library} is on the goals and concepts of the concurrency patterns library.
 It also provides a brief overview over the available modules, and which patterns are implemented by which modules.
 
 A detailed explanation over the individual modules is provided by Section \ref{sec:modules}.
@@ -457,7 +457,7 @@ This might be useful especially for the Future module, as both the worker pool a
 % Say that import was developed to overcome language limitation
 % Also: Future work
 
-
+%Applications using multiple processor cores are increasingly becoming the norm, despite the difficulties of dealing with parallelism.
 In this thesis we've worked out many methods that simplify concurrent programming in one way or another.
 We've done a survey of concurrency patterns and described them in an extensive list.
 This list can be used by anyone searching for a particular pattern.
