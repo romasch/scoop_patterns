@@ -5,7 +5,7 @@
 \usepackage{listings}
 \usepackage{enumitem}
 \usepackage{todo}
-\usepackage{appendix}
+\usepackage [toc, page] {appendix}
 
 % Has to be the last package:
 \usepackage [hidelinks] {hyperref}
@@ -29,6 +29,7 @@
 \tableofcontents
 
 \section{Introduction}
+\label{sec:introduction}
 
 Due to the advent of multicore processors, concurrent programming has become an important part in software engineering.
 Dealing with parallelism isn't easy however.
@@ -37,11 +38,18 @@ There are many pitfalls, such as race conditions and deadlocks.
 In practice programmers have learned to avoid tricky concurrency problems with the use of some well-known patterns \todo{is it ok to take introduction from project plan almost word for word?}.
 These patterns are often shipped with the standard library of the language, such that users rarely have to implement them.
 
-The Eiffel language \todo{ref} has a new concurrency extension called SCOOP, which stands for Simple Concurrent Object-Oriented Programming.
-SCOOP simplifies concurrent programming a lot and eliminates one source of errors completely, namely race conditions \todo{ref}.
+The Eiffel language \todoref has a new concurrency extension called SCOOP, which stands for Simple Concurrent Object-Oriented Programming.
+SCOOP simplifies concurrent programming a lot and eliminates one source of errors completely, namely race conditions \todoref.
 However, there is little experience on how to implement popular concurrency patterns, such as a worker pool, in SCOOP.
 
-The goal of this thesis is therefore to implement a standard library for concurrency patterns in Eiffel.
+This thesis tries to fill this gap by providing a library of reusable concurrency patterns as well as methodical advice on programming in SCOOP.
+The main contributions of the thesis are:
+\begin{itemize}
+ \item A broad survey of known concurrency patterns.
+ \item The identification of common SCOOP challenges and advice on how to solve them.
+ \item A new concurrency library which provides implementations for some selected patterns.
+ This selection was mainly based on input from the CME team \todoref and the study of the Java \todoref and C\# \todoref concurrency libraries.
+\end{itemize}
 
 \subsection{Overview}
 
@@ -460,7 +468,7 @@ The selection was based on the study of other concurrency libraries as well as s
 The seleted patterns were then implemented and are now available as a new Eiffel library.
 Besides the actual pattern implementations, this library also provides some workarounds for current SCOOP limitations, such as the missing import statement.
 
-Performance measurements for the Future pattern implementation showed that the library is actually faster foe large data sets and uses less threads than the native SCOOP approach.
+Performance measurements for the Future pattern implementation showed that the library is actually faster for large data sets and uses less threads than the native SCOOP approach.
 
 Finally we also describe some challenges when programming in SCOOP, and how they can be solved.
 This is especially useful to programmers new to SCOOP, but which may have experience in concurrent programming with threads.
@@ -497,10 +505,10 @@ There are various ways to do it, most of them related to performance improvement
 
 
 
-\begin{appendix}
+\begin{appendices}
 \input{tutorial}
 \input{separate_proxy}
-\end{appendix}
+\end{appendices}
 
 \todos
 
