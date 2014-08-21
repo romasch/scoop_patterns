@@ -62,40 +62,44 @@
 \pattern [ name={Future}
   ,category={Program structuring, Performance}
   ,intent={Run a task asynchronously, and fetch the result later.}
-  ,applicability={Asynchronous operations}
-  ,status={Implemented library component, implemented language mechanism.}
-  ,example={Download a file in the background.}
-  ,knownapps={UI programming, downloader tasks, IO operations...}
+  ,applicability={When a computation may be run in parallel, but creating an extra thread is too expensive.}
+  ,status={Implemented library component}
+  ,example={A web browser which starts downloads tasks for image files in parallel to parsing and rendering the HTML file.}
+  ,knownapps={In UI programming for long-running background tasks, or parallelization of certain numerical computations.}
   ,relation={Futures may be backed by worker pools that execute them.}
+%  ,references={}
+%   ,comment={The wait-by-necessity semantics of SCOOP also corresponds to the Future pattern.}
 ]
 
 \pattern [name={Executor framework}
   ,category={Program structuring}
-  ,intent={Split task submission from task execution}
-%   ,applicability={}
+  ,intent={Split task submission from task execution.}
+  ,applicability={When the task execution strategy should be flexible, e.g. using a worker pool or creating a new thread per task.}
   ,status={Implemented library component.}
-  ,example={The Java Executor interface which has implementations for a worker pool or a single thread.}
-%   ,knownapps={}
-%   ,relation={}
+  ,example={The Java Executor interface, where descendants can decide wether a submitted Runnable object is executed in the current thread, in a new thread, or in a worker pool.}
+  ,knownapps={Jave Executor interface, Microsoft TPL \todoref}
+  ,relation={The worker pool is an implementation of an executor service.}
+%  ,references={}
 ]
 
 \pattern [name={Timer: Periodic}
   ,category={Program structuring}
-  ,intent={Apply an operation repeatedly with a small wait time in between.}
-%   ,applicability={}
+  ,intent={Apply an operation repeatedly in regular intervals.}
+  ,applicability={When an operation, which can be run in parallel to the applications main execution, needs to be applied repeadedly.}
   ,status={Implemented library component}
   ,example={An emailing application that checks for new messages every five seconds.}
-%   ,knownapps={}
+  ,knownapps={Message polling, flushing buffers, repeated log write, heartbeat messages, cron jobs.}
 %   ,relation={}
+%  ,references={}
 ]
 
 \pattern [ name={Timer: Invoke later}
   ,category={Program structuring}
-  ,intent={Invoke a certain operation once at a later point in time.}
-%   ,applicability={}
+  ,intent={Invoke a certain operation at a later point in time.}
+  ,applicability={When an operation can be run in parallel, at a later point in time.}
   ,status={Implemented library component}
-  ,example={Send an email after a delay of one minute.}
-%   ,knownapps={}
+  ,example={Send an email after a delay of one minute, in which the user can still press ``cancel''\todo{do we actually support cancellation?}}
+  ,knownapps={``Grace periods'' for cancellation, robotics control, alarm clocks.}
 %   ,relation={}
 ]
 
