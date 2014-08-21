@@ -68,7 +68,7 @@
   ,knownapps={In UI programming for long-running background tasks, or parallelization of certain numerical computations.}
   ,relation={Futures may be backed by worker pools that execute them.}
 %  ,references={}
-%   ,comment={The wait-by-necessity semantics of SCOOP also corresponds to the Future pattern.}
+  ,comment={The wait-by-necessity semantics of SCOOP also corresponds to the Future pattern.}
 ]
 
 \pattern [name={Executor framework}
@@ -89,7 +89,7 @@
   ,status={Implemented library component}
   ,example={An emailing application that checks for new messages every five seconds.}
   ,knownapps={Message polling, flushing buffers, repeated log write, heartbeat messages, cron jobs.}
-%   ,relation={}
+  ,relation={Similar to Active Object, but it schedules just one operation repeatedly.}
 %  ,references={}
 ]
 
@@ -99,50 +99,56 @@
   ,applicability={When an operation can be run in parallel, at a later point in time.}
   ,status={Implemented library component}
   ,example={Send an email after a delay of one minute, in which the user can still press ``cancel''\todo{do we actually support cancellation?}}
-  ,knownapps={``Grace periods'' for cancellation, robotics control, alarm clocks.}
-%   ,relation={}
+  ,knownapps={``Grace periods'' to cancel an action, robotics control, alarm clocks.}
+  ,relation={ - }
+%  ,references={}
 ]
 
 \subsection{Miscellaneous patterns}
 
-\pattern [name={Active Object}
+\pattern [name={Active Object \todo{Examples etc...}}
   ,category={Program structuring}
-  ,intent={Assign a thread to an object. Calls to this object correspond to messages with operations to be executed.}
-%   ,applicability={}
+  ,intent={Pair an object with its own thread. Feature calls are then transformed to asynchronous messages. 
+  The object runs a main loop where it schedules requests from other processors and runs its own code.}
+  ,applicability={When access to a shared resource can be guarded and scheduled by an object, or when an object may run its own main loop.}
   ,status={Implemented language mechanism. Implemented library component.}
 %   ,example={}
 %   ,knownapps={}
 %   ,relation={}
 ]
 
-\pattern [ name={Thread specific storage}
+\pattern [ name={Thread-local storage}
   ,category={Program structuring}
-  ,intent={Provide per-thread singletons.}
-  ,applicability={Shared memory systems}
+  ,intent={Provide private heap data for each thread.}
+  ,applicability={When multiple threads run the same code, but each needs a different set of data, or if synchronization overhead for heap objects is undesirable.}
   ,status={Implemented language mechanism.}
   ,example={Store the last exception raised in the current thread.}
-%  ,knownapps={}
-%  ,relation={}
+ ,knownapps={Java and C\# both have a class ThreadLocal<T>.}
+ ,relation={ - }
+%  ,references={}
+ ,comment={Native support in SCOOP: use \lstinline!once(``THREAD'')! and non-separate return type.}
 ]
 
 \pattern [name={Publish / Subscribe}
   ,category={Program structuring}
-  ,intent={Provide a service for event subscription and delievery, where the publisher doesn't need to know the subscribers.}
-%   ,applicability={}
-%   ,status={}
+  ,intent={Provide a hook to subscribe to events. In the concurrent context there's often an intermediate broker which receives events from a publisher and forwards them to all subscribers.}
+  ,applicability={When the publisher doesn't need to know the subscribers, and vice versa in the broker solution.}
+  ,status={Possible library component}
   ,example={A GUI button has an event ``clicked'', where the application logic can provide a handler.}
-  ,knownapps={GUI frameworks like Java Swing or EiffelVision.}
+  ,knownapps={Event driven programming, GUI frameworks like Java Swing or EiffelVision.}
 %   ,relation={}
+%  ,references={}
 ]
 
 \pattern [name={Transactions}
   ,category={Program structuring}
-  ,intent={Avoid a deadlock by ``reserving'' a set of objects one at a time.}
-%   ,applicability={}
-%   ,status={}
-%   ,example={}
-%   ,knownapps={}
-%   ,relation={}
+  ,intent={Avoid a deadlock by ``reserving'' a set of objects one at a time. Abort if an object is already reserved by another thread.}
+  ,applicability={When multiple operations need to be locked and no locking order can be established.}
+  ,status={Possible library component}
+  ,example={A banking application where two accounts need to be locked for a transfer.}
+  ,knownapps={Two-phase locking in database systems.}
+  ,relation={ - }
+%  ,references={}
 ]
 
 \pattern [name={Disruptor}
@@ -170,30 +176,31 @@
 \pattern [ name={Import}
   ,category={Language limitation}
   ,intent={Copy an object structure from a separate processor to the local processor.}
-  ,applicability={SCOOP only. Requires some client support.}
+  ,applicability={When it's cheaper to copy the object instead of creating it on a new processor.}
   ,status={Implemented library component; future language mechanism}
-  ,example={Copy the HTTP request from the network socket listener to a request handler, such that the listener can continue.}
+  ,example={Copy the HTTP request string from the network socket listener to a request handler, such that the listener can continue.}
   ,knownapps={The library makes heavy use of this pattern.}
-%  ,relation={}
+  ,relation={ - }
+%  ,references={}
 ]
 
 \pattern [ name={Self Asynch}
   ,category={Program structuring}
-  ,intent={Allow other processors to access and modify data on the current processor despite running in a main loop.}
-  ,applicability={SCOOP only}
+  ,intent={Execute the body of a main loop, and then ask a separate processor to call back the loop body.}
+  ,applicability={When a processor is running its own code, but others need to access data on it from time to time.}
   ,status={Implemented library component}
   ,example={A network socket listener that may be stopped by another process.}
   ,knownapps={The timer pattern and the echo server use self asynch.}
-  ,relation={Similar to the Active Object pattern, except that other processors may access data after each iteration.}
+  ,relation={Similar to the Active Object pattern, but Self Asynch lets other processors manipulate its data directly.}
 ]
 
 \pattern [ name={Separate Proxy}
   ,category={Program structuring}
-  ,intent={Provide easy access to a separate object.}
-  ,applicability={SCOOP only}
+  ,intent={Simplify access to a separate object by providing a processor-local proxy.}
+  ,applicability={When a class is reusable (library code) and usually created on a separate processor.}
   ,status={Guideline}
-  ,example={A shared buffer in a producer / consumer setting, where every producer and consumer creates a proxy on its own processor to avoid dealing with separate references.}
-  ,knownapps={The CP\_BROKER and CP\_QUEUE classes have predefined proxies.\todo {inline listings}}
+  ,example={A shared queue which gets accessed by several thread. Each thread creates a processor-local proxy to avoid having to deal with a separate reference.}
+  ,knownapps={Most classes in the library ship with a separate proxy.}
   ,relation={The separate proxy is a special version of the more general GoF \todo{ref} proxy pattern.}
 ]
 

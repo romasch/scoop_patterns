@@ -15,10 +15,10 @@
   % Their family is `patterncmd', the macro \cfield@name retrieves the value,
   % and `N/A' is the default value.
 \define@cmdkeys {patterncmd} [cfield@]
-  {name,category,intent,applicability,status,example,knownapps,relation,references} [N/A]
+  {name,category,intent,applicability,status,example,knownapps,relation,references, comment} [N/A]
   
   % Initialize the keys. Not sure why that's necessary...
-\setkeys {patterncmd} {name,category,intent,applicability,status,example,knownapps,relation,references}
+\setkeys {patterncmd} {name,category,intent,applicability,status,example,knownapps,relation,references, comment}
 
 
   % Define the command to create a new pattern classification.
@@ -41,7 +41,8 @@
       Example: & \cfield@example \\
       Known applications: & \cfield@knownapps \\
       Relation to other patterns: & \cfield@relation \\
-      References: & \cfield@references
+      References: & \cfield@references \\
+      Comment: & \cfield@comment
    \end{tabular}
    \end{table}
    
