@@ -38,7 +38,8 @@ There are many pitfalls, such as race conditions and deadlocks.
 In practice programmers have learned to avoid tricky concurrency problems with the use of some well-known patterns.
 These patterns are often shipped with the standard library of the language, such that users rarely have to implement them.
 
-The Eiffel programming language \todoref has a new concurrency extension called SCOOP, which stands for Simple Concurrent Object-Oriented Programming.
+The Eiffel programming language \cite{EcmaEiffel}\cite{book:touchofclass} has a new concurrency extension called SCOOP \cite{Nienaltowski07}\cite{web:scoop},
+which stands for Simple Concurrent Object-Oriented Programming.
 SCOOP simplifies concurrent programming a lot and eliminates one source of errors completely, namely race conditions \todoref.
 However, there is little experience on how to implement popular concurrency patterns, such as a worker pool, in SCOOP.
 
@@ -48,7 +49,7 @@ The main contributions of the thesis are:
  \item A broad survey of known concurrency patterns.
  \item The identification of common SCOOP challenges and advice on how to solve them.
  \item A new concurrency library which provides implementations for some selected patterns.
- This selection was mainly based on input from the CME team \todoref and the study of the Java \todoref and C\# \todoref concurrency libraries.
+ This selection was mainly based on input from the CME team \todoref and the study of the Java \cite{web:java-concurrency} and C\# \cite{web:ms-tpl} concurrency libraries.
 \end{itemize}
 
 \subsection{Overview}
@@ -74,7 +75,7 @@ Finally, Section \ref{sec:evaluation} provides a small performance evaluation of
 \label {sec:scoop-model}
 % Introduction, differences to Java etthirdc... (short)
 
-SCOOP is an extension to the Eiffel language \todo{ref} that aims to make concurrent programming easier.
+SCOOP is an extension to the Eiffel programming language \todoref that aims to make concurrent programming easier.
 The basic idea is that every object can only be accessed by exactly one computational unit.
 This unit is called processor, or handler of an object.
 
@@ -170,7 +171,7 @@ This solution (the Lock Passing approach) looks almost like the first one - the 
 However, it's semantics are radically different:
 
 \begin{itemize}
- \item Due to the lock passing mechanism \todo{ref: piotr and eiffel docs} the feature \lstinline!do_something! is executed synchronously, i.e. the sender has to wait for it to finish.
+ \item Due to the lock passing mechanism \cite[p. 152]{Nienaltowski07} \cite{web:scoop} the feature \lstinline!do_something! is executed synchronously, i.e. the sender has to wait for it to finish.
  \item \lstinline!RECEIVER! can't access the argument object any more after the call \lstinline!do_something! is finished.
  This is because \lstinline!SENDER! will continue it's execution, and an attempt to lock the argument object again will probably result in starvation of the sender processor.
  \item Compared to the first approach, no new processor is created.
@@ -219,7 +220,7 @@ However, for small data items this is actually faster than creating a new thread
 Note that \lstinline!receive_args! is executed synchronously just like in the Lock Passing approach.
 Therefore, to execute \lstinline!do_something! asynchronously, it has to be divided into an execution and argument receiving part.
 
-The feature \lstinline!import! was first described in \todo{ref: Piotr}, but unfortunately it is not implemented in current SCOOP.
+The feature \lstinline!import! was first described in \cite[p. 106]{Nienaltowski07}, but unfortunately it is not implemented in current SCOOP.
 It is possible however to implement it manually with some user support.
 
 \subsection{Processor communication}
@@ -313,7 +314,7 @@ end
 
 The goal of the library is to provide a set of tools that simplify programming in SCOOP.
 Specifically, we want to provide implementations for common concurrency patterns like the worker pool.
-The result should be a new SCOOP library similar to the standard concurrency libraries in Java \todoref or C\# \todoref.
+The result should be a new SCOOP library similar to the standard concurrency libraries in Java \cite{web:java-concurrency} or C\# \cite{web:ms-tpl}.
 
 The library was developed with the following design goals:
 
@@ -337,7 +338,7 @@ It provides a solution to design goal \#2 \todoref.
 % Describe how to use it, i.e. generic parameter and importer objects, and the fact that you can select between import and no import.
 
 The import concept is a central part of the library.
-It was developed to let users choose between two object passing strategies, namely the Data Processor \todoref and the Import \todoref approach.
+It was developed to let users choose between two object passing strategies, namely the Data Processor and the Import approach (see Section \ref{sec:object-migration}).
 
 The main class is the deferred \lstinline!CP_IMPORT_STRATEGY [G]!, which has the simple interface:
 \lstinputlisting [firstline=7] {../../library/import/cp_import_strategy.e}
@@ -485,7 +486,8 @@ The library provides several opportunities for future work.
 % \item [EiffelVision support] \todo{maybe?}
 % \item [Agent integration] \todo{maybe?}
  \item [Concurrent Datastructures] Sometimes it may be useful to have truly concurrent data structures for performance reasons.
- Pure SCOOP doesn't allow to do this, but it can be done in a C library. 
+ Pure SCOOP doesn't allow to do this, but it can be done in a C library.
+ \todo{add data level parallelism.}
 \end{description}
 
 A important step is to improve SCOOP itself.
