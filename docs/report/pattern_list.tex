@@ -9,7 +9,7 @@
   ,example={A logger service, where many producers submit log messages to a buffer and a single consumer writes them to a file.}
   ,knownapps={Very widely used. E.g. logging, input processing, buffering web server requests.}
   ,relation={The worker pool uses this pattern to pass along tasks. Pipeline and Dataflow networks are several chained Producer / Consumer patterns.}
-%  ,references={}
+ ,references={\cite[p. 87]{book:java-concurrency}}
 ]
 
 \pattern [name={Pipeline}
@@ -20,7 +20,7 @@
   ,example={An emailing system that applies a spam filter, database logging, and a virus scan to each incoming email.}
   ,knownapps={Messaging systems, multimedia streaming (receive - decode - display)}
   ,relation={The producer / consumer pattern is used between two stages. Pipeline is a special form of Dataflow Network.}
-%  ,references={}
+ ,references={\cite[p. 253]{book:spp}}
 ]
 
 \pattern [name={Dataflow Network}
@@ -31,18 +31,18 @@
   ,example={A video player application that internally has a file decoder stage, which splits the input in an audio and video part, which then gets further processed.}
   ,knownapps={The borealis engine \todoref.}
   ,relation={The pattern is related to Pipeline. However in Dataflow Network the data can be split by one stage and forwarded to two different stages and maybe merged again later.}
-%  ,references={}
+ ,references={\cite[p. 261]{book:spp}}
 ]
 
 \pattern [name={Exchanger}
-%   ,category={}
+  ,category={Program structurings}
   ,intent={Exchange two objects between two threads atomically.}
   ,applicability={When the synchronization point and the atomicity is required.}
   ,status={Possible library component.}
   ,example={A logger with two buffers: One is used by clients to submit messages, the other is used by the logger to write messages. When the latter is empty and the former is full, an exchange happens.}
   ,knownapps={Hardly ever used.}
   ,relation={Similar to Handshake, except that data passes in both directions.}
-%  ,references={}
+  ,references={\cite[p. 101]{book:java-concurrency}}
 ]
 
 \subsection{Task centered patterns}
@@ -56,7 +56,7 @@
   ,example={A set of HTTP request handlers in a web server.}
   ,knownapps={Web servers.}
   ,relation={Producer / Consumer is used to pass along task objects. Worker Pool is usually an implementation of Executor framework.}
-%  ,references={}
+ ,references={\cite[p. 117]{book:java-concurrency}, \cite[p. 167]{book:java-concurrency}}
 ]
 
 \pattern [ name={Future}
@@ -67,7 +67,7 @@
   ,example={A web browser which starts downloads tasks for image files in parallel to parsing and rendering the HTML file.}
   ,knownapps={In UI programming for long-running background tasks, or parallelization of certain numerical computations.}
   ,relation={Futures may be backed by worker pools that execute them.}
-%  ,references={}
+ ,references={\cite[p. 125]{book:java-concurrency}, \cite[p. 332]{book:cpj}}
   ,comment={The wait-by-necessity semantics of SCOOP also corresponds to the Future pattern.}
 ]
 
@@ -79,7 +79,7 @@
   ,example={The Java Executor interface, where descendants can decide wether a submitted Runnable object is executed in the current thread, in a new thread, or in a worker pool.}
   ,knownapps={Jave Executor interface, Microsoft TPL \todoref}
   ,relation={The worker pool is an implementation of an executor service.}
-%  ,references={}
+  ,references={\cite[p. 117]{book:java-concurrency}}
 ]
 
 \pattern [name={Timer: Periodic}
@@ -90,7 +90,7 @@
   ,example={An emailing application that checks for new messages every five seconds.}
   ,knownapps={Message polling, flushing buffers, repeated log write, heartbeat messages, cron jobs.}
   ,relation={Similar to Active Object, but it schedules just one operation repeatedly.}
-%  ,references={}
+  ,references={\cite[p. 123]{book:java-concurrency}}
 ]
 
 \pattern [ name={Timer: Invoke later}
@@ -101,7 +101,7 @@
   ,example={Send an email after a delay of one minute, in which the user can still press ``cancel''\todo{do we actually support cancellation?}}
   ,knownapps={``Grace periods'' to cancel an action, robotics control, alarm clocks.}
   ,relation={ - }
-%  ,references={}
+  ,references={\cite[p. 123]{book:java-concurrency}}
 ]
 
 \subsection{I/O patterns}
@@ -141,7 +141,7 @@
 
 \subsection{Miscellaneous patterns}
 
-\pattern [name={Active Object \todo{Examples etc...}}
+\pattern [name={Active Object}
   ,category={Program structuring}
   ,intent={Pair an object with its own thread. Clients access the active object through a proxy object, which transforms feature calls to asynchronous messages. 
   The object runs a main loop where it schedules requests from other processors and runs its own code.}
@@ -150,7 +150,7 @@
   ,example={A logging service may be implemented as an active object. Clients call \lstinline!log (``something'')! on the proxy, which forwards the message to the active object.}
   ,knownapps={The Java Timer class is implemented as an active object. SCOOP separate calls correspond to feature invocation on an active object.}
   ,relation={The Future pattern is usuallz used for active object features that return a result.}
-  ,references={\cite[p. 369]{book:posa2}}
+  ,references={\cite[p. 369]{book:posa2}, \cite[p. 367]{book:cpj}}
 ]
 
 \pattern [ name={Thread-local storage}
@@ -161,7 +161,7 @@
   ,example={Store the last exception raised in the current thread.}
  ,knownapps={Java and C\# both have a class ThreadLocal<T>.}
  ,relation={ - }
- ,references={\cite[p. 475]{book:posa2}}
+ ,references={\cite[p. 475]{book:posa2}, \cite[p. 45]{book:java-concurrency}}
  ,comment={Native support in SCOOP: use \lstinline!once(``THREAD'')! and non-separate return type.}
 ]
 
@@ -271,6 +271,7 @@
   ,example={A lock-free queue with the help of CompareAndSwap.}
   ,knownapps={Low-level primitive which is used to implement lock-free data structures or other synchronization primitives.}
 %   ,relation={}
+  ,references={\cite[p. 319]{book:java-concurrency}}
 ]
   
 \syncpattern [name={Locks}
@@ -281,6 +282,7 @@
   ,example={Provide exclusive access on a certain section of code.}
   ,knownapps={Low-level primitive which is often used to implement other synchronization primitives.}
 %   ,relation={}
+  ,references={\cite[p. 277]{book:java-concurrency}}
 ]
 
 \syncpattern [name={TryLock}
@@ -291,6 +293,7 @@
   ,example={Database transactions may get aborted due to a timeout if they can't lock a resource after a certain amount of time.}
   ,knownapps={Applications with real-time requirements.}
 %   ,relation={}
+  ,references={\cite[p. 277]{book:java-concurrency}}
 ]
 
 \syncpattern [name={Read / Write lock}
@@ -301,6 +304,7 @@
   ,example={An array with frequent concurrent reads can make use of a read / write lock.}
   ,knownapps={Shared, read-mostly data structures.}
 %   ,relation={}
+  ,references={\cite[p. 286]{book:java-concurrency}}
 ]
 
 \syncpattern [name={Semaphore}
@@ -311,6 +315,7 @@
   ,example={The dining philosophers pattern, where at most (N-1) philosophers can eat.}
   ,knownapps={Can be used to implement other synchronization primitives.}
 %   ,relation={Similar to a barrier.}
+  ,references={\cite[p. 98]{book:java-concurrency}}
 ]
 
 \syncpattern [ name={Single Exclusive Access}
@@ -321,6 +326,7 @@
   ,example={A counter variable that shold only be incremented by one thread at a time to avoid lost updates.}
   ,knownapps={The Java ``synchronized'' block implements single exclusive access, as well as C\# ``lock''.}
 %   ,relation={Usually implemented with some kind of locking mechanism.}
+  ,references={\cite[p. 25]{book:java-concurrency}}
   ]
 
 \syncpattern [ name={Multiple Exclusive Access}
@@ -341,6 +347,7 @@
   ,example={If the computation of a matrix multiplication is split among threads, the barrier can be used to make sure that all threads finish before the result can be used}
   ,knownapps={Parallel matrix operations, parallel loop processing.}
 %   ,relation={}
+  ,references={\cite[p. 99]{book:java-concurrency}, \cite[p. 362]{book:cpj}}
 ]
 
 \syncpattern [name={Monitor}
@@ -362,6 +369,7 @@
   ,example={When a buffer is empty, a consumer can wait on the is\_not\_empty conditon variable. Producers will signal on this variable when a new item is available.}
   ,knownapps={Preconditions in SCOOP are effectively condition variables, due to their wait semantics.}
 %   ,relation={}
+  ,references={\cite[p. 298 and 306]{book:java-concurrency}}
 ]
 
 \syncpattern [name={Synchronous message passing}
@@ -372,4 +380,5 @@
   ,example={Make a flight reservation, with the implicit guarantee that the booking system has received the message.}
   ,knownapps={Main synchronizaton mechanism in message passing systems.}
 %   ,relation={}
+  ,references={\cite[p. 369]{book:cpj}}
 ]
