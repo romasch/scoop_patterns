@@ -104,17 +104,53 @@
 %  ,references={}
 ]
 
+\subsection{I/O patterns}
+
+\pattern [name={Half-Sync / Half-Async}
+  ,category={Program structuring}
+  ,intent={Simplify asynchronous event handling. A thread or an interrupt handler listens on an event source and puts incoming messages in a synchronized queue. Worker threads then retrieve and handle requests.}
+  ,applicability={When the application must react to several event sources at the same time.}
+  ,status={Uncovered}
+  ,example={The networking stack of most UNIX system is implemented like this. A network socket is the ``queue'', which gets filled by interrupt handlers. An application thread then takes care of handling the data.}
+  ,knownapps={Network sockets, web servers.}
+  ,relation={ - }
+  ,references={\cite[p. 423]{book:posa2}}
+]
+
+\pattern [name={Leader / Followers}
+  ,category={Performance, Program structuring}
+  ,intent={Listen on several I/O sockets using a thread pool. A leader thread receives a request, promotes the next leader, and then handles the request.}
+  ,applicability={When there are hundreds of I/O sockets.}
+  ,status={Uncovered}
+  ,example={A web server for a high volume website serving thousands of connections at the same time.}
+  ,knownapps={Online Transaction Processing (OLTP) applications.}
+  ,relation{Compared to Half-Sync / Half-Async it avoids the synchronization overhead of the shared queue.}
+ ,references={\cite[p. 447]{book:posa2}, \cite{paper:schmidt00leader}}
+]
+
+\pattern [name={Disruptor}
+  ,category={Performance, Program structuring}
+  ,intent={Provide a high-performance ring buffer with a single producer and multiple readers, each assigned to a thread. Readers can change buffer entries and have dependencies to other readers.}
+  ,applicability={When very high throughput in an I/O application is required.}
+  ,status={Uncovered}
+  ,example={An OLTP system where the producer listens on a socket for new requests. Then there's a reader for each of the following tasks: logging, unmarshalling, handling of request.}
+  ,knownapps={LMAX Exchange uses this pattern for their trading platform.}
+  ,relation={Similar to Half-Synch/Half-Asynch, but with more functionality and buffer entries may be accessed by several threads.}
+ ,references={\cite{thompson2011disruptor}}
+]
+
 \subsection{Miscellaneous patterns}
 
 \pattern [name={Active Object \todo{Examples etc...}}
   ,category={Program structuring}
-  ,intent={Pair an object with its own thread. Feature calls are then transformed to asynchronous messages. 
+  ,intent={Pair an object with its own thread. Clients access the active object through a proxy object, which transforms feature calls to asynchronous messages. 
   The object runs a main loop where it schedules requests from other processors and runs its own code.}
   ,applicability={When access to a shared resource can be guarded and scheduled by an object, or when an object may run its own main loop.}
   ,status={Implemented language mechanism. Implemented library component.}
-%   ,example={}
-%   ,knownapps={}
-%   ,relation={}
+  ,example={A logging service may be implemented as an active object. Clients call \lstinline!log (``something'')! on the proxy, which forwards the message to the active object.}
+  ,knownapps={The Java Timer class is implemented as an active object. SCOOP separate calls correspond to feature invocation on an active object.}
+  ,relation={The Future pattern is usuallz used for active object features that return a result.}
+  ,references={\cite[p. 369]{book:posa2}}
 ]
 
 \pattern [ name={Thread-local storage}
@@ -125,7 +161,7 @@
   ,example={Store the last exception raised in the current thread.}
  ,knownapps={Java and C\# both have a class ThreadLocal<T>.}
  ,relation={ - }
-%  ,references={}
+ ,references={\cite[p. 475]{book:posa2}}
  ,comment={Native support in SCOOP: use \lstinline!once(``THREAD'')! and non-separate return type.}
 ]
 
@@ -151,25 +187,7 @@
 %  ,references={}
 ]
 
-\pattern [name={Disruptor}
-%   ,category={}
-%   ,intent={}
-%   ,applicability={}
-%   ,status={}
-%   ,example={}
-%   ,knownapps={}
-%   ,relation={}
-]
-% 
-\pattern [name={Leader / Follower}
-%   ,category={}
-%   ,intent={}
-%   ,applicability={}
-%   ,status={}
-%   ,example={}
-%   ,knownapps={}
-%   ,relation={}
-]
+
 
 \subsection{SCOOP patterns}
 
@@ -333,6 +351,7 @@
   ,example={A shared buffer with conditions \lstinline!is_empty! and \lstinline!is_full!.}
   ,knownapps={Java with a combination of \lstinline!synchronized!, \lstinline!wait ()! and \lstinline!notifiyAll()!}
   ,comment={The monitor pattern is a combination of single exclusive access and condition variables.}
+  ,references={\cite[p. 399]{book:posa2}}
 ]
 
 \syncpattern [name={Condition Variables}
