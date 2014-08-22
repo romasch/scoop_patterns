@@ -9,7 +9,7 @@
   ,example={A logger service, where many producers submit log messages to a buffer and a single consumer writes them to a file.}
   ,knownapps={Very widely used. E.g. logging, input processing, buffering web server requests.}
   ,relation={The worker pool uses this pattern to pass along tasks. Pipeline and Dataflow networks are several chained Producer / Consumer patterns.}
- ,references={\cite[p. 87]{book:java-concurrency}}
+ ,references={\cite[p. 87]{book:java-concurrency}, \cite[p. 53]{Toub10}}
 ]
 
 \pattern [name={Pipeline}
@@ -20,7 +20,7 @@
   ,example={An emailing system that applies a spam filter, database logging, and a virus scan to each incoming email.}
   ,knownapps={Messaging systems, multimedia streaming (receive - decode - display)}
   ,relation={The producer / consumer pattern is used between two stages. Pipeline is a special form of Dataflow Network.}
- ,references={\cite[p. 305]{book:cpj}, \cite[p. 253]{book:spp}}
+ ,references={\cite[p. 305]{book:cpj}, \cite[p. 253]{book:spp}, \cite[p. 53]{Toub10}}
 ]
 
 \pattern [name={Dataflow Network}
@@ -56,7 +56,7 @@
   ,example={A set of HTTP request handlers in a web server.}
   ,knownapps={Web servers.}
   ,relation={Producer / Consumer is used to pass along task objects. Worker Pool is usually an implementation of Executor framework.}
- ,references={\cite[p. 117]{book:java-concurrency}, \cite[p. 167]{book:java-concurrency}, \cite[p. 290]{book:cpj}}
+ ,references={\cite[p. 117]{book:java-concurrency}, \cite[p. 167]{book:java-concurrency}, \cite[p. 290]{book:cpj},  \cite[p. 61]{Toub10}}
 ]
 
 \pattern [ name={Future}
@@ -67,7 +67,7 @@
   ,example={A web browser which starts downloads tasks for image files in parallel to parsing and rendering the HTML file.}
   ,knownapps={In UI programming for long-running background tasks, or parallelization of certain numerical computations.}
   ,relation={Futures may be backed by worker pools that execute them.}
- ,references={\cite[p. 125]{book:java-concurrency}, \cite[p. 332]{book:cpj}}
+ ,references={\cite[p. 125]{book:java-concurrency}, \cite[p. 332]{book:cpj}, \cite[p. 36]{Toub10}}
   ,comment={The wait-by-necessity semantics of SCOOP also corresponds to the Future pattern.}
 ]
 
@@ -161,7 +161,7 @@
   ,example={Store the last exception raised in the current thread.}
  ,knownapps={Java and C\# both have a class \lstinline!ThreadLocal<T>!.}
  ,relation={ - }
- ,references={\cite[p. 475]{book:posa2}, \cite[p. 45]{book:java-concurrency}, \cite[p. 105 ]{book:cpj}}
+ ,references={\cite[p. 475]{book:posa2}, \cite[p. 45]{book:java-concurrency}, \cite[p. 105 ]{book:cpj}, \cite[p. 53]{Toub10}}
  ,comment={Native support in SCOOP: use \lstinline!once(``THREAD'')! and non-separate return type.}
 ]
 
@@ -199,18 +199,18 @@
   ,example={Copy the HTTP request string from the network socket listener to a request handler, such that the listener can continue.}
   ,knownapps={The library makes heavy use of this pattern.}
   ,relation={ - }
-%  ,references={}
+ ,references={\cite[p. 106]{Nienaltowski07}}
 ]
 
-\pattern [ name={Self Asynch}
+\pattern [ name={Asynchronous Self-Call}
   ,category={Program structuring}
   ,intent={Execute the body of a main loop, and then ask a separate processor to call back the loop body.}
   ,applicability={When a processor is running its own code, but others need to access data on it from time to time.}
   ,status={Implemented library component}
   ,example={A network socket listener that may be stopped by another process.}
-  ,knownapps={The timer pattern and the echo server use self asynch.}
-  ,relation={Similar to the Active Object pattern, but Self Asynch lets other processors manipulate its data directly.}
-%  ,references={}
+  ,knownapps={The timer pattern and the echo server example use asynchronous self-calls.}
+  ,relation={Similar to the Active Object pattern, but with asynchronous self-calls an object lets other processors manipulate its data directly.}
+  ,references={\cite[p. 217]{Nienaltowski07}}
 ]
 
 \pattern [ name={Separate Proxy}
@@ -221,7 +221,7 @@
   ,example={A shared queue which gets accessed by several thread. Each thread creates a processor-local proxy to avoid having to deal with a separate reference.}
   ,knownapps={Most classes in the library ship with a separate proxy.}
   ,relation={The separate proxy is a special version of the more general GoF \todo{ref} proxy pattern.}
-%  ,references={}
+  ,references={ - }
 ]
 
 \pattern [name={Full Asynchrony}
@@ -232,7 +232,7 @@
   ,example={A logger service where clients just want to send a log message without having to wait.}
   ,knownapps={A workaround exists in \todoref, but it's broken with current SCOOP.}
   ,relation={ - }
-%  ,references={}
+  ,references={\cite[p. 215]{Nienaltowski07}}
   , comment={Will be natively supported with the new runtime by Scott West.}
 ]
 
@@ -244,12 +244,12 @@
   ,example={A separate queue where producers just insert new items.}
   ,knownapps={An implementation exists in \todoref, but it's broken with current SCOOP.}
   ,relation={The separate proxy is a workaround for the missing universal call (especially when no compound actions are defined).}
-%  ,references={}
+ ,references={\cite[p. 213]{Nienaltowski07}}
   , comment={The new language mechanism will probably be a statement like \lstinline!separate a as l_a then l_a.do_something end!.}
 ]
 
 
-\pattern [name={EiffelVision support}
+\pattern [name={EiffelVision support \todo{EV support}}
 %   ,category={}
 %   ,intent={}
 %   ,applicability={}
