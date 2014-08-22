@@ -206,18 +206,6 @@
 %  ,references={}
 ]
 
-\pattern [name={EiffelVision support}
-%   ,category={}
-%   ,intent={}
-%   ,applicability={}
-%   ,status={}
-%   ,example={}
-%   ,knownapps={}
-%   ,relation={}
-%  ,references={}
-]
-
-
 \pattern [name={Full Asynchrony}
   ,category={Language limitation}
   ,intent={Perform an operation completely asynchronously.}
@@ -242,39 +230,112 @@
   , comment={The new language mechanism will probably be a statement like \lstinline!separate a as l_a then l_a.do_something end!.}
 ]
 
+
+\pattern [name={EiffelVision support}
+%   ,category={}
+%   ,intent={}
+%   ,applicability={}
+%   ,status={}
+%   ,example={}
+%   ,knownapps={}
+%   ,relation={}
+%  ,references={}
+]
+
 \subsection{Synchronization primitives}
 
-\pattern [ name={Single Exclusive Access}
+
+\syncpattern [name={Atomic Operations}
+  ,category={Synchronization primitive}
+  ,intent={Avoid the use of locks by using hardware-supported atomic operations.}
+%   ,applicability={Shared memory systems}
+  ,status={unsolved}
+  ,example={A lock-free queue with the help of CompareAndSwap.}
+  ,knownapps={Low-level primitive which is used to implement lock-free data structures or other synchronization primitives.}
+%   ,relation={}
+]
+  
+\syncpattern [name={Locks}
+  ,category={Synchronization primitive}
+  ,intent={An object where only one thread at a time succeeds in calling \lstinline!lock!, and others have to wait.}
+%   ,applicability={}
+  ,status={Possible library component}
+  ,example={Provide exclusive access on a certain section of code.}
+  ,knownapps={Low-level primitive which is often used to implement other synchronization primitives.}
+%   ,relation={}
+]
+
+\syncpattern [name={TryLock}
+  ,category={Synchronization primitive}
+  ,intent={Try to acquire a lock, with the option to back off after a certain amount of time.}
+%   ,applicability={}
+  ,status={Possible library component}
+  ,example={Database transactions may get aborted due to a timeout if they can't lock a resource after a certain amount of time.}
+  ,knownapps={Applications with real-time requirements.}
+%   ,relation={}
+]
+
+\syncpattern [name={Read / Write lock}
+  ,category={Synchronization primitive}
+  ,intent={Allow multiple concurrent readers, but provide exclusive access to a single writer.}
+%   ,applicability={}
+  ,status={Language limitation}
+  ,example={An array with frequent concurrent reads can make use of a read / write lock.}
+  ,knownapps={Shared, read-mostly data structures.}
+%   ,relation={}
+]
+
+\syncpattern [name={Semaphore}
+  ,category={Synchronization primitive}
+  ,intent={Make sure that only a certain amount of threads can execute a certain code section.}
+%   ,applicability={}
+  ,status={Possible library component}
+  ,example={The dining philosophers pattern, where at most (N-1) philosophers can eat.}
+  ,knownapps={Can be used to implement other synchronization primitives.}
+%   ,relation={Similar to a barrier.}
+]
+
+\syncpattern [ name={Single Exclusive Access}
   ,category={Synchronization Primitive}
   ,intent={Make sure that at most one thread has access to exactly one shared object or resource.}
-  ,applicability={Shared memory systems}
+%  ,applicability={Shared memory systems}
   ,status={Implemented language mechanism}
   ,example={A counter variable that shold only be incremented by one thread at a time to avoid lost updates.}
   ,knownapps={The Java ``synchronized'' block implements single exclusive access, as well as C\# ``lock''.}
-  ,relation={Usually implemented with some kind of locking mechanism.}
+%   ,relation={Usually implemented with some kind of locking mechanism.}
   ]
 
-\pattern [ name={Multiple Exclusive Access}
+\syncpattern [ name={Multiple Exclusive Access}
   ,category={Synchronization Primitive}
   ,intent={Make sure that at most one thread has access to several shared objects or resources.}
-  ,applicability={Shared memory systems}
+%  ,applicability={Shared memory systems}
   ,status={Implemented language mechanism}
   ,example={A money transfer between two bank accounts.}
   ,knownapps={Databases can provide exclusive access over all data previously used in the same transaction.}
-  ,relation={It is possible to use nested single exclusive access to provide multiple exclusive access, but special care has to be taken with deadlocks.}
+%   ,relation={It is possible to use nested single exclusive access to provide multiple exclusive access, but special care has to be taken with deadlocks.}
   ]
 
-\pattern [name={Barrier}
+\syncpattern [name={Barrier}
   ,category={Synchronization primitive}
   ,intent={Provide a synchronization point where several threads have to meet before continuing.}
 %   ,applicability={}
   ,status={Possible library component}
   ,example={If the computation of a matrix multiplication is split among threads, the barrier can be used to make sure that all threads finish before the result can be used}
-%   ,knownapps={}
+  ,knownapps={Parallel matrix operations, parallel loop processing.}
 %   ,relation={}
 ]
 
-\pattern [name={Condition Variables}
+\syncpattern [name={Monitor}
+  ,category={Synchronization primitive}
+  ,intent={Ensure that only one thread has access to an object. The thread may also wait on a condition to become true or false.}
+%   ,applicability={}
+  ,status={Implemented language mechanism}
+  ,example={A shared buffer with conditions \lstinline!is_empty! and \lstinline!is_full!.}
+  ,knownapps={Java with a combination of \lstinline!synchronized!, \lstinline!wait ()! and \lstinline!notifiyAll()!}
+  ,comment={The monitor pattern is a combination of single exclusive access and condition variables.}
+]
+
+\syncpattern [name={Condition Variables}
   ,category={Synchronization primitive}
   ,intent={Wait for a certain condition to become true.}
 %   ,applicability={}
@@ -284,61 +345,12 @@
 %   ,relation={}
 ]
 
-\pattern [name={Handshake}
-  ,category={Synchronization primitive\todo{what category?}}
+\syncpattern [name={Synchronous message passing}
+  ,category={Synchronization primitive}
   ,intent={Send a message from sender to receiver synchronously, where both must wait until the operation has completed.}
-  ,applicability={When the sender needs a delievery guarantee.}
+%  ,applicability={When the sender needs a delievery guarantee.}
   ,status={Possible library component}
-%   ,example={}
-%   ,knownapps={}
+  ,example={Make a flight reservation, with the implicit guarantee that the booking system has received the message.}
+  ,knownapps={Main synchronizaton mechanism in message passing systems.}
 %   ,relation={}
-]
-
-\pattern [name={TryLock}
-  ,category={Synchronization primitive}
-  ,intent={Try to acquire a lock, with the option to back off after a certain amount of time.}
-%   ,applicability={}
-  ,status={Possible library component}
-  ,example={Database transactions may get aborted due to a timeout if they can't lock a resource after a certain amount of time.}
-%   ,knownapps={}
-%   ,relation={}
-]
-
-\pattern [name={Atomic Operations}
-  ,category={Synchronization primitive}
-  ,intent={Avoid the use of locks by using hardware-supported atomic operations.}
-  ,applicability={Shared memory systems}
-  ,status={unsolved}
-%   ,example={}
-%   ,knownapps={}
-%   ,relation={}
-]
-
-\pattern [name={Monitor}
-  ,category={Synchronization primitive}
-  ,intent={Ensure that only one thread has access to an object. The thread may also wait on a condition to become true.}
-%   ,applicability={}
-  ,status={Implemented language mechanism.}
-%   ,example={}
-%   ,knownapps={}
-  ,relation={The monitor pattern can be seen as a combination of single exclusive access and condition variables.}
-]
-
-\pattern [name={Read / Write lock}
-  ,category={Synchronization primitive}
-  ,intent={Allow multiple concurrent readers, but provide exclusive access to a single writer.}
-%   ,applicability={}
-  ,status={Language limitation}
-  ,example={A shared array with frequent concurrent reads can make use of a read / write lock.}
-%   ,knownapps={}
-%   ,relation={}
-]
-\pattern [name={Semaphore}
-  ,category={Synchronization primitive}
-%   ,intent={Control the amount of threads that may pass a certain section.}
-%   ,applicability={}
-%   ,status={Possible library component.}
-%   ,example={}
-%   ,knownapps={}
-%   ,relation={Similar to a barrier.}
 ]
