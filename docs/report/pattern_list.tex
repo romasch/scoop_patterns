@@ -192,6 +192,7 @@
   ,example={A network socket listener that may be stopped by another process.}
   ,knownapps={The timer pattern and the echo server use self asynch.}
   ,relation={Similar to the Active Object pattern, but Self Asynch lets other processors manipulate its data directly.}
+%  ,references={}
 ]
 
 \pattern [ name={Separate Proxy}
@@ -202,6 +203,7 @@
   ,example={A shared queue which gets accessed by several thread. Each thread creates a processor-local proxy to avoid having to deal with a separate reference.}
   ,knownapps={Most classes in the library ship with a separate proxy.}
   ,relation={The separate proxy is a special version of the more general GoF \todo{ref} proxy pattern.}
+%  ,references={}
 ]
 
 \pattern [name={EiffelVision support}
@@ -212,27 +214,32 @@
 %   ,example={}
 %   ,knownapps={}
 %   ,relation={}
+%  ,references={}
 ]
 
 
-\pattern [name={Fully Asynch}
-%   ,category={}
-%   ,intent={}
-%   ,applicability={}
-%   ,status={}
-%   ,example={}
-%   ,knownapps={}
-%   ,relation={}
+\pattern [name={Full Asynchrony}
+  ,category={Language limitation}
+  ,intent={Perform an operation completely asynchronously.}
+  ,applicability={When an operation can be run in parallel and there's no need to wait for a result.}
+  ,status={Future language mechanism}
+  ,example={A logger service where clients just want to send a log message without having to wait.}
+  ,knownapps={A workaround exists in \todoref, but it's broken with current SCOOP.}
+  ,relation={ - }
+%  ,references={}
+  , comment={Will be natively supported with the new runtime by Scott West.}
 ]
 
 \pattern [name={Universal Call}
-%   ,category={}
-%   ,intent={}
-%   ,applicability={}
-%   ,status={}
-%   ,example={}
-%   ,knownapps={}
-%   ,relation={}
+  ,category={Language limitation}
+  ,intent={Provide a universal enclosing routine to perform a single separate call.}
+  ,applicability={When calls to a separate object may be interleaved with calls from other processors.}
+  ,status={Designed language mechanism}
+  ,example={A separate queue where producers just insert new items.}
+  ,knownapps={An implementation exists in \todoref, but it's broken with current SCOOP.}
+  ,relation={The separate proxy is a workaround for the missing universal call (especially when no compound actions are defined).}
+%  ,references={}
+  , comment={The new language mechanism will probably be a statement like \lstinline!separate a as l_a then l_a.do_something end!.}
 ]
 
 \subsection{Synchronization primitives}
