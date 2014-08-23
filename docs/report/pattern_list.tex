@@ -10,7 +10,7 @@
   ,example={A logger service, where many producers submit log messages to a buffer and a single consumer writes them to a file.}
   ,knownapps={Very widely used. E.g. logging, input processing, buffering web server requests.}
   ,relation={The worker pool uses this pattern to pass along tasks. Pipeline and Dataflow networks are several chained Producer / Consumer patterns.}
- ,references={\cite[p. 87]{book:java-concurrency}, \cite[p. 53]{Toub10}}
+ ,references={\cite[p. 87]{book:java-concurrency}, \cite[p. 53]{book:ppl}}
 ]
 
 \pattern [name={Pipeline}
@@ -22,7 +22,7 @@
   ,example={An emailing system that applies a spam filter, database logging, and a virus scan to each incoming email.}
   ,knownapps={Messaging systems, multimedia streaming (receive - decode - display)}
   ,relation={The producer / consumer pattern is used between two stages. Pipeline is a special form of Dataflow Network.}
- ,references={\cite[p. 305]{book:cpj}, \cite[p. 253]{book:spp}, \cite[p. 53]{Toub10}}
+ ,references={\cite[p. 305]{book:cpj}, \cite[p. 253]{book:spp}, \cite[p. 53]{book:ppl}}
 ]
 
 \pattern [name={Dataflow Network}
@@ -32,7 +32,7 @@
   ,applicability={When the input consists of a stream of data which allows for parallel processing.}
   ,status={Possible library component}
   ,example={A video player application that internally has a file decoder stage, which splits the input in an audio and video part, which then gets further processed.}
-  ,knownapps={The borealis engine \todoref.}
+  ,knownapps={The borealis engine \cite{web:borealis}.}
   ,relation={The pattern is related to Pipeline. However in Dataflow Network the data can be split by one stage and forwarded to two different stages and maybe merged again later.}
  ,references={\cite[p. 305]{book:cpj}, \cite[p. 261]{book:spp}}
 ]
@@ -61,7 +61,7 @@
   ,example={A set of HTTP request handlers in a web server.}
   ,knownapps={Web servers.}
   ,relation={Producer / Consumer is used to pass along task objects. Worker Pool is usually an implementation of Executor framework.}
- ,references={\cite[p. 117]{book:java-concurrency}, \cite[p. 167]{book:java-concurrency}, \cite[p. 290]{book:cpj},  \cite[p. 61]{Toub10}, \cite{Leijen09}}
+ ,references={\cite[p. 117]{book:java-concurrency}, \cite[p. 167]{book:java-concurrency}, \cite[p. 290]{book:cpj},  \cite[p. 61]{book:ppl}, \cite{paper:tpl}}
 ]
 
 \pattern [ name={Future}
@@ -73,7 +73,7 @@
   ,example={A web browser which starts downloads tasks for image files in parallel to parsing and rendering the HTML file.}
   ,knownapps={In UI programming for long-running background tasks, or parallelization of certain numerical computations.}
   ,relation={Futures may be backed by worker pools that execute them.}
- ,references={\cite[p. 125]{book:java-concurrency}, \cite[p. 332]{book:cpj}, \cite[p. 36]{Toub10}, \cite{Leijen09}}
+ ,references={\cite[p. 125]{book:java-concurrency}, \cite[p. 332]{book:cpj}, \cite[p. 36]{book:ppl}, \cite{paper:tpl}}
   ,comment={The wait-by-necessity semantics of SCOOP also corresponds to the Future pattern.}
 ]
 
@@ -84,7 +84,7 @@
   ,applicability={When the task execution strategy should be flexible, e.g. using a worker pool or creating a new thread per task.}
   ,status={Implemented library component.}
   ,example={The Java Executor interface, where descendants can decide wether a submitted Runnable object is executed in the current thread, in a new thread, or in a worker pool.}
-  ,knownapps={Jave Executor interface, Microsoft TPL \todoref}
+  ,knownapps={Java Executor interface, Microsoft Task Parallel Library}
   ,relation={The worker pool is an implementation of an executor service.}
   ,references={\cite[p. 117]{book:java-concurrency}, \cite[p. 289]{book:cpj}}
 ]
@@ -136,7 +136,7 @@
   ,example={A web server for a high volume website serving thousands of connections at the same time.}
   ,knownapps={Online Transaction Processing (OLTP) applications.}
   ,relation{Compared to Half-Sync / Half-Async it avoids the synchronization overhead of the shared queue.}
- ,references={\cite[p. 447]{book:posa2}, \cite{paper:schmidt00leader}}
+  ,references={\cite[p. 447]{book:posa2}, \cite{paper:leader-follower}}
 ]
 
 \pattern [name={Disruptor}
@@ -148,7 +148,7 @@
   ,example={An OLTP system where the producer listens on a socket for new requests. Then there's a reader for each of the following tasks: logging, unmarshalling, handling of request.}
   ,knownapps={LMAX Exchange uses this pattern for their trading platform.}
   ,relation={Similar to Half-Synch/Half-Asynch, but with more functionality and buffer entries may be accessed by several threads.}
- ,references={\cite{thompson2011disruptor}}
+ ,references={\cite{paper:disruptor}}
 ]
 
 \subsection{Miscellaneous patterns}
@@ -175,7 +175,7 @@
   ,example={Store the last exception raised in the current thread.}
  ,knownapps={Java and C\# both have a class \lstinline!ThreadLocal<T>!.}
  ,relation={ - }
- ,references={\cite[p. 475]{book:posa2}, \cite[p. 45]{book:java-concurrency}, \cite[p. 105 ]{book:cpj}, \cite[p. 53]{Toub10}}
+ ,references={\cite[p. 475]{book:posa2}, \cite[p. 45]{book:java-concurrency}, \cite[p. 105 ]{book:cpj}, \cite[p. 53]{book:ppl}}
  ,comment={Native support in SCOOP: use \lstinline!once(``THREAD'')! and non-separate return type.}
 ]
 
@@ -239,7 +239,7 @@
   ,status={Guideline}
   ,example={A shared queue which gets accessed by several thread. Each thread creates a processor-local proxy to avoid having to deal with a separate reference.}
   ,knownapps={Most classes in the library ship with a separate proxy.}
-  ,relation={The separate proxy is a special version of the more general GoF \todo{ref} proxy pattern.}
+  ,relation={The separate proxy is a special version of the more general proxy pattern described by Gamma et al.\cite[p. \todo{find page}]{book:design-patterns}.}
   ,references={ - }
 ]
 
@@ -250,7 +250,7 @@
   ,applicability={When an operation can be run in parallel and there's no need to wait for a result.}
   ,status={Future language mechanism}
   ,example={A logger service where clients just want to send a log message without having to wait.}
-  ,knownapps={A workaround exists in \todoref, but it's broken with current SCOOP.}
+  ,knownapps={A workaround is described in \cite[p. 215]{Nienaltowski07}, but it's broken with current SCOOP.}
   ,relation={ - }
   ,references={\cite[p. 215]{Nienaltowski07}}
   , comment={Will be natively supported with the new runtime by Scott West.}
@@ -263,7 +263,7 @@
   ,applicability={When calls to a separate object may be interleaved with calls from other processors.}
   ,status={Designed language mechanism}
   ,example={A separate queue where producers just insert new items.}
-  ,knownapps={An implementation exists in \todoref, but it's broken with current SCOOP.}
+  ,knownapps={An implementation is described in \cite[p. 213]{Nienaltowski07}, but it's broken with current SCOOP.}
   ,relation={The separate proxy is a workaround for the missing universal call (especially when no compound actions are defined).}
  ,references={\cite[p. 213]{Nienaltowski07}}
   , comment={The new language mechanism will probably be a statement like \lstinline!separate a as l_a then l_a.do_something end!.}

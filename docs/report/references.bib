@@ -1,4 +1,4 @@
-@inproceedings{paper:schmidt00leader,
+@inproceedings{paper:leader-follower,
   title={Leader/followers-a design pattern for efficient multi-threaded event demultiplexing and dispatching},
   author={Schmidt, Douglas C and O'Ryan, Carlos and Kircher, Michael and Pyarali, Irfan and others},
   booktitle={University of Washington. http://www. cs. wustl. edu/\~{} schmidt/PDF/lf. pdf},
@@ -6,7 +6,7 @@
   organization={Citeseer}
 }
 
-@misc{thompson2011disruptor,
+@misc{paper:disruptor,
   title={Disruptor: High performance alternative to bounded queues for exchanging data between concurrent threads},
   author={Thompson, Martin and Farley, Dave and Barker, Michael and Gee, Patricia and Stewart, Andrew},
   year={2011},
@@ -20,15 +20,22 @@
  year = {2009}
 } 
 
-@misc{EcmaEiffel,
+@misc{web:ecma-eiffel,
  title = {{Eiffel ECMA-367 Standard}},
  note = {http://www.ecma-international.org/publications/standards/Ecma-367.htm}
 }
 
 @phdthesis{Nienaltowski07,
   title={Practical Framework for Contract-based Concurrent Object-oriented Programming},
-  author={P. Nienaltowski},
+  author={Piotr Nienaltowski},
   year={2007},
+  school={ETH Zürich}
+}
+
+@phdthesis{thesis:scottwest,
+  title={Correctness and Execution of Concurrent Object-Oriented Programs},
+  author={Scott West},
+  year={2014},
   school={ETH Zürich}
 }
 
@@ -73,28 +80,21 @@ publisher = {Addison-Wesley},
 year      = {2000}
 }
 
-@book{Grand02,
-author = {M. Grand},
-title = {Patterns in Java, Volume 1: A Catalog of Reusable Design Patterns Illustrated with UML},
-publisher = {Wiley},
-year      = {2002}
-}
-
-@misc{Toub10,
+@misc{book:ppl,
 author = {S. Toub},
 title = {Patterns for Parallel Programming},
 note = {Microsoft Corporation},
 year = {2010}
 }
 
-@phdthesis {Arnout04,
+@phdthesis {thesis:karinearnout,
 author = {Karine Arnout},
 title = {From Pattern to Components},
 year = {2004},
 school = {ETH Zürich}
 }
 
-@article {MeyerArnout06,
+@article {paper:visitor-componentization,
 author = {B. Meyer, K. Arnout},
 title = {Componentization: The Visitor Example},
 journal ={Computer},
@@ -106,7 +106,7 @@ publisher = {IEEE Computer Society},
 address = {Los Alamitos, CA, USA}
 }
 
-@article{taskCancellation13,
+@article{paper:task-cancellation,
   author = {Kolesnichenko, Alexey and Nanz, Sebastian and Meyer, Bertrand},
   title = {How to Cancel a Task},
   booktitle = {Proceedings of the 2013 International Conference on Multicore Software
@@ -127,7 +127,19 @@ title = {Oracle Java concurrency package},
 note = {http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/package-summary.html}
 }
 
-@inproceedings{Leijen09,
+@misc {web:scoop-issues,
+title = {SCOOP: Known limitations.},
+note = {https://docs.eiffel.com/book/solutions/scoop-implementation}
+}
+
+@misc {web:borealis,
+title = {Borealis distributed stream processing. Official website.},
+note = {http://cs.brown.edu/research/borealis/public/}
+}
+
+
+
+@inproceedings{paper:tpl,
  author = {Leijen, Daan and Schulte, Wolfram and Burckhardt, Sebastian},
  title = {The Design of a Task Parallel Library},
  booktitle = {Proceedings of the 24th ACM SIGPLAN Conference on Object Oriented Programming Systems Languages and Applications},
@@ -143,4 +155,39 @@ note = {http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/package-su
  publisher = {ACM},
  address = {New York, NY, USA},
  keywords = {domain specific languages, duplicating queue, parallelism, work stealing},
+} 
+
+@INPROCEEDINGS{paper:array-slicing,
+  author = {Schill, Mischael and Nanz, Sebastian and Meyer, Bertrand},
+  title = {Handling Parallelism in a Concurrency Model},
+  booktitle = {Proceedings of the 2013 International Conference on Multicore Software
+	Engineering, Performance, and Tools (MUSEPAT'13)},
+  year = {2013},
+  volume = {8063},
+  series = {Lecture Notes in Computer Science},
+  pages = {37--48},
+  publisher = {Springer},
+  urltopdf = {http://se.inf.ethz.ch/people/nanz/publications/schill-nanz-meyer_musepat13.pdf}
+}
+
+@INPROCEEDINGS{paper:passive-processors,
+  author = {Morandi, Benjamin and Nanz, Sebastian and Meyer, Bertrand},
+  title = {Safe and Efficient Data Sharing for Message-Passing Concurrency},
+  booktitle = {Proceedings of the 16th International Conference on Coordination
+	Models and Languages (COORDINATION 2014)},
+  year = {2014},
+  series = {Lecture Notes in Computer Science},
+  volume = {8459},
+  publisher = {Springer},
+  pages = {99--114},
+  urltopdf = {http://se.inf.ethz.ch/people/nanz/publications/morandi-nanz-meyer_coordination14.pdf},
+}
+
+@book{book:design-patterns,
+ author = {Gamma, Erich and Helm, Richard and Johnson, Ralph and Vlissides, John},
+ title = {Design Patterns: Elements of Reusable Object-oriented Software},
+ year = {1995},
+ isbn = {0-201-63361-2},
+ publisher = {Addison-Wesley Longman Publishing Co., Inc.},
+ address = {Boston, MA, USA},
 } 
