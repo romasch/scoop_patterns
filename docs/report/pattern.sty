@@ -9,6 +9,9 @@
 % Define a column type with fixed with and \flushleft semantics.
 \newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
 
+% Command to link patterns in text.
+\newcommand{\patternref}[1]{\hyperlink{#1}{[#1]}}
+
 % Needed in normal tex files.
 % \makeatletter
 
@@ -16,10 +19,10 @@
   % Their family is `patterncmd', the macro \cfield@name retrieves the value,
   % and `N/A' is the default value.
 \define@cmdkeys {patterncmd} [cfield@]
-  {name,category,intent,applicability,status,example,knownapps,relation,references, comment} [N/A]
+  {name,category,intent,applicability,status,example,knownapps,relation,references, comment, label} [N/A]
   
   % Initialize the keys. Not sure why that's necessary...
-\setkeys {patterncmd} {name,category,intent,applicability,status,example,knownapps,relation,references, comment}
+\setkeys {patterncmd} {name,category,intent,applicability,status,example,knownapps,relation,references, comment, label}
 
 
   % Define the command to create a new pattern classification.
@@ -33,8 +36,10 @@
    
       % A normal LaTeX table that displays all options.
    \begin{table} [H]
+   \hypertarget{\cfield@label}{}
    \begin{tabular} {P{0.22\textwidth} P{0.71\textwidth}}
       Name: & \textbf{\cfield@name} \\
+      Identifier: & \cfield@label \\
       Category: & \cfield@category \\
       Intent: & \cfield@intent \\
       Applicability and Restrictions: & \cfield@applicability \\

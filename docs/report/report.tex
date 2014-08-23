@@ -11,6 +11,7 @@
 \usepackage [hidelinks] {hyperref}
 
 
+% \newcommand{\patternref}[1]{\hyperlink{#1}{[#1]}}
 \newcommand{\dir} [1] [] {#1} 
 \newcommand{\todoref}{\todo{ref}}
 
@@ -40,7 +41,7 @@ These patterns are often shipped with the standard library of the language, such
 
 The Eiffel programming language \cite{EcmaEiffel}\cite{book:touchofclass} has a new concurrency extension called SCOOP \cite{Nienaltowski07}\cite{web:scoop},
 which stands for Simple Concurrent Object-Oriented Programming.
-SCOOP simplifies concurrent programming a lot and eliminates one source of errors completely, namely race conditions \todoref.
+SCOOP simplifies concurrent programming a lot and eliminates one source of errors completely, namely race conditions \cite{Nienaltowski07}.
 However, there is little experience on how to implement popular concurrency patterns, such as a worker pool, in SCOOP.
 
 This thesis tries to fill this gap by providing a library of reusable concurrency patterns as well as methodical advice on programming in SCOOP.
@@ -49,7 +50,7 @@ The main contributions of the thesis are:
  \item A broad survey of known concurrency patterns.
  \item The identification of common SCOOP challenges and advice on how to solve them.
  \item A new concurrency library which provides implementations for some selected patterns.
- This selection was mainly based on input from the CME team \todoref and the study of the Java \cite{web:java-concurrency} and C\# \cite{web:ms-tpl} concurrency libraries.
+ This selection was mainly based on input from the ``Concurrency made easy'' team at ETH Zürich and the study of the Java \cite{web:java-concurrency} and C\# \cite{web:ms-tpl} concurrency libraries.
 \end{itemize}
 
 \subsection{Overview}

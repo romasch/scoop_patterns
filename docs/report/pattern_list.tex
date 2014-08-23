@@ -2,6 +2,7 @@
 \subsection{Data centered patterns}
 
 \pattern [name={Producer / Consumer}
+  ,label={P/C}
   ,category={Program structuring}
   ,intent={Provide a synchronized shared buffer. Producer threads put items into the buffer, and consumers remove items.}
   ,applicability={When participants should not know each other. Also applicable if there's no one-to-one relation between producers and consumers or when buffering is desired.}
@@ -13,6 +14,7 @@
 ]
 
 \pattern [name={Pipeline}
+  ,label={PL}
   ,category={Program structuring}
   ,intent={Process a stream of data in several independent stages.}
   ,applicability={When the input consist of a stream of data where several processing steps need to be performed.}
@@ -24,6 +26,7 @@
 ]
 
 \pattern [name={Dataflow Network}
+  ,label={DFN}
   ,category={Program structuring}
   ,intent={Process a stream of data in independent stages, with the option to branch and merge streams.}
   ,applicability={When the input consists of a stream of data which allows for parallel processing.}
@@ -35,6 +38,7 @@
 ]
 
 \pattern [name={Exchanger}
+  ,label={EXC}
   ,category={Program structurings}
   ,intent={Exchange two objects between two threads atomically.}
   ,applicability={When the synchronization point and the atomicity is required.}
@@ -49,6 +53,7 @@
 
 
 \pattern [name={Worker Pool}
+  ,label={WP}
   ,category={Performance}
   ,intent={Avoid expensive thread cration by providing a set of threads that can execute arbitrary operations.}
   ,applicability={When there are a lot of small tasks that may be executed in parallel.}
@@ -56,10 +61,11 @@
   ,example={A set of HTTP request handlers in a web server.}
   ,knownapps={Web servers.}
   ,relation={Producer / Consumer is used to pass along task objects. Worker Pool is usually an implementation of Executor framework.}
- ,references={\cite[p. 117]{book:java-concurrency}, \cite[p. 167]{book:java-concurrency}, \cite[p. 290]{book:cpj},  \cite[p. 61]{Toub10}}
+ ,references={\cite[p. 117]{book:java-concurrency}, \cite[p. 167]{book:java-concurrency}, \cite[p. 290]{book:cpj},  \cite[p. 61]{Toub10}, \cite{Leijen09}}
 ]
 
 \pattern [ name={Future}
+  ,label={FUT}
   ,category={Program structuring, Performance}
   ,intent={Run a task asynchronously, and fetch the result later.}
   ,applicability={When a computation may be run in parallel, but creating an extra thread is too expensive.}
@@ -67,11 +73,12 @@
   ,example={A web browser which starts downloads tasks for image files in parallel to parsing and rendering the HTML file.}
   ,knownapps={In UI programming for long-running background tasks, or parallelization of certain numerical computations.}
   ,relation={Futures may be backed by worker pools that execute them.}
- ,references={\cite[p. 125]{book:java-concurrency}, \cite[p. 332]{book:cpj}, \cite[p. 36]{Toub10}}
+ ,references={\cite[p. 125]{book:java-concurrency}, \cite[p. 332]{book:cpj}, \cite[p. 36]{Toub10}, \cite{Leijen09}}
   ,comment={The wait-by-necessity semantics of SCOOP also corresponds to the Future pattern.}
 ]
 
 \pattern [name={Executor framework}
+  ,label={EF}
   ,category={Program structuring}
   ,intent={Split task submission from task execution.}
   ,applicability={When the task execution strategy should be flexible, e.g. using a worker pool or creating a new thread per task.}
@@ -83,6 +90,7 @@
 ]
 
 \pattern [name={Timer: Periodic}
+  ,label={TP}
   ,category={Program structuring}
   ,intent={Apply an operation repeatedly in regular intervals.}
   ,applicability={When an operation, which can be run in parallel to the applications main execution, needs to be applied repeadedly.}
@@ -94,6 +102,7 @@
 ]
 
 \pattern [ name={Timer: Invoke later}
+  ,label={TIL}
   ,category={Program structuring}
   ,intent={Invoke a certain operation at a later point in time.}
   ,applicability={When an operation can be run in parallel, at a later point in time.}
@@ -107,6 +116,7 @@
 \subsection{I/O patterns}
 
 \pattern [name={Half-Sync / Half-Async}
+  ,label={HS/HA}
   ,category={Program structuring}
   ,intent={Simplify asynchronous event handling. A thread or an interrupt handler listens on an event source and puts incoming messages in a synchronized queue. Worker threads then retrieve and handle requests.}
   ,applicability={When the application must react to several event sources at the same time.}
@@ -118,6 +128,7 @@
 ]
 
 \pattern [name={Leader / Followers}
+  ,label={L/F}
   ,category={Performance, Program structuring}
   ,intent={Listen on several I/O sockets using a thread pool. A leader thread receives a request, promotes the next leader, and then handles the request.}
   ,applicability={When there are hundreds of I/O sockets.}
@@ -129,6 +140,7 @@
 ]
 
 \pattern [name={Disruptor}
+  ,label={DIS}
   ,category={Performance, Program structuring}
   ,intent={Provide a high-performance ring buffer with a single producer and multiple readers, each assigned to a thread. Readers can change buffer entries and have dependencies to other readers.}
   ,applicability={When very high throughput in an I/O application is required.}
@@ -142,6 +154,7 @@
 \subsection{Miscellaneous patterns}
 
 \pattern [name={Active Object}
+  ,label={AO}
   ,category={Program structuring}
   ,intent={Pair an object with its own thread. Clients access the active object through a proxy object, which transforms feature calls to asynchronous messages. 
   The object runs a main loop where it schedules requests from other processors and runs its own code.}
@@ -154,6 +167,7 @@
 ]
 
 \pattern [ name={Thread-local storage}
+  ,label={TLS}
   ,category={Program structuring}
   ,intent={Provide private heap data for each thread.}
   ,applicability={When multiple threads run the same code, but each needs a different set of data, or if synchronization overhead for heap objects is undesirable.}
@@ -166,6 +180,7 @@
 ]
 
 \pattern [name={Publish / Subscribe \todo{find references}}
+  ,label={P/S}
   ,category={Program structuring}
   ,intent={Provide a hook to subscribe to events. In the concurrent context there's often an intermediate broker which receives events from a publisher and forwards them to all subscribers.}
   ,applicability={When the publisher doesn't need to know the subscribers, and vice versa in the broker solution.}
@@ -177,6 +192,7 @@
 ]
 
 \pattern [name={Transactions}
+  ,label={TRA}
   ,category={Program structuring}
   ,intent={Avoid a deadlock by ``reserving'' a set of objects one at a time. Abort if an object is already reserved by another thread.}
   ,applicability={When multiple operations need to be locked and no locking order can be established.}
@@ -192,6 +208,7 @@
 \subsection{SCOOP patterns}
 
 \pattern [ name={Import}
+  ,label={IMP}
   ,category={Language limitation}
   ,intent={Copy an object structure from a separate processor to the local processor.}
   ,applicability={When it's cheaper to copy the object instead of creating it on a new processor.}
@@ -203,6 +220,7 @@
 ]
 
 \pattern [ name={Asynchronous Self-Call}
+  ,label={ASC}
   ,category={Program structuring}
   ,intent={Execute the body of a main loop, and then ask a separate processor to call back the loop body.}
   ,applicability={When a processor is running its own code, but others need to access data on it from time to time.}
@@ -214,6 +232,7 @@
 ]
 
 \pattern [ name={Separate Proxy}
+  ,label={SP}
   ,category={Program structuring}
   ,intent={Simplify access to a separate object by providing a processor-local proxy.}
   ,applicability={When a class is reusable (library code) and usually created on a separate processor.}
@@ -225,6 +244,7 @@
 ]
 
 \pattern [name={Full Asynchrony}
+  ,label={FA}
   ,category={Language limitation}
   ,intent={Perform an operation completely asynchronously.}
   ,applicability={When an operation can be run in parallel and there's no need to wait for a result.}
@@ -237,6 +257,7 @@
 ]
 
 \pattern [name={Universal Call}
+  ,label={UC}
   ,category={Language limitation}
   ,intent={Provide a universal enclosing routine to perform a single separate call.}
   ,applicability={When calls to a separate object may be interleaved with calls from other processors.}
@@ -250,6 +271,7 @@
 
 
 \pattern [name={EiffelVision support \todo{EV support}}
+  ,label={EV}
 %   ,category={}
 %   ,intent={}
 %   ,applicability={}
