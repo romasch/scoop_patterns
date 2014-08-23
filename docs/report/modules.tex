@@ -23,11 +23,26 @@ To define an import feature for an arbitrary type, e.g. \lstinline!STRING!, one 
 
 Because writing an extra importer for every importable object may be tedious, there's a support class \lstinline!CP_IMPORTABLE!:
 
-\lstinputlisting [firstline=7] {../../library/import/cp_importable.e}
+% \lstinputlisting [firstline=7] {../../library/import/cp_importable.e}
+\begin{lstlisting}
+deferred class
+	CP_IMPORTABLE
+
+feature {CP_DYNAMIC_TYPE_IMPORTER} -- Initialization
+
+	make_from_separate (other: separate like Current)
+			-- Initialize `Current' with 
+			-- the same values as `other'.
+		deferred
+		end
+
+end
+\end{lstlisting}
 
 That way an import function can be written right inside the class that needs to be imported.
 
 There are two classes which can be used for \lstinline!CP_IMPORTABLE! objects: \lstinline!CP_DYNAMIC_TYPE_IMPORTER! and \lstinline!CP_STATIC_TYPE_IMPORTER!.
+
 The latter uses bounded genericity to directly create an object of type \lstinline!G!.
 This has the drawback however that the type is statically \lstinline!G!, even if the argument to \lstinline!import! was of a subtype of \lstinline!G!.
 
@@ -172,7 +187,7 @@ As the \lstinline!CP_QUEUE! is intended to be used as a separate object, the mod
 The process module provides a set of classes that all implement some sort of skeleton for a main loop.
 
 The class \lstinline!CP_PROCESS! defines the interface.
-It inherits from \lstinline!CP_STARTABLE!, such that clients have a simple way to start a separate process using \lstinline!CP_STARTABLE_UTILS!.
+It is a descendant of the class \lstinline!CP_STARTABLE!, such that clients have a simple way to start a separate process using \lstinline!CP_STARTABLE_UTILS!.
 
 The feature \lstinline!start! is used to start the main loop.
 As the process module defines the skeleton for a main loop, users are just required to implement \lstinline!step!, which should contain the body of the loop.
@@ -182,7 +197,7 @@ The loop can be exited by setting the attribute \lstinline!is_stopped! to \lstin
 They are called in the beginning or at the end of the main loop, and must be explicitly redefined by descendants if needed.
 
 There are two different implementations for the main loop itself.
-\lstinline!CP_CONTINUOUS_PROCESS! implements the main loop in a straightforward manner:
+The first, used by \lstinline!CP_CONTINUOUS_PROCESS!, is pretty staightforward:
 \begin{lstlisting}
 from setup
 until is_stopped
@@ -202,9 +217,10 @@ In practice this is especially useful to stop a \lstinline!CP_INTERMITTENT_PROCE
 \lstinline!CP_INTERMITTENT_PROCESS! implements the Asynchronous Self-Call pattern \patternref{ASC}.
 The callback service is provided by the class \lstinline!CP_PACEMAKER!, and every \lstinline!CP_INTERMITTENT_PROCESS! automatically creates an associated pacemaker.
 
-The \lstinline!CP_PERIODIC_PROCESS! is a refinement of the \lstinline!CP_INTERMITTENT_PROCESS!, which allows to add a small delay between executions.
-It also adds a simple command \lstinline!stop!, which can be used to stop the process from the outside.
-It is an implementation of the Timer: Periodic pattern \patternref{TP}.
+The \lstinline!CP_PERIODIC_PROCESS! allows to add small delays between executions. 
+It is a refinement of the \lstinline!CP_INTERMITTENT_PROCESS! and an implementation of the Timer: Periodic pattern \patternref{TP}.
+The class also introduces the simple command \lstinline!stop!, which can be used to stop the process from the outside.
+
 
 \subsection{Worker pool}
 \label{sec:worker_pool} 
@@ -273,11 +289,11 @@ The type of the task object alongside its import strategy can be specified with 
 
 The deferred class \lstinline!CP_WORKER! corresponds to the worker thread in other languages.
 Users need to implement the feature \lstinline!do_run!, which takes a task object and executes it.
-The exact type of the task object depends on the generic arguments of \lstinline!CP_WORKER!, which should be the same as in \lstinline!CP_WORKER_POOL!.
+The exact type of the task object depends on the generic arguments of \lstinline!CP_WORKER!, which must be the same as in \lstinline!CP_WORKER_POOL!.
 The non-deferred part in \lstinline!CP_WORKER! is the main loop itself, which fetches a new task, calls \lstinline!do_run!, and checks if the worker needs to terminate.
 
 The last class, \lstinline!CP_WORKER_FACTORY!, just provides a deferred factory function for a new worker.
-This is necessary because the exact type of \lstinline!CP_WORKER! is not known to the library.
+The factory class is necessary because the exact type of \lstinline!CP_WORKER! is not known to the library.
 With a user-defined factory, the \lstinline!CP_WORKER_POOL! can create new workers on demand.
 
 
@@ -393,7 +409,7 @@ The execution service part of the Future pattern can vary.
 In most cases it is a worker pool which executes the computation objects and updates the Promise with the correct result.
 However, it is also possible to implement it as a single thread, or even to executing them synchronously in the current thread.
 
-To take this variation into account, we added a new interface \lstinline!CP_EXECUTOR!.
+To take this variation into account, we added the interface \lstinline!CP_EXECUTOR!.
 The \lstinline!CP_TASK_WORKER_POOL! introduced in Section \ref{sec:worker_pool} implements this interface and thus can be used as an executor service for the Future pattern.
 We also applied the Separate Proxy pattern on \lstinline!CP_EXECUTOR!, as it is mostly accessed through a separate reference.
 
@@ -444,7 +460,7 @@ This way the promise object finally ends up on the correct processor.
 
 The promise module contains a set of classes which can be used to monitor the state of an asynchronous operation.
 
-The main class is \lstinline!CP_PROMISE!, which defines several queries like \lstinline!is_terminated! or \lstinline!is_exceptional!.
+The main class is \lstinline!CP_PROMISE!, which defines queries like \lstinline!is_terminated! or \lstinline!is_exceptional!.
 It also defines the interface to cancel a task or to get the progress percentage (e.g. for a download task), but these queries need to be supported by the task itself.
 
 The Separate Proxy mechanism is available for promise objects, because they are usually declared separate to the client.
@@ -452,7 +468,7 @@ In this case the pattern is implemented with four classes, i.e.
 \begin{itemize}
  \item \lstinline!CP_PROMISE! defines a common interface,
  \item \lstinline!CP_SHARED_PROMISE! defines the actual separate object,
- \item \lstinline!CP_PROMISE_UTILS! defines helper functions to access a \lstinline!separate CP_PROMISE! and
+ \item \lstinline!CP_PROMISE_UTILS! introduces helper functions to access a \lstinline!separate! \lstinline!CP_PROMISE! and
  \item \lstinline!CP_PROMISE_PROXY! is the proxy object.
 \end{itemize}
 

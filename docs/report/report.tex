@@ -10,8 +10,6 @@
 % Has to be the last package:
 \usepackage [hidelinks] {hyperref}
 
-
-% \newcommand{\patternref}[1]{\hyperlink{#1}{[#1]}}
 \newcommand{\dir} [1] [] {#1} 
 \newcommand{\todoref}{\todo{ref}}
 
@@ -74,7 +72,7 @@ Finally, Section \ref{sec:evaluation} provides a small performance evaluation of
 
 \section {The SCOOP model}
 \label {sec:scoop-model}
-% Introduction, differences to Java etthirdc... (short)
+% Introduction, differences to Java etc... (short)
 
 SCOOP is an extension to the Eiffel programming language that aims to make concurrent programming easier.
 The basic idea is that every object can only be accessed by exactly one computational unit.
@@ -92,14 +90,17 @@ Having an object controlled means that the user has exclusive access to that obj
 In order to control an object it has to appear as a formal argument in the enclosing routine.
 
 SCOOP guarantees that all messages sent by the current processor are handled in the foreign processor in the correct order.
-A consequence of this and the exclusive access guarantee is that within a feature body, a separate object can be treated as if it were in a sequential program.
+This, along with the exclusive access guarantee, ensures that a controlled separate object behaves just like an object in a sequential program.
 This is the reason why the SCOOP model is so simple: 
 It allows reasoning about a feature body without the need to consider all possible interleavings of two parallel executions.
 
 To create a new processor, one has to use the creation instruction on an object which is declared as separate.
 The new processor is then initialized automatically, and the new object is handled by the new processor.
 
-\todo{sortly describe wait conditions.}
+Preconditions in SCOOP have a special role.
+In a concurrent setting there's often the problem that a correctness condition may change due to unfortunate interleaving, 
+e.g. between checking that a buffer is not empty and then removing an item, the buffer actually becomes empty due to interference from another thread.
+Therefore SCOOP changes the semantics of preconditions to become wait conditions if they reference a separate object.
 
 There are many advantages to the SCOOP model, such as easier reasoning and absence of data races, but it also has some shortcomings.
 One of them is the fact that it's a bit tedious to write SCOOP programs.
@@ -118,7 +119,11 @@ The SCOOP model however encourages the creation of many processors, which is not
 Passing data from one processor to another is often necessary when programming in SCOOP.
 The most obvious example is the producer/consumer pattern, but it also applies to other situations where one just wants to provide some arguments to an asynchronous command.
 
-\todo{what about expanded objects?}
+There are two types of objects one can pass as arguments.
+The first type are expanded objects, which also includes basic types such as \lstinline!INTEGER!.
+Passing expanded objects from one processor to another is not a problem in SCOOP due to their copy-semantics property.
+However, passing reference objects is a bit more tricky.
+There are some bad things that may happen if done wrongly, such as processor starvation or unintentional lock passing.
 
 There are basically three ways to safely pass reference objects from a sender to a receiver processor.
 The first and easiest solution is to create data on its own, separate processor: 
@@ -172,7 +177,7 @@ This solution (the Lock Passing approach) looks almost like the first one - the 
 However, it's semantics are radically different:
 
 \begin{itemize}
- \item Due to the lock passing mechanism \cite[p. 152]{Nienaltowski07} \cite{web:scoop} the feature \lstinline!do_something! is executed synchronously, i.e. the sender has to wait for it to finish.
+ \item Due to the lock passing mechanism \cite[p. 152]{Nienaltowski07}\cite{web:scoop} the feature \lstinline!do_something! is executed synchronously, i.e. the sender has to wait for it to finish.
  \item \lstinline!RECEIVER! can't access the argument object any more after the call \lstinline!do_something! is finished.
  This is because \lstinline!SENDER! will continue it's execution, and an attempt to lock the argument object again will probably result in starvation of the sender processor.
  \item Compared to the first approach, no new processor is created.
@@ -229,7 +234,6 @@ It is possible however to implement it manually with some user support.
 % Problem that two concurrent, active processors can't communicate. Example downloader task.
 % Solution: a third, passive processor with a shared data structure.
 
-
 It is often necessary that two threads need to communicate with each other.
 One example would be a user interface with a background downloader task.
 The user interface needs to be able to cancel the downloader, and the downloader needs to inform the GUI that it is finished.
@@ -237,11 +241,16 @@ The user interface needs to be able to cancel the downloader, and the downloader
 In SCOOP this is not easily done.
 Both processors are performing a long-running execution, which doesn't allow other processors to do separate calls on them.
 Specifically, the GUI processor is in a main loop to receive input and repaint the window, whereas the downloader task is busy receiving chunks of data.
+Cancellation will not work in this case, because the user interface processor will have to wait for the download processor to finish until it can actually access the downloader task to call \lstinline!cancel!, 
+which kind of defeats the purpose of the cancellation button.
+Even worse, the user interface will freeze until the GUI processor breaks free of its wait condition.
 
 The solution to this kind of problem is to introduce a third processor which is ``passive'', meaning that it doesn't have a task to perform and only waits for incoming requests.
 This third processor is known to the other two, ``active'' processors, and it contains all the attributes which are necessary for communication.
 In our example this means that the ``passive'' processor takes care of an object with an \lstinline!is_cancelled! and \lstinline!is_finished! boolean flag.
 The ``active'' processors then regularly need to check the status of these flags.
+
+The solution to the task cancellation problem comes from this paper \cite{paper:task-cancellation}.
 
 \subsection{Processor termination}
 \label{sec:processor-termination}
@@ -331,7 +340,7 @@ This section describes the core concepts of the library: Import and Separate Pro
 The import concept deals with the problem of how to pass data from one processor to another.
 It is usefol to achieve the performance goal and to some extent the safety goal in Section \ref{sec:goals}.
 
-The Separate Proxy is a pattern to hide separate references behind a proxy object.
+The Separate Proxy \patternref{SP} is a pattern to hide separate references behind a proxy object.
 It provides a solution to the convenience design goal.
 
 \subsubsection{Import}
@@ -342,7 +351,27 @@ The import concept is a central part of the library.
 It was developed to let users choose between two object passing strategies, namely the Data Processor and the Import approach (see Section \ref{sec:object-migration}).
 
 The main class is the deferred \lstinline!CP_IMPORT_STRATEGY [G]!, which has the simple interface:
-\lstinputlisting [firstline=7] {../../library/import/cp_import_strategy.e}
+
+\begin{lstlisting}
+deferred class interface
+  CP_IMPORT_STRATEGY [G]
+
+feature -- Status report
+
+  is_importable (object: separate G): BOOLEAN
+      -- Is `object' importable?
+
+feature -- Duplication
+
+  import (object: separate G): separate G
+      -- Import `object'.
+    require
+      importable: is_importable (object)
+
+end
+\end{lstlisting}
+
+%\lstinputlisting [firstline=7] {../../library/import/cp_import_strategy.e}
 
 The class has two descendants: \lstinline!CP_NO_IMPORTER[G]! can be used for the Data Processor strategy. 
 It just perform a reference copy of the object.
@@ -352,45 +381,80 @@ As there's no general-purpose import feature available at the moment, a user has
 Descendants of \lstinline!CP_IMPORTER! simplify this task and provide predefined implementations for some standard classes such as \lstinline!STRING!.
 Those mechanisms are described in detail in Section \ref{sec:modules:import}.
 
-\todo{elaborate more, explain less specific}
-Other components of the library often use the import module via bounded genericity.
-The class \lstinline!CP_QUEUE! for example has the ability to import objects, and it's class header looks like this:
+Components that want to make use of the import mechanism need to have an instance of \lstinline!CP_IMPORT_STRATEGY! on the same processor.
+There are several ways how this object can be supplied to a predefined component.
+The most obvious solution - passing it as an argument in a constructor - has a big drawback in the SCOOP setting:
+A user can't create the component on a separate processor without having to write an extra factory class.
+
+A better solution is to exploit the constrained genericity mechanism in Eiffel.
+Any component that wishes to import objects has to declare an additional generic argument for the import strategy.
+A user can then decide on the precise semantics of the import strategy by just declaring the right type.
+
+The constraint placed on the argument is that it needs to be a descendant of \lstinline!CP_IMPORT_STRATEGY!, and that it needs to declare \lstinline!default_create! as a creation procedure.
+The latter is not a big restriction in practice, as there are usually no attributes in an importer anyway.
+
+The class header of a component that uses the import concept usually looks like this:
 \begin{lstlisting}
-class CP_QUEUE
-  [G, IMPORTER -> CP_IMPORT_STRATEGY [G] create default_create end]
-feature
-  ...
+class BUFFER [G, IMPORTER -> 
+	CP_IMPORT_STRATEGY [G] create default_create end]
+
+feature -- Access
+
+  item: like {IMPORTER}.import
+
 end
 \end{lstlisting}
-That way a user can decide on the precise semantics of the import strategy by just declaring the right type.
 
-
+This small code sample shows another neat little feature of Eiffel.
+The \lstinline!like! statement fixes the type based on the chosen import strategy, i.e. \lstinline!separate G! for \lstinline!CP_NO_IMPORTER! and non-separate for descendants of \lstinline!CP_IMPORTER!.
+With this little trick a component can simplify the handling of imported references.
 
 \subsubsection{Separate Proxy}
 
-The separate proxy pattern provides a nice interface to a separate object, by providing a processor-local proxy which hides the separate reference.
+The separate proxy pattern simplifies access to a separate reference by providing a processor-local proxy object wich forwards all requests to the actual object.
+The main advantage is that clients don't need to write extra ``wrapper function'' to control the separate object.
 It is applied to all classes in the library which are meant to be shared among processors, i.e. which are usually accessed through a separate reference.
 
 The pattern consists of three classes:
-\begin{enumerate} [label=(\arabic*)]
- \item\label{item:sep-proxy:first} The class for the actual separate object.
- \item\label{item:sep-proxy:second} A class that provides helper functions to access a separate object of type \ref{item:sep-proxy:first}, usually with the ending \lstinline!_UTILS!.
- \item\label{item:sep-proxy:third} A proxy class with the a similar interface as \ref{item:sep-proxy:first}, usually ending on \lstinline!_PROXY!.
-    Using \ref{item:sep-proxy:second}, the proxy forwards all calls to an object of type \ref{item:sep-proxy:first}.
-\end{enumerate}
+\begin{description}
+ \item [Protégé] The actual business class whose objects are usually separate.
+ \item [Helper] A class that only provides helper functions to access a separate protégé.
+  The helper class is usually ending on \lstinline!_UTILS!.
+ \item [Proxy] A proxy class with the a similar interface as the protégé class, usually ending on \lstinline!_PROXY!.
+    The proxy forwards all calls to its protégé, using the helper class.
+\end{description}
 
 \todo{A little diagram showing the class relations.}
 
-It is possible to add a fourth, deferred class that just defines the interface for \ref{item:sep-proxy:first} and \ref{item:sep-proxy:third}.
+It is possible to add a fourth, deferred class that just defines the interface for the protégé and the proxy.
 However, there's an inconsistency: 
-Any precondition in \ref{item:sep-proxy:first} which references \lstinline!Current! needs to be converted to a wait condition in \ref{item:sep-proxy:third} that references \ref{item:sep-proxy:first}.
+All preconditions in the protégé class that reference \lstinline!Current! (explicitly or implicitly) need to be weakened (i.e. \lstinline!require else True!) in the proxy, and turned into wait conditions in the helper class.
 Furthermore, not all features in the business class may be necessary in the proxy, and the proxy itself may add some more features such as compound actions.
 
-Unfortunately this pattern cannot be fully turned into a module, because it's highly dependent on the precise interface of the business class.
-There is however some support in the library: 
-\lstinline!CP_PROXY! defines the creation procedure and the attributes \lstinline!subject! for a business class object and \lstinline!utils! for a helper object.
 
-\todo{reference to appendix}
+% \begin{enumerate} [label=(\arabic*)]
+%  \item\label{item:sep-proxy:first} The class for the actual separate object.
+%  \item\label{item:sep-proxy:second} A class that provides helper functions to access a separate object of type \ref{item:sep-proxy:first}, usually with the ending \lstinline!_UTILS!.
+%  \item\label{item:sep-proxy:third} A proxy class with the a similar interface as \ref{item:sep-proxy:first}, usually ending on \lstinline!_PROXY!.
+%     Using \ref{item:sep-proxy:second}, the proxy forwards all calls to an object of type \ref{item:sep-proxy:first}.
+% \end{enumerate}
+% 
+% \todo{A little diagram showing the class relations.}
+% 
+% It is possible to add a fourth, deferred class that just defines the interface for \ref{item:sep-proxy:first} and \ref{item:sep-proxy:third}.
+% However, there's an inconsistency: 
+% Any precondition in \ref{item:sep-proxy:first} which references \lstinline!Current! needs to be converted to a wait condition in \ref{item:sep-proxy:third} that references \ref{item:sep-proxy:first}.
+% Furthermore, not all features in the business class may be necessary in the proxy, and the proxy itself may add some more features such as compound actions.
+
+% Unfortunately this pattern cannot be fully turned into a module, because it's highly dependent on the precise interface of the business class.
+% There is however some support in the library: 
+% \lstinline!CP_PROXY! defines the creation procedure and the attributes \lstinline!subject! for a business class object and \lstinline!utils! for a helper object.
+
+Unfortunately this pattern cannot be fully turned into a module, because it's highly dependent on the precise interface of the protégé class.
+There is some support in the library however: 
+\lstinline!CP_PROXY! defines the creation procedure and the two attributes \lstinline!subject! for a separate protégé object and \lstinline!utils! for a helper object.
+
+Appendix \ref{sec:howto-separate-proxy} provides a general recipe on how to implement a separate proxy for an arbitrary protégé class.
 
 \subsection {Module overview}
 \label{sec:module-overview}
