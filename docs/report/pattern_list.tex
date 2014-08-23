@@ -107,7 +107,7 @@
   ,intent={Invoke a certain operation at a later point in time.}
   ,applicability={When an operation can be run in parallel, at a later point in time.}
   ,status={Implemented library component}
-  ,example={Send an email after a delay of one minute, in which the user can still press ``cancel''\todo{do we actually support cancellation?}}
+  ,example={Send an email after a delay of one minute, in which the user can still press ``cancel''.}
   ,knownapps={``Grace periods'' to cancel an action, robotics control, alarm clocks.}
   ,relation={ - }
   ,references={\cite[p. 123]{book:java-concurrency}, \cite[p. 297]{book:cpj}}
@@ -239,7 +239,7 @@
   ,status={Guideline}
   ,example={A shared queue which gets accessed by several thread. Each thread creates a processor-local proxy to avoid having to deal with a separate reference.}
   ,knownapps={Most classes in the library ship with a separate proxy.}
-  ,relation={The separate proxy is a special version of the more general proxy pattern described by Gamma et al.\cite[p. \todo{find page}]{book:design-patterns}.}
+  ,relation={The separate proxy is a special version of the more general proxy pattern described by Gamma et al.\cite[p. 207]{book:design-patterns}.}
   ,references={ - }
 ]
 

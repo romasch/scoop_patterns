@@ -101,6 +101,37 @@ feature -- Tests
 			assert ("has_exception", not promise.is_exceptional)
 		end
 
+	test_delayed_task_cancellation
+			-- Test cancellation of a delayed task.
+		local
+			delayer: CP_DELAYED_TASK
+			task: FAILING_TASK
+			promise: CP_PROMISE_PROXY
+		do
+			create task
+			create delayer.make (task, 2 * second)
+
+			assert ("has_promise", not attached task.promise)
+
+			promise := executor.put_with_promise (delayer)
+
+			assert ("promise_missing", attached task.promise)
+			assert ("different_promise", task.promise = delayer.promise and promise.subject = delayer.promise)
+
+			promise.cancel
+			assert ("not_cancelled", promise.is_cancelled)
+
+			env.sleep (second)
+
+			assert ("not_delayed", not promise.is_terminated)
+
+			promise.await_termination
+
+			assert ("not_terminated", promise.is_terminated)
+				-- Exception should not happen because task has been cancelled before.
+			assert ("has_exception", not promise.is_exceptional)
+		end
+
 	test_timer
 			-- Test a timer object.
 		local

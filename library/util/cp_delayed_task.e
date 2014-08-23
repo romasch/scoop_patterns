@@ -83,8 +83,12 @@ feature -- Basic operations
 			-- <Precursor>
 		do
 			environment.sleep (delay)
-				-- Invoke `run' as opposed to `start', because exception handling is done in `Current'.
-			task.run
+			if attached promise as l_promise and then is_promise_cancelled (l_promise) then
+				-- Do nothing. Task has been cancelled.
+			else
+					-- Invoke `run' as opposed to `start', because exception handling is done in `Current'.
+				task.run
+			end
 		end
 
 feature {NONE} -- Implementation
