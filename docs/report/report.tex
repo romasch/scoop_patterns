@@ -6,6 +6,7 @@
 \usepackage{enumitem}
 \usepackage{todo}
 \usepackage [toc, page] {appendix}
+\usepackage{graphicx}
 
 % Has to be the last package:
 \usepackage [hidelinks] {hyperref}
@@ -424,31 +425,16 @@ The pattern consists of three classes:
     The proxy forwards all calls to its protégé, using the helper class.
 \end{description}
 
-\todo{A little diagram showing the class relations.}
+\begin{figure} [h]
+\label{fig:separate-proxy}
+\includegraphics[width=\textwidth]{separate_proxy.png}
+\caption{The class relations in the Separate Proxy pattern.}
+\end{figure}
 
 It is possible to add a fourth, deferred class that just defines the interface for the protégé and the proxy.
 However, there's an inconsistency: 
 All preconditions in the protégé class that reference \lstinline!Current! (explicitly or implicitly) need to be weakened (i.e. \lstinline!require else True!) in the proxy, and turned into wait conditions in the helper class.
 Furthermore, not all features in the business class may be necessary in the proxy, and the proxy itself may add some more features such as compound actions.
-
-
-% \begin{enumerate} [label=(\arabic*)]
-%  \item\label{item:sep-proxy:first} The class for the actual separate object.
-%  \item\label{item:sep-proxy:second} A class that provides helper functions to access a separate object of type \ref{item:sep-proxy:first}, usually with the ending \lstinline!_UTILS!.
-%  \item\label{item:sep-proxy:third} A proxy class with the a similar interface as \ref{item:sep-proxy:first}, usually ending on \lstinline!_PROXY!.
-%     Using \ref{item:sep-proxy:second}, the proxy forwards all calls to an object of type \ref{item:sep-proxy:first}.
-% \end{enumerate}
-% 
-% \todo{A little diagram showing the class relations.}
-% 
-% It is possible to add a fourth, deferred class that just defines the interface for \ref{item:sep-proxy:first} and \ref{item:sep-proxy:third}.
-% However, there's an inconsistency: 
-% Any precondition in \ref{item:sep-proxy:first} which references \lstinline!Current! needs to be converted to a wait condition in \ref{item:sep-proxy:third} that references \ref{item:sep-proxy:first}.
-% Furthermore, not all features in the business class may be necessary in the proxy, and the proxy itself may add some more features such as compound actions.
-
-% Unfortunately this pattern cannot be fully turned into a module, because it's highly dependent on the precise interface of the business class.
-% There is however some support in the library: 
-% \lstinline!CP_PROXY! defines the creation procedure and the attributes \lstinline!subject! for a business class object and \lstinline!utils! for a helper object.
 
 Unfortunately this pattern cannot be fully turned into a module, because it's highly dependent on the precise interface of the protégé class.
 There is some support in the library however: 
@@ -492,10 +478,28 @@ We ran the tests with randomly generated matrices and each test was repeated 5 t
 A test matrix was square and its order always a power of two in the range from 32 to 1024.
 Additionally, there was one more column for the result vector in the system of linear equations.
 The test system was a quad-core AMD Phenom II X4 955 processor with 6 GB of RAM.
+The results of the tests are shown table \ref{table:perf-results}.
 
-The results of the tests are shown in the table below:
+\begin{table} [!h]
+\label{table:perf-results}
+\centering
+\begin{tabular}{|l|l l l|} 
+\hline
+Matrix Size & Future & Raw SCOOP & Sequential\\
+\hline
+32 & 0.36 & 0.19 & 0\\
+64 & 1.67 & 1.11 & 0\\
+128 & 8.45 & 9.27 & 0.04\\
+256 & 26.45 & 66.56 & 0.33\\
+512 & 102.28 & 515.11 & 2.62\\
+1000 & - &  3937.2 & - \\
+1024 & 424.32 & error & 20.79 \\
+\hline
+\end{tabular}
+\caption{Average time for different algorithms.}
+\end{table}
 
-\todo{calculate averages, insert table, write warning about special data size in Caption.}
+\todo{Maybe add small data plot.}
 
 From the results we can get several observations:
 
@@ -568,6 +572,13 @@ There are various ways to do it, most of them related to performance improvement
 \end{description}
 
 
+\begin{flushleft}
+{{{
+\bibliographystyle {plain}
+\bibliography {./references}
+}}}
+\end{flushleft}
+
 
 % \begin{appendices}
 % \input{tutorial}
@@ -575,13 +586,5 @@ There are various ways to do it, most of them related to performance improvement
 % \end{appendices}
 
 \todos
-
-\begin{flushleft}
- 
-{{{
-\bibliographystyle {plain}
-\bibliography {./references}
-}}}
-\end{flushleft}
 
 \end{document}          
