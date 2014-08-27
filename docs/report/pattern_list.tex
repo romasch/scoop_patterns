@@ -179,7 +179,7 @@
  ,comment={Native support in SCOOP: use \lstinline!once(``THREAD'')! and non-separate return type.}
 ]
 
-\pattern [name={Publish / Subscribe \todo{find references}}
+\pattern [name={Publish / Subscribe}
   ,label={P/S}
   ,category={Program structuring}
   ,intent={Provide a hook to subscribe to events. In the concurrent context there's often an intermediate broker which receives events from a publisher and forwards them to all subscribers.}
@@ -187,8 +187,8 @@
   ,status={Possible library component}
   ,example={A GUI button has an event ``clicked'', where the application logic can provide a handler.}
   ,knownapps={Event driven programming, GUI frameworks like Java Swing or EiffelVision.}
-%   ,relation={maybe observer pattern?}
-%  ,references={}
+  ,relation={Similar to the Observer pattern by Gamma et al.\cite[p. 293]{book:design-patterns}, but events may come with arguments. The Eiffel agent mechanism may be used for Publish / Subscribe.}
+ ,references={ - }
 ]
 
 \pattern [name={Transactions}
@@ -270,17 +270,17 @@
 ]
 
 
-\pattern [name={EiffelVision support \todo{EV support}}
-  ,label={EV}
-%   ,category={}
-%   ,intent={}
-%   ,applicability={}
-%   ,status={}
-%   ,example={}
-%   ,knownapps={}
-%   ,relation={}
-%  ,references={}
-]
+% \pattern [name={EiffelVision support \todo{EV support}}
+%   ,label={EV}
+% %   ,category={}
+% %   ,intent={}
+% %   ,applicability={}
+% %   ,status={}
+% %   ,example={}
+% %   ,knownapps={}
+% %   ,relation={}
+% %  ,references={}
+% ]
 
 \subsection{Synchronization primitives}
 

@@ -23,8 +23,14 @@
 \maketitle
 
 \begin{abstract}
+The wide distribution of multi-core processors increasingly forces programmers to deal with concurrency.
+Parallel programming is not easy, but it can be simplified with the use of well-known patterns.
 
+We have investigated which patterns are used in practice and compiled an exhaustive list with pattern descriptions.
+Some of these patterns were then implemented as a reusable library for Eiffel and SCOOP.
+We also describe some of the challenges when programming in SCOOP for the first time and provide solutions.
 \end{abstract}
+
 
 \tableofcontents
 
@@ -128,7 +134,7 @@ There are some bad things that may happen if done wrongly, such as processor sta
 
 There are basically three ways to safely pass reference objects from a sender to a receiver processor.
 The first and easiest solution is to create data on its own, separate processor: 
-\begin{lstlisting}
+\begin{lstlisting}[captionpos=b, caption={Migrate objects on a separate processor.}]
 class SENDER feature
   send (a_receiver: separate RECEIVER)
       -- Invoke an asynchronous operation with
@@ -153,7 +159,7 @@ This approach is conceptually easy, but it has the drawback that it's not very e
 We'll call this solution the Data Processor approach.
 
 Another solution is to create the object on the same handler as the sender object:
-\begin{lstlisting}
+\begin{lstlisting}[captionpos=b, caption={Migrate objects with lock passing.}]
 class SENDER feature
   send (a_receiver: separate RECEIVER)
       -- Invoke an asynchronous operation with
@@ -185,7 +191,7 @@ However, it's semantics are radically different:
 \end{itemize}
 
 The last method makes use of a special SCOOP function called \lstinline!import!:
-\begin{lstlisting}
+\begin{lstlisting}[captionpos=b, caption={Migrate objects with import.}]
 class SENDER feature
   send (a_receiver: separate RECEIVER)
       -- Invoke an asynchronous operation with
@@ -267,7 +273,7 @@ If all producers are already terminated, the consumer never gets the chance to b
 
 The solution is to add a query \lstinline!is_stop_requested! right inside the shared buffer, and to adapt to adapt the wait condition to include the stop request:
 
-\begin{lstlisting}
+\begin{lstlisting}[captionpos=b, caption={Breaking out of a wait condition.}]
 class
   CONSUMER
 
@@ -353,7 +359,7 @@ It was developed to let users choose between two object passing strategies, name
 
 The main class is the deferred \lstinline!CP_IMPORT_STRATEGY [G]!, which has the simple interface:
 
-\begin{lstlisting}
+\begin{lstlisting}[captionpos=b, caption={The deferred class CP\_IMPORT\_STRATEGY.}]
 deferred class interface
   CP_IMPORT_STRATEGY [G]
 
@@ -395,7 +401,7 @@ The constraint placed on the argument is that it needs to be a descendant of \ls
 The latter is not a big restriction in practice, as there are usually no attributes in an importer anyway.
 
 The class header of a component that uses the import concept usually looks like this:
-\begin{lstlisting}
+\begin{lstlisting}[captionpos=b, caption={An example component with import.}]
 class BUFFER [G, IMPORTER -> 
 	CP_IMPORT_STRATEGY [G] create default_create end]
 
@@ -425,7 +431,7 @@ The pattern consists of three classes:
     The proxy forwards all calls to its protégé, using the helper class.
 \end{description}
 
-\begin{figure} [h]
+\begin{figure}
 \label{fig:separate-proxy}
 \includegraphics[width=\textwidth]{separate_proxy.png}
 \caption{The class relations in the Separate Proxy pattern.}
@@ -471,17 +477,16 @@ The Timer: InvokeLater pattern \patternref{TIL} is implemented by a single class
 \label {sec:evaluation}
 
 To evaluate the library we implemented a small performance benchmark.
-We implemented the Gaussian elimination algorithm \todoref in three different ways: sequentially, with SCOOP only, and using the future module (see Section \ref{sec:futures} from the library.
+We implemented the Gaussian elimination algorithm in three different ways: sequentially, with SCOOP only, and using the future module (see Section \ref{sec:futures} from the library.
 We chose to test the future pattern because it indirectly also measures many other parts of the library, like the worker pool or import mechanism.
 
 We ran the tests with randomly generated matrices and each test was repeated 5 times.
 A test matrix was square and its order always a power of two in the range from 32 to 1024.
 Additionally, there was one more column for the result vector in the system of linear equations.
 The test system was a quad-core AMD Phenom II X4 955 processor with 6 GB of RAM.
-The results of the tests are shown table \ref{table:perf-results}.
+The results of the tests are shown Table \ref{table:perf-results}.
 
 \begin{table} [!h]
-\label{table:perf-results}
 \centering
 \begin{tabular}{|l|l l l|} 
 \hline
@@ -497,6 +502,7 @@ Matrix Size & Future & Raw SCOOP & Sequential\\
 \hline
 \end{tabular}
 \caption{Average time for different algorithms.}
+\label{table:perf-results}
 \end{table}
 
 \todo{Maybe add small data plot.}
@@ -580,10 +586,12 @@ There are various ways to do it, most of them related to performance improvement
 \end{flushleft}
 
 
-% \begin{appendices}
+\begin{appendices}
 % \input{tutorial}
-% \input{separate_proxy}
-% \end{appendices}
+\input{separate_proxy}
+\section{SCOOP and EiffelVision}
+\todo{An appendix for EiffelVision support.}
+\end{appendices}
 
 \todos
 

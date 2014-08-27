@@ -14,27 +14,19 @@ This section only describes the descendants of \lstinline!CP_IMPORTER!, which pr
 The deferred class \lstinline!CP_IMPORTER [G]! defines the basic interface for a manually defined import feature.
 To define an import feature for an arbitrary type, e.g. \lstinline!STRING!, one has to inherit from \lstinline!CP_IMPORTER [STRING]! and provide an implementation for the deferred \lstinline!import! feature.
 
-% The main class is the deferred \lstinline!CP_IMPORT_STRATEGY [G]!, which has the simple interface:
-% \lstinputlisting [firstline=7] {../../library/import/cp_import_strategy.e}
-% By implementing \lstinline!import!, descendants can decide if an object of type \lstinline!G! shall be imported and if yes, how it's done.
-% 
-% The class \lstinline!CP_NO_IMPORTER[G]! is the default class to disable import and just perform a reference copy.
-% Every other importer can inherit from \lstinline!CP_IMPORTER!, which narrows the return type of \lstinline!import! to a non-separate \lstinline!G!.
-
 Because writing an extra importer for every importable object may be tedious, there's a support class \lstinline!CP_IMPORTABLE!:
 
-% \lstinputlisting [firstline=7] {../../library/import/cp_importable.e}
-\begin{lstlisting}
+\begin{lstlisting}[captionpos=b, caption={The deferred class CP\_IMPORTABLE.}]
 deferred class
-	CP_IMPORTABLE
+  CP_IMPORTABLE
 
 feature {CP_DYNAMIC_TYPE_IMPORTER} -- Initialization
 
-	make_from_separate (other: separate like Current)
-			-- Initialize `Current' with 
-			-- the same values as `other'.
-		deferred
-		end
+  make_from_separate (other: separate like Current)
+      -- Initialize `Current' with 
+      -- the same values as `other'.
+    deferred
+    end
 
 end
 \end{lstlisting}
@@ -258,7 +250,7 @@ The worker pool module makes use of the queue module, which provides the shared 
 %An important part of the worker pool is also the ability to increase or decrease the amount of worker threads, or to completely stop all worker threads such that the application can terminate.
 
 The representation of a task to be executed varies between different languages.
-In Java for instance a Runnable \todo{ref?} object is used, whereas in C\# the task is represented as a delegate \todo{ref?}.
+In Java for instance a Runnable object is used, whereas in C\# the task is represented as a delegate.
 
 In SCOOP there's the problem of object migration, as described in Section \ref{sec:object-migration}.
 If the task object is created on its own processor, as in the Data Processor approach, you cancel out the performance gain you tried to achieve with the worker pool.

@@ -1,12 +1,9 @@
 \section{HowTo: Separate Proxy}
 \label{sec:howto-separate-proxy}
 
+This appendix shows how to implement a separate proxy based on a small class \lstinline!EXAMPLE!.
 
-\todo{Adapt for appendix}
-
-The following example shows a general recipe on how to create a separate proxy for the small class \lstinline!EXAMPLE!:
-
-\begin{lstlisting}
+\begin{lstlisting} [captionpos=b, caption={The example class (protégé) where the separate proxy should be applied.}]
 deferred class
   EXAMPLE [G]
 
@@ -37,7 +34,7 @@ end
 First we need to create the helper class.
 This is done according to these rules:
  \begin{itemize}
-  \item The name should be \lstinline!EXAMPLE_UTILS!.
+  \item The name should end in \lstinline!_UTILS!, i.e. \lstinline!EXAMPLE_UTILS!.
   \item The generic arguments are the same as in \lstinline!EXAMPLE!
   \item Any feature to access the separate \lstinline!EXAMPLE! object can be prefixed by \lstinline!example_!.
   This helps to avoid name clashes if someone wants to inherit from \lstinline!EXAMPLE_UTILS!
@@ -47,7 +44,7 @@ This is done according to these rules:
   \item If there's a non-expanded return type to a feature, you can decide if it should be declared separate in \lstinline!EXAMPLE_UTILS! or if it should be imported.
  \end{itemize}
 
-\begin{lstlisting}
+\begin{lstlisting} [captionpos=b, caption={The helper class for a separate EXAMPLE.}]
 class
   EXAMPLE_UTILS [G]
   
@@ -64,7 +61,8 @@ feature -- Access
 
 feature -- Element change
  
-  example_put (example: separate EXAMPLE [G]; item: separate G)
+  example_put (example: separate EXAMPLE [G];
+	    item: separate G)
       -- Put `item' into `example'.
     do
       example.put (item)
@@ -79,13 +77,14 @@ The proxy class has also has some simple rules:
  \begin{itemize}
   \item The name should be \lstinline!EXAMPLE_PROXY!.
   \item The generic arguments are the same as in \lstinline!EXAMPLE!
-  \item The class can inherit from \lstinline!CP_PROXY [EXAMPLE [G], EXAMPLE_UTILS [G]]! and declare \lstinline!make! as a creation procedure.
+  \item Inheriting from \lstinline!CP_PROXY [EXAMPLE [G], EXAMPLE_UTILS [G]]! is recommended to avoid having to write the creation procedure \lstinline!make!.
   \item The feature names and arguments are the same as in \lstinline!EXAMPLE!.
-  \item Preconditions in \lstinline!EXAMPLE! are usually not present in \lstinline!EXAMPLE_PROXY!. They are wait conditions in \lstinline!EXAMPLE_UTILS! instead.
+  \item Preconditions in \lstinline!EXAMPLE! are not present in \lstinline!EXAMPLE_PROXY!. 
+  The class \lstinline!EXAMPLE_UTILS! defines them as wait conditions instead.
   \item Every feature implementation makes use of \lstinline!utils! to forward the request to the \lstinline!subject!.
  \end{itemize}
 
-\begin{lstlisting}
+\begin{lstlisting} [captionpos=b, caption={The proxy class for a separate EXAMPLE.}]
 class
   EXAMPLE_PROXY [G]
 
