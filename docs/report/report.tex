@@ -26,7 +26,7 @@
 \setlength{\headheight}{28pt}
 \lstset{escapechar=\$}
 
-\newcommand{\dir} [1] [] {#1} 
+\newcommand{\dir} [1] [] {\emph{#1}} 
 \newcommand{\todoref}{\todo{ref}}
 
 % Title Page
@@ -116,19 +116,21 @@ This, along with the exclusive access guarantee, ensures that a controlled separ
 This is the reason why the SCOOP model is so simple: 
 It allows reasoning about a feature body without the need to consider all possible interleavings of two parallel executions.
 
-To create a new processor, one has to use the creation instruction on an object which is declared as separate.
-The new processor is then initialized automatically, and the new object is handled by the new processor.
+A new processor is created by calling a creation instruction on an object which is declared as separate.
+The new object is then handled by the new processor.
 
 Preconditions in SCOOP have a special role.
 In a concurrent setting there's often the problem that a correctness condition may change due to unfortunate interleaving, 
 e.g. between checking that a buffer is not empty and then removing an item, the buffer actually becomes empty due to interference from another thread.
-Therefore SCOOP changes the semantics of preconditions to become wait conditions if they reference a separate object.
+Therefore SCOOP turns preconditions into wait conditions if they reference a separate object.
 
 There are many advantages to the SCOOP model, such as easier reasoning and absence of data races, but it also has some shortcomings.
-One of them is the fact that it's a bit tedious to write SCOOP programs.
-Due to the fact that every call to a separate object needs to be controlled, a user often has to write little helper functions that take a separate reference and just perform a single call on it.
-It also has some performance problems, because encapsulating a separate call in a message may be expensive (especially for small functions like array access).
-Additionally, a processor is currently implemented as an operating system thread, and creating them is an expensive operation that involves context switches.
+It is, for example, often necessary to write lots of little helper functions that just take a separate object and perform a single call on it.
+This is due to the fact that every call to a separate object must be controlled.
+
+SCOOP also has performance problems, because it packs every separate call into a message to another processor.
+This is rather expensve, especially for small functions like array access.
+Additionally, a SCOOP processor is currently implemented as an operating system thread, and creating them is an costly operation that involves context switches.
 The SCOOP model however encourages the creation of many processors, which is not ideal for performance reasons.
 
 \section{Challenges in SCOOP}
@@ -145,7 +147,7 @@ There are two types of objects one can pass as arguments.
 The first type are expanded objects, which also includes basic types such as \lstinline!INTEGER!.
 Passing expanded objects from one processor to another is not a problem in SCOOP due to their copy-semantics property.
 However, passing reference objects is a bit more tricky.
-There are some bad things that may happen if done wrongly, such as processor starvation or unintentional lock passing.
+Bad things such as processor starvation or unintentional lock passing may happen if done wrong.
 
 There are basically three ways to safely pass reference objects from a sender to a receiver processor.
 The first and easiest solution is to create data on its own, separate processor: 
@@ -170,7 +172,7 @@ class RECEIVER feature
     end
 end
 \end{lstlisting}
-This approach is conceptually easy, but it has the drawback that it's not very efficient, especially when the argument object is very small.
+This approach is conceptually easy, but it's not very efficient, especially when the argument object is small.
 We'll call this solution the Data Processor approach.
 
 Another solution is to create the object on the same handler as the sender object:
@@ -195,13 +197,16 @@ class RECEIVER feature
     end
 end
 \end{lstlisting}
-This solution (the Lock Passing approach) looks almost like the first one - the only change is a missing separate keyword.
+This solution (the Lock Passing approach) looks almost like the first one.
+The only change is a missing separate keyword.
 However, it's semantics are radically different:
 
 \begin{itemize}
- \item Due to the lock passing mechanism \cite[p. 152]{Nienaltowski07}\cite{web:scoop} the feature \lstinline!do_something! is executed synchronously, i.e. the sender has to wait for it to finish.
- \item \lstinline!RECEIVER! can't access the argument object any more after the call \lstinline!do_something! is finished.
- This is because \lstinline!SENDER! will continue it's execution, and an attempt to lock the argument object again will probably result in starvation of the sender processor.
+ \item The feature \lstinline!do_something! is executed synchronously due to the lock passing mechanism \cite[p. 152]{Nienaltowski07}\cite{web:scoop}.
+ This means that the sender class needs to wait for it to finish.
+ \item \lstinline!RECEIVER! can't lock the argument object any more after \lstinline!do_something! finishes.
+ In particular this means that the receiver class should not store the argument in one of its attributes, because any attempt to access it later will likely result in starvation.
+ The reason for this is that the handler of the sender object will continue its execution, and as long as there's still work to do no other processor can access objects on it .
  \item Compared to the first approach, no new processor is created.
 \end{itemize}
 
@@ -242,7 +247,7 @@ It is somewhat similar to \lstinline!{ANY}.deep_copy!, except that it doesn't cl
 
 This import solution has several advantages.
 There's no need for a new processor, and the receiver can keep the data and do the operation asynchronously.
-The drawback however is that the data needs to be copied.
+The drawback is that the data needs to be copied.
 However, for small data items this is actually faster than creating a new thread.
 
 Note that \lstinline!receive_args! is executed synchronously just like in the Lock Passing approach.
@@ -281,12 +286,12 @@ The solution to the task cancellation problem comes from this paper \cite{paper:
 
 When an application needs to be shut down, it is necessary to stop any running threads.
 Sometimes this can be done via the ``passive'' third processor as seen in Section \ref{sec:processor-communication}.
-However, the active processor may be stuck in a wait condition.
+A problem arises however when the active processor is stuck in a wait condition.
 
 One example of this could be the producer/consumer pattern, where a consumer is waiting for a buffer to become non-empty.
-If all producers are already terminated, the consumer never gets the chance to break out of this wait condition and therefore it can't terminate successfully.
+If all producers are already terminated, the consumer never gets the chance to break out of this wait condition and therefore cannot terminate successfully.
 
-The solution is to add a query \lstinline!is_stop_requested! right inside the shared buffer, and to adapt to adapt the wait condition to include the stop request:
+The solution is to add a query \lstinline!is_stop_requested! in the shared buffer, and to adapt the wait condition to include the stop request:
 
 \begin{lstlisting}[language=OOSC2Eiffel, captionpos=b, caption={Breaking out of a wait condition.}]
 class
@@ -333,6 +338,9 @@ feature -- Implementation
 end
 \end{lstlisting}
 
+This allows a buffer to exit the wait condition even when the buffer is empty.
+The drawback of this approach is that it clutters the application code with some additional if-else constructs, 
+but it is often possible to hide them in a special \lstinline!fetch! function as shown in our example.
 
 \section {Library}
 \label{sec:library}
@@ -415,7 +423,7 @@ A user can then decide on the precise semantics of the import strategy by just d
 The constraint placed on the argument is that it needs to be a descendant of \lstinline!CP_IMPORT_STRATEGY!, and that it needs to declare \lstinline!default_create! as a creation procedure.
 The latter is not a big restriction in practice, as there are usually no attributes in an importer anyway.
 
-The class header of a component that uses the import concept usually looks like this:
+A typical class header of a component using the import concept looks like this:
 \begin{lstlisting}[language=OOSC2Eiffel, captionpos=b, caption={An example component with import.}]
 class BUFFER [G, IMPORTER -> 
 	CP_IMPORT_STRATEGY [G] create default_create end]
@@ -423,13 +431,12 @@ class BUFFER [G, IMPORTER ->
 feature -- Access
 
   item: like {IMPORTER}.import
-
 end
 \end{lstlisting}
 
 This small code sample shows another neat little feature of Eiffel.
 The \lstinline!like! statement fixes the type based on the chosen import strategy, i.e. \lstinline!separate G! for \lstinline!CP_NO_IMPORTER! and non-separate for descendants of \lstinline!CP_IMPORTER!.
-With this little trick a component can simplify the handling of imported references.
+With this trick a component can simplify the handling of imported references.
 
 \subsubsection{Separate Proxy}
 
@@ -440,13 +447,11 @@ It is applied to all classes in the library which are meant to be shared among p
 The pattern consists of three classes:
 \begin{description}
  \item [Protégé] The actual business class whose objects are usually separate.
- \item [Helper] A class that only provides helper functions to access a separate protégé.
+ \item [Helper] A class that provides helper functions to access a separate protégé.
   The helper class is usually ending on \lstinline!_UTILS!.
  \item [Proxy] A proxy class with the a similar interface as the protégé class, usually ending on \lstinline!_PROXY!.
     The proxy forwards all calls to its protégé, using the helper class.
 \end{description}
-
-
 
 It is possible to add a fourth, deferred class that just defines the interface for the protégé and the proxy.
 However, there's an inconsistency: 
@@ -459,7 +464,7 @@ Furthermore, not all features in the business class may be necessary in the prox
 \caption{The class relations in the Separate Proxy pattern.}
 \end{figure}
 
-Unfortunately this pattern cannot be fully turned into a module, because it's highly dependent on the precise interface of the protégé class.
+Unfortunately this pattern cannot be fully turned into a reusable module, because it's highly dependent on the precise interface of the protégé class.
 There is some support in the library however: 
 \lstinline!CP_PROXY! defines the creation procedure and the two attributes \lstinline!subject! for a separate protégé object and \lstinline!utils! for a helper object.
 
@@ -486,7 +491,7 @@ It depends on the import, queue and process module.
 The future module is located in \dir{library/executor} and \dir{library/promise}.
 It provides an implementation for the Future \patternref{FUT} as well as the Executor framework \patternref{EF}.
 
-The Timer: InvokeLater pattern \patternref{TIL} is implemented by a single class \lstinline!CP_DEFAULT_TASK! in \dir{libary/util}.
+The class \lstinline!CP_DELAYED_TASK! in \dir{libary/util} implements the Timer: Invoke Later pattern \patternref{TIL}.
 
 \input{modules}
 
@@ -495,7 +500,7 @@ The Timer: InvokeLater pattern \patternref{TIL} is implemented by a single class
 
 To evaluate the library we implemented a small performance benchmark.
 We implemented the Gaussian elimination algorithm in three different ways: sequentially, with SCOOP only, and using the future module (see Section \ref{sec:futures} from the library.
-We chose to test the future pattern because it indirectly also measures many other parts of the library, like the worker pool or import mechanism.
+We chose the future pattern because it indirectly also measures many other parts of the library, like the worker pool or import mechanism.
 
 We ran the tests with randomly generated matrices and each test was repeated 5 times.
 A test matrix was square and its order always a power of two in the range from 32 to 1024.
@@ -529,19 +534,19 @@ From the results we can get several observations:
 \begin{itemize}
  \item The raw SCOOP solution fails for the biggest matrix. 
  This is because it uses more than the maximum number of processors, and it's a known bug \cite{web:scoop-issues}.
- The library solution doesn't suffer from this problem because it's using a fixed amount of processors.
- \item The library is a lot faster than the raw SCOOP solution on large data sets.
+ The solution with futures doesn't suffer from this problem because it's using a fixed amount of processors.
+ \item Futures are a lot faster than the raw SCOOP solution on large data sets.
  \item For smaller data sets, raw SCOOP beats the library.
- \item Sequential execution is a lot faster than SCOOP.
+ \item Sequential execution is much faster than SCOOP.
 \end{itemize}
 
 The last observation is probably the most fundamental.
 The SCOOP runtime really needs to be improved in order to make it competitive to threaded systems, or even sequential ones.
 Fortunately an improved version \cite{thesis:scottwest} is being developed at the time of writing.
-It will be integrated into a future EiffelStudio release.
+It should be integrated into a future EiffelStudio release.
 
 Another improvement which might be useful for the library is the Passive Processor concept \cite{paper:passive-processors}.
-This might be useful especially for the Future module, as both the worker pool and the promise object could be declared passive.
+Both the worker pool and the promise object processors in the future module could be declared passive, which might speed up the computation a lot.
 
 \section{Conclusion}
 % Explain what is the impact of the selected patterns, and why they were selected.
