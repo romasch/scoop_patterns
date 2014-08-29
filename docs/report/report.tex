@@ -489,8 +489,16 @@ It provides implementations for the Active Object \patternref{AO}, Asynchronous 
 The worker pool module in \dir{library/worker\_pool} implements the Worker Pool \patternref{WP} pattern.
 It depends on the import, queue and process module.
 
-The future module is located in \dir{library/executor} and \dir{library/promise}.
-It provides an implementation for the Future \patternref{FUT} as well as the Executor framework \patternref{EF}.
+The directory \dir{library/promise} contains the promise module.
+This module provides classes to monitor and interact with an asynchronous operation.
+
+The executor module resides in \dir{library/executor} and provides an implementation to the Executor framework \patternref{EF}, 
+a specialized worker pool and part of the implementation to the Future pattern \patternref{FUT}.
+
+The implementation of the future pattern is highly intertwined with other parts of the library.
+It makes use of the promise module, the executor framework and the worker pool module and introduces only two classes on its own: \lstinline!CP_COMPUTATION! and \lstinline!CP_FUTURE_EXECUTOR_PROXY!.
+% The future module is located in \dir{library/executor} and \dir{library/promise}.
+% It provides an implementation for the Future \patternref{FUT} as well as the Executor framework \patternref{EF}.
 
 The class \lstinline!CP_DELAYED_TASK! in \dir{libary/util} implements the Timer: Invoke Later pattern \patternref{TIL}.
 

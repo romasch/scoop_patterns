@@ -341,6 +341,33 @@ Section \ref{sec:executor} therefore introduces a more specialized version of th
 % 
 % \todo{Maybe merge subsections Arbitrary Operations and Promise into a new section that describes the ideas behind CP\_TASK?}
 
+\subsection{Promise}
+\label {sec:promise}
+
+The promise module contains a set of classes which can be used to monitor the state of an asynchronous operation.
+It is mostly used in conjunction with the executor or future module.
+
+The main class is \lstinline!CP_PROMISE!, which defines queries like \lstinline!is_terminated! or \lstinline!is_exceptional!.
+It also defines the interface to cancel an operation or to get the progress percentage (e.g. for a download task), but these queries need to be supported by the operation as well.
+
+The Separate Proxy mechanism is available for promise objects, because they are usually declared separate to the client.
+In this case the pattern is implemented with four classes, i.e.
+\begin{itemize}
+ \item \lstinline!CP_PROMISE! defines a common interface,
+ \item \lstinline!CP_SHARED_PROMISE! defines the actual separate object,
+ \item \lstinline!CP_PROMISE_UTILS! has features to access a \lstinline!separate! \lstinline!CP_PROMISE! and
+ \item \lstinline!CP_PROMISE_PROXY! is the proxy object.
+\end{itemize}
+
+There's an important descendant, the \lstinline!CP_RESULT_PROMISE!, which is used for asynchronous operations that return a result.
+It also has a set of associated classes that implement the Separate Proxy pattern.
+
+The \lstinline!CP_RESULT_PROMISE! contains a query \lstinline!item! to retrieve the result as soon as it is available.
+A distinguishing feature of this query is that it blocks if the result is not yet available.
+The return type of \lstinline!item! depends on a generic argument.
+To move the result back to the client the class makes use of the import concept.
+This means that both the \lstinline!CP_SHARED_RESULT_PROMISE! and the \lstinline!CP_RESULT_PROMISE_PROXY! have an additional generic argument which defines the import strategy.
+
 \subsection{Executor}
 \label{sec:executor}
 
@@ -353,20 +380,23 @@ In SCOOP we also need a class to represent an task, but with an important additi
 It needs to be importable across processor boundaries.
 
 The agent classes in Eiffel (i.e. \lstinline!ROUTINE! and descendants) may be used to represent operations, but they can't be easily imported.
-That's why we added a new, deferred class \lstinline!CP_TASK!.
-Users of the library should inherit from \lstinline!CP_DEFAULT_TASK! however, as it defines some additional attributes.
-The features \lstinline!run! and \lstinline!make_from_separate! need to be implemented by the user.
+Therefore we added a new, deferred class \lstinline!CP_TASK!.
+The class represents an importable asynchronous operation and adds some additional functionality, like exception handling or the ability to add a promise object (see Section \ref{sec:promise}).
+To define a new task a user needs to inherit from \lstinline!CP_DEFAULT_TASK! and implement the two features \lstinline!run! and \lstinline!make_from_separate!.
 
-The executor framework therefore basically consists fof the two deferred classes \lstinline!CP_TASK! and \lstinline!CP_EXECUTOR!.
-The latter introduces the feature \lstinline!put! to execute a separate \lstinline!CP_TASK! object.
+The second important interface is provided by the class \lstinline!CP_EXECUTOR!.
+It introduces the feature \lstinline!put! to execute a separate \lstinline!CP_TASK! object.
+% The executor framework therefore basically consists of the two deferred classes \lstinline!CP_TASK! and \lstinline!CP_EXECUTOR!.
+% The latter introduces the feature \lstinline!put! to execute a separate \lstinline!CP_TASK! object.
+As an executor instance is usually placed on its own separate processor we applied the Separate Proxy pattern on \lstinline!CP_EXECUTOR!.
 
 \todo {Tell about agent integration?}
 
-As the executor framework is pretty useless on its own, it is shipped with a worker pool implementation.
+The executor framework is pretty useless on its own, as it basically only consists of two deferred classes.
+Therefore it is shipped with a worker pool implementation.
+%As the executor framework is pretty useless on its own, it is shipped with a worker pool implementation.
 The \lstinline!CP_TASK_WORKER_POOL! implements the executor interface and is itself a descendant of the more basic \lstinline!CP_WORKER_POOL!.
 The associated \lstinline!CP_TASK_WORKER! then just fetches \lstinline!CP_TASK! objects and executes them.
-
-As an executor instance is usually on a separate processor we applied the Separate Proxy pattern on \lstinline!CP_EXECUTOR!.
 
 
 \subsection{Futures}
@@ -406,7 +436,7 @@ We're using the executor module (Section \ref{sec:executor}) as the execution se
 % 
 % \todo {Maybe highlight that EXECUTOR is not just for the future pattern, but a general implementation of the Executor pattern.}
 
-The ``frontend'' part is implemented in the \lstinline!CP_EXECUTOR_PROXY!.
+The ``frontend'' part is provided by the two classes \lstinline!CP_EXECUTOR_PROXY! and \lstinline!CP_FUTURE_EXECUTOR_PROXY!.
 This is an example where the responsability of a proxy object has been expanded:
 Instead of just forwarding the \lstinline!CP_COMPUTATION! to the execution service, it also creates the Promise object and returns it to the user.
 
@@ -426,7 +456,7 @@ Just like a \lstinline!CP_TASK! object, a \lstinline!CP_COMPUTATION! is movable 
 % The executor service always uses \lstinline!CP_DYNAMIC_TYPE_IMPORTER!, because \lstinline!CP_COMPUTATION! inherits from \lstinline!CP_IMPORTABLE!.
 % The import strategy of the Promise object however is user-defined.
 The second problem is more interesting however.
-As we've seen in Section \ref{sec:processor-communication}, the Promise object needs to be placed on a third processor.
+As we've seen in Section \ref{sec:processor-communication}, the promise object needs to be placed on a third processor.
 However, if we start a new processor for every computation, we introduce a huge overhead.
 
 A better tradeoff would be to introduce one global processor, which takes care of all promise objects.
@@ -438,37 +468,4 @@ As these arguments are not known in advance, and because SCOOP processor tags \c
 
 The solution is - surprisingly - the import concept.
 We can create a promise object with the correct types on the client processor, and then ask the global processor to import it.
-This way the promise object ends up on the correct processor.
-
-% In the library, the Promise object is provided by the class \lstinline!CP_PROMISE! and its descendants.
-% The computation is represented with \lstinline!CP_COMPUTATION!, or \lstinline!CP_TASK! for operations that don't return a result.
-% The execution service is the deferred class \lstinline!CP_EXECUTOR! and \lstinline!CP_TASK_WORKER_POOL! is the main implementation.
-% 
-% The separate proxy pattern is applied on \lstinline!CP_EXECUTOR! and \lstinline!CP_PROMISE!.
-% Besides acting as a processor-local proxy to a separate \lstinline!CP_EXECUTOR!, 
-% the classes \lstinline!CP_EXECUTOR_PROXY! and \lstinline!CP_FUTURE_EXECUTOR_PROXY! are also responsible to create Promise objects on the global processor.
-
-\subsubsection{Promise}
-\label {sec:promise}
-
-The promise module contains a set of classes which can be used to monitor the state of an asynchronous operation.
-
-The main class is \lstinline!CP_PROMISE!, which defines queries like \lstinline!is_terminated! or \lstinline!is_exceptional!.
-It also defines the interface to cancel a task or to get the progress percentage (e.g. for a download task), but these queries need to be supported by the task object as well.
-
-The Separate Proxy mechanism is available for promise objects, because they are usually declared separate to the client.
-In this case the pattern is implemented with four classes, i.e.
-\begin{itemize}
- \item \lstinline!CP_PROMISE! defines a common interface,
- \item \lstinline!CP_SHARED_PROMISE! defines the actual separate object,
- \item \lstinline!CP_PROMISE_UTILS! has features to access a \lstinline!separate! \lstinline!CP_PROMISE! and
- \item \lstinline!CP_PROMISE_PROXY! is the proxy object.
-\end{itemize}
-
-There's an important descendant, the \lstinline!CP_RESULT_PROMISE!, which is used for asynchronous operations that return a result.
-It also has a set of associated classes that implement the Separate Proxy pattern.
-
-The \lstinline!CP_RESULT_PROMISE! contains a query \lstinline!item! to retrieve the result as soon as it's available.
-A distinguishing feature of this query is that it blocks if the result is not yet available.
-The return type of \lstinline!item! depends on a generic argument.
-To move the result back to the client the class makes use of the import concept. This means that both the \lstinline!CP_SHARED_RESULT_PROMISE! and the \lstinline!CP_RESULT_PROMISE_PROXY! have an additional generic argument which defines the import strategy.
+That way the promise object ends up on the correct processor.
