@@ -512,15 +512,16 @@ The class \lstinline!CP_DELAYED_TASK! in \dir{libary/util} implements the Timer:
 \section{Evaluation}
 \label {sec:evaluation}
 
-To evaluate the library we implemented a small performance benchmark.
-We implemented the Gaussian elimination algorithm in three different ways: sequentially, with SCOOP only, and using the future module (see Section \ref{sec:futures} from the library.
-We chose the future pattern because it indirectly also measures many other parts of the library, like the worker pool or import mechanism.
+To evaluate the library we did a small performance benchmark.
+We implemented the Gaussian elimination algorithm in three different ways: sequentially, with SCOOP only, and using the future module (see Section \ref{sec:futures}) from our library.
+We chose to use the future module because it indirectly also measures many other parts of the library like the worker pool or import mechanism.
 
-We ran the tests with randomly generated matrices and each test was repeated 5 times.
-A test matrix was square and its order always a power of two in the range from 32 to 1024.
+We ran the tests with randomly generated square matrices.
+The order of a matrix was always a power of two in the range from 32 to 1024.
 Additionally, there was one more column for the result vector in the system of linear equations.
+Each test was repeated 5 times.
 The test system was a quad-core AMD Phenom II X4 955 processor with 6 GB of RAM.
-The results of the tests are shown Table \ref{table:perf-results}.
+The results are shown Table \ref{table:perf-results}.
 
 \begin{table} [!h]
 \centering
@@ -528,8 +529,8 @@ The results of the tests are shown Table \ref{table:perf-results}.
 \hline
 Matrix Size & Future & Raw SCOOP & Sequential\\
 \hline
-32 & 0.36 & 0.19 & 0\\
-64 & 1.67 & 1.11 & 0\\
+32 & 0.36 & 0.19 &  \textless 0.01\\
+64 & 1.67 & 1.11 & \textless 0.01\\
 128 & 8.45 & 9.27 & 0.04\\
 256 & 26.45 & 66.56 & 0.33\\
 512 & 102.28 & 515.11 & 2.62\\
@@ -537,19 +538,20 @@ Matrix Size & Future & Raw SCOOP & Sequential\\
 1024 & 424.32 & error & 20.79 \\
 \hline
 \end{tabular}
-\caption{Average time for different algorithms.}
+\caption{Average time in seconds for different algorithms.}
 \label{table:perf-results}
 \end{table}
 
 \todo{Maybe add small data plot.}
 
-From the results we can get several observations:
+We can get several observations from the results:
 
 \begin{itemize}
- \item The raw SCOOP solution fails for the biggest matrix. 
- This is because it uses more than the maximum number of processors, and it's a known bug \cite{web:scoop-issues}.
- The solution with futures doesn't suffer from this problem because it's using a fixed amount of processors.
- \item Futures are a lot faster than the raw SCOOP solution on large data sets.
+ \item The raw SCOOP solution fails for the biggest matrix.
+ This is a known bug \cite{web:scoop-issues}:
+ The algorithm uses more than the maximum number of processors.
+ The library solution doesn't suffer from this problem because it's using a fixed amount of processors.
+ \item Futures are faster than raw SCOOP for large data sets.
  \item For smaller data sets, raw SCOOP beats the library.
  \item Sequential execution is much faster than SCOOP.
 \end{itemize}
@@ -557,18 +559,19 @@ From the results we can get several observations:
 The last observation is probably the most fundamental.
 The SCOOP runtime really needs to be improved in order to make it competitive to threaded systems, or even sequential ones.
 Fortunately an improved version \cite{thesis:scottwest} is being developed at the time of writing.
-It should be integrated into a future EiffelStudio release.
+It will probably be integrated into a future EiffelStudio release.
 
 Another improvement which might be useful for the library is the Passive Processor concept \cite{paper:passive-processors}.
-Both the worker pool and the promise object processors in the future module could be declared passive, which might speed up the computation a lot.
+If both the worker pool and the promise processor could be declared passive the computation speed up a lot.
 
 \section{Conclusion}
 % Explain what is the impact of the selected patterns, and why they were selected.
 % Say that import was developed to overcome language limitation
 % Also: Future work
+\todo {double-check conclusion.}
 
 %Applications using multiple processor cores are increasingly becoming the norm, despite the difficulties of dealing with parallelism.
-In this thesis we've worked out many methods that simplify concurrent programming in one way or another.
+In this thesis we've worked out many methods that simplify concurrent programming.
 We've done a survey of concurrency patterns and described them in an extensive list.
 This list can be used by anyone searching for a particular pattern.
 
@@ -588,29 +591,30 @@ This is especially useful to programmers new to SCOOP, but which may have experi
 The library provides several opportunities for future work.
 
 \begin{description}
- \item [More patterns] The library can be extended with further patterns.
+ \item [More patterns] The library can be extended with additional patterns.
  It may be useful to include Pipeline or Dataflow network.
- \item [Separate Proxies] It may be useful to apply the Separate Proxy patterns to some EiffelBase classes, such as \lstinline!ARRAYED_LIST!, \lstinline!HASH_TABLE! or \lstinline!ROUTINE!.
- \item [Separate Proxy Wizard] The creation of a separate proxy can be mostly automated with a wizard.
+ \item [Separate Proxies] The Separate Proxy pattern may be applied to some EiffelBase classes, such as \lstinline!ARRAYED_LIST!, \lstinline!HASH_TABLE! or \lstinline!ROUTINE!.
+ \item [Separate Proxy Wizard] Writing a Separate Proxy is tedious. Most of it could be automated with a wizard however.
 % \item [EiffelVision support] \todo{maybe?}
 % \item [Agent integration] \todo{maybe?}
  \item [Concurrent Datastructures] Sometimes it may be useful to have truly concurrent data structures for performance reasons.
 The Array Slicing technique \cite{paper:array-slicing} is an example how arrays with concurrent read access can be implemented in SCOOP.
 \end{description}
 
-A important step is to improve SCOOP itself.
-There are various ways to do it, most of them related to performance improvements.
+SCOOP itself also provides a rich offering of possible improvements.
+% A important step is to improve SCOOP itself.
+% There are various ways to do it, most of them related to performance improvements.
 
 \begin{description}
  \item [Faster runtime] The SCOOP runtime needs to become faster. 
  This is currently being developed \cite{thesis:scottwest}.
- \item [Native Import] A native SCOOP import feature is a good tool to deal with a lot of small objects.
- It will also make the library code and usage simpler, as the manual import workaround can be removed.
+ \item [Native Import] A native SCOOP import mechanism is a great tool to deal with a lot of small objects.
+ It will also make the library API and implementation simpler, as the manual import workaround can be removed.
  \item [Passive Processors] The passive processors concept \cite{paper:passive-processors} could be integrated into EiffelStudio.
  It can make a big performance improvement to situations where one needs to pass data from one processor to another.
- \item [Separate references] The handling of separate references should become more simple.
- At the moment a programmer is forced to write a lot of small, annoying features to perform separate calls.
- Some syntactic sugar would really be helpful.
+ \item [Separate references] The handling of separate references should become more convenient.
+ At the moment programmers are forced to write a lot of small, annoying features to perform separate calls.
+ Some syntactic sugar would be really helpful.
 \end{description}
 
 
@@ -619,6 +623,7 @@ There are various ways to do it, most of them related to performance improvement
 \bibliographystyle {plain}
 \bibliography {./references}
 }}}
+\todo{Some letters are de-capitalized in  bibliography section. Why?}
 \end{flushleft}
 
 
