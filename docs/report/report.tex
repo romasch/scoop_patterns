@@ -42,9 +42,11 @@
 The wide distribution of multi-core processors increasingly forces programmers to deal with concurrency.
 Parallel programming is not easy, but it can be simplified with the use of well-known patterns.
 
+In SCOOP, an extension to the Eiffel programming language, there's neiter a library nor experience in using concurrency patterns.
 We have investigated which patterns are used in practice and compiled an exhaustive list with pattern descriptions.
 Some of these patterns were then implemented as a reusable library for Eiffel and SCOOP.
 We also describe some of the challenges when programming in SCOOP for the first time and provide solutions.
+\todo{double-check abstract}
 \end{abstract}
 
 
@@ -58,33 +60,33 @@ Dealing with parallelism isn't easy however.
 There are many pitfalls, such as race conditions and deadlocks.
 
 In practice programmers have learned to avoid tricky concurrency problems with the use of some well-known patterns.
-These patterns are often shipped with the standard library of the language, such that users rarely have to implement them.
+These patterns are often shipped as part of the standard library of the language, such that users rarely have to implement them.
 
-The Eiffel programming language \cite{web:ecma-eiffel}\cite{book:touchofclass} has a new concurrency extension called SCOOP \cite{Nienaltowski07}\cite{web:scoop},
+The Eiffel programming language \cite{web:ecma-eiffel}\cite{book:touchofclass} has an extension called SCOOP \cite{Nienaltowski07}\cite{web:scoop},
 which stands for Simple Concurrent Object-Oriented Programming.
 SCOOP simplifies concurrent programming a lot and eliminates one source of errors completely, namely race conditions \cite{Nienaltowski07}.
-However, there is little experience on how to implement popular concurrency patterns, such as a worker pool, in SCOOP.
+However, there is little experience on how to implement popular concurrency patterns, like a worker pool, in SCOOP.
 
 This thesis tries to fill this gap by providing a library of reusable concurrency patterns as well as methodical advice on programming in SCOOP.
-The main contributions of the thesis are:
+The main contributions are:
 \begin{itemize}
  \item A broad survey of known concurrency patterns.
  \item The identification of common SCOOP challenges and advice on how to solve them.
- \item A new concurrency library which provides implementations for some selected patterns.
- This selection was mainly based on input from the ``Concurrency made easy'' team at ETH Zürich and the study of the Java \cite{web:java-concurrency} and C\# \cite{web:ms-tpl} concurrency libraries.
+ \item A new library which provides implementations for some selected concurrency patterns.
+ This selection was mainly based on input from the Software Engineering group at ETH Zürich and the study of Java \cite{web:java-concurrency} and C\# \cite{web:ms-tpl} concurrency libraries.
 \end{itemize}
 
 \subsection{Overview}
 
 Section \ref{sec:pattern_overview} introduces a list of concurrency patterns which we found and categorized by studying literature and the standard libraries.
-A brief introduction to the SCOOP model is given in Section \ref{sec:scoop-model}.
+A brief introduction of the SCOOP model is given in Section \ref{sec:scoop-model}.
 Section \ref{sec:scoop-challenges} describes some challenges when programming in SCOOP and how to solve them.
-The latter two sections may be interesting for programmers with experience in threaded programming, but who wish to learn SCOOP.
+The latter two sections may be interesting for programmers having experience in threaded programming and who wish to learn SCOOP.
 
 The focus of Section \ref{sec:library} is on the goals and concepts of the concurrency patterns library.
-It also provides a brief overview over the available modules, and which patterns are implemented by which modules.
+It also provides an overview over the available modules and describes which patterns are implemented by which modules.
 
-A detailed explanation over the individual modules is provided by Section \ref{sec:modules}.
+A detailed explanation over the individual modules is given by Section \ref{sec:modules}.
 Finally, Section \ref{sec:evaluation} provides a small performance evaluation of the library.
 
 \section {Pattern overview}
