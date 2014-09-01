@@ -40,11 +40,17 @@
 
 \begin{abstract}
 The wide distribution of multi-core processors increasingly forces programmers to deal with concurrency.
-Parallel programming is not easy, but it can be simplified with the use of well-known patterns.
+Parallel programming is not easy, but there are many well-known patterns at hand to help developers.
+% Parallel programming is not easy, but it can be simplified with the use of well-known patterns.
 
-In SCOOP, an extension to the Eiffel programming language, there's neiter a library nor experience in using concurrency patterns.
-We have investigated which patterns are used in practice and compiled an exhaustive list with pattern descriptions.
-Some of these patterns were then implemented as a reusable library for Eiffel and SCOOP.
+SCOOP, an extension to the Eiffel programming language, provides an alternative approach to concurrent programming compared to the threading model used in many other languages.
+There is little experience in implementing and using concurrency patterns in SCOOP however.
+
+% In SCOOP, an extension to the Eiffel programming language, there's neither a library nor experience in using concurrency patterns.
+We have investigated which patterns are used in practice and compiled an exhaustive list of pattern descriptions.
+From this list we selected several popular concurrency patterns and implemented them as a reusable Eiffel library.
+A small performance comparison shows that the new library is more robust and faster for large data sets than a raw SCOOP solution.
+% Some of these patterns were then implemented as a reusable library for Eiffel.
 We also describe some of the challenges when programming in SCOOP for the first time and provide solutions.
 \todo{double-check abstract}
 \end{abstract}
@@ -568,7 +574,6 @@ If both the worker pool and the promise processor could be declared passive the 
 % Explain what is the impact of the selected patterns, and why they were selected.
 % Say that import was developed to overcome language limitation
 % Also: Future work
-\todo {double-check conclusion.}
 
 %Applications using multiple processor cores are increasingly becoming the norm, despite the difficulties of dealing with parallelism.
 In this thesis we've worked out many methods that simplify concurrent programming.
@@ -585,6 +590,7 @@ Performance measurements for the Future pattern implementation showed that the l
 
 Finally we also describe some challenges when programming in SCOOP, and how they can be solved.
 This is especially useful to programmers new to SCOOP, but which may have experience in concurrent programming with threads.
+\todo {double-check conclusion.}
 
 \subsection{Future work}
 
