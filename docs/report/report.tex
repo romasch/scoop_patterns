@@ -1,4 +1,4 @@
-\documentclass[a4paper,10pt]{article}
+\documentclass[a4paper,10pt,titlepage]{article}
 \usepackage[utf8]{inputenc}
 
 \usepackage{pattern}
@@ -32,18 +32,27 @@
 
 % Title Page
 \title{Concurrency Patterns in SCOOP}
-\author{Roman Schmocker}
+\author{Roman Schmocker \\ \\ Supervised by Alexey Kolesnichenko \\ and Prof. Dr. Bertrand Meyer}
 
 
 \begin{document}
+
+\pagenumbering{roman}
+
 \maketitle
+\thispagestyle{empty}
+\newpage
+
+
 
 \begin{abstract}
+\thispagestyle{plain}
+\setcounter{page}{2}
 The wide distribution of multi-core processors increasingly forces programmers to deal with concurrency.
 Parallel programming is not easy, but there are many well-known patterns at hand to help developers.
 % Parallel programming is not easy, but it can be simplified with the use of well-known patterns.
 
-SCOOP, an extension to the Eiffel programming language, provides an alternative approach to concurrent programming compared to the threading model used in many other languages.
+SCOOP, an extension to the Eiffel programming language, provides an alternative approach to concurrent programming compared to the threading mo\-del used in many other languages.
 There is little experience in implementing and using concurrency patterns in SCOOP however.
 
 % In SCOOP, an extension to the Eiffel programming language, there's neither a library nor experience in using concurrency patterns.
@@ -54,11 +63,27 @@ A small performance comparison shows that the new library is more robust and fas
 We also describe some of the challenges when programming in SCOOP for the first time and provide solutions.
 \end{abstract}
 
+\renewcommand{\abstractname}{Acknowledgements}
+\begin{abstract}
+\thispagestyle{plain}
+\setcounter{page}{3}
+I would like to thank Alexey Kolesnichenko very much for his great support and helpful advice throughout my thesis.
+Many thanks go to Prof. Bertrand Meyer for his insightful comments and for giving me the opportunity to work on this project.
+I would also like to thank Julian Tschannen, Mischael Schill, Scott West, Sebastian Nanz and others at the Chair of Software Engineering for their useful input.
 
+\emph{Roman Schmocker}
+\end{abstract}
+
+
+\setcounter{page}{4}
 \tableofcontents
+
+\newpage
+\pagenumbering{arabic}
 
 \section{Introduction}
 \label{sec:introduction}
+
 
 Due to the advent of multicore processors, concurrent programming has become an important part in software engineering.
 Dealing with parallelism isn't easy however.
@@ -528,7 +553,7 @@ Each test was repeated 5 times.
 The test system was a quad-core AMD Phenom II X4 955 processor with 6 GB of RAM.
 The results are shown Table \ref{table:perf-results}.
 
-\begin{table} [!h]
+\begin{table} [h]
 \centering
 \begin{tabular}{|l|l l l|} 
 \hline
@@ -627,6 +652,7 @@ SCOOP itself also provides a rich offering of possible improvements.
 \end{description}
 
 
+\newpage
 \begin{flushleft}
 {{{
 \bibliographystyle {plain}
@@ -634,7 +660,7 @@ SCOOP itself also provides a rich offering of possible improvements.
 }}}
 \end{flushleft}
 
-
+\newpage
 \begin{appendices}
 % \input{tutorial}
 \input{separate_proxy}
