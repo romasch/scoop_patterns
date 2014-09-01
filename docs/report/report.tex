@@ -52,7 +52,6 @@ From this list we selected several popular concurrency patterns and implemented 
 A small performance comparison shows that the new library is more robust and faster for large data sets than a raw SCOOP solution.
 % Some of these patterns were then implemented as a reusable library for Eiffel.
 We also describe some of the challenges when programming in SCOOP for the first time and provide solutions.
-\todo{double-check abstract}
 \end{abstract}
 
 
@@ -576,21 +575,25 @@ If both the worker pool and the promise processor could be declared passive the 
 % Also: Future work
 
 %Applications using multiple processor cores are increasingly becoming the norm, despite the difficulties of dealing with parallelism.
-In this thesis we've worked out many methods that simplify concurrent programming.
-We've done a survey of concurrency patterns and described them in an extensive list.
-This list can be used by anyone searching for a particular pattern.
+Concurrent programming is increasingly becoming the norm despite its difficulties.
+The SCOOP model provides a solid foundation to concurrent programming in Eiffel, 
+but it is hard to learn for developers due to the paradigm shift and the lack of a concurrency library.
 
-From this list we selected some patterns which we thought to be especially useful.
+In this thesis we've worked out many methods that simplify concurrent programming in SCOOP.
+We did a broad survey of popular concurrency patterns and present our findings in a detailed list.
+The list can be used to search for a pattern that fits a particular problem, which may even be useful to programmers of threaded languages.
+% We've done a survey of concurrency patterns and described them in an extensive list.
+% This list can be used by anyone searching for a particular pattern.
+
+From our survey we selected some patterns which we thought to be especially useful.
 The selection was based on the study of other concurrency libraries as well as some input from the Software Engineering research group at ETH.
-
 The seleted patterns were then implemented and are now available as a new Eiffel library.
-Besides the actual pattern implementations, this library also provides some workarounds for current SCOOP limitations, such as the missing import statement.
+Besides the pattern implementations, the library also provides some workarounds for current SCOOP limitations, such as the missing import statement.
 
-Performance measurements for the Future pattern implementation showed that the library is actually faster for large data sets and uses less threads than the native SCOOP approach.
+Performance measurements for the Future pattern showed that the library is actually faster for large data sets and uses less threads than the native SCOOP approach.
 
-Finally we also describe some challenges when programming in SCOOP, and how they can be solved.
-This is especially useful to programmers new to SCOOP, but which may have experience in concurrent programming with threads.
-\todo {double-check conclusion.}
+Finally, we also described some challenges when programming in SCOOP and how to solve them.
+This is especially useful to developers experienced in threaded programming who want to use SCOOP for the first time.
 
 \subsection{Future work}
 
@@ -598,7 +601,7 @@ The library provides several opportunities for future work.
 
 \begin{description}
  \item [More patterns] The library can be extended with additional patterns.
- It may be useful to include Pipeline or Dataflow network.
+ It may be useful to include Pipeline or Dataflow Network.
  \item [Separate Proxies] The Separate Proxy pattern may be applied to some EiffelBase classes, such as \lstinline!ARRAYED_LIST!, \lstinline!HASH_TABLE! or \lstinline!ROUTINE!.
  \item [Separate Proxy Wizard] Writing a Separate Proxy is tedious. Most of it could be automated with a wizard however.
 % \item [EiffelVision support] \todo{maybe?}
@@ -629,7 +632,6 @@ SCOOP itself also provides a rich offering of possible improvements.
 \bibliographystyle {plain}
 \bibliography {./references}
 }}}
-\todo{Some letters are de-capitalized in  bibliography section. Why?}
 \end{flushleft}
 
 
