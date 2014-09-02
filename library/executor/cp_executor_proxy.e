@@ -43,7 +43,7 @@ feature -- Basic operations
 		local
 			l_promise: separate CP_SHARED_PROMISE
 		do
-			l_promise := new_promise (my_promise_processor)
+			l_promise := new_promise_on_processor (my_promise_processor)
 			a_task.set_promise (l_promise)
 			create Result.make (l_promise)
 			put (a_task)
@@ -55,6 +55,14 @@ feature -- Basic operations
 			-- <Precursor>
 		do
 			utils.executor_stop (subject)
+		end
+
+feature -- Factory functions
+
+	new_promise: CP_PROMISE_PROXY
+			-- Create a new promise on the global processor.
+		do
+			create Result.make (new_promise_on_processor (my_promise_processor))
 		end
 
 feature {NONE} -- Implementation

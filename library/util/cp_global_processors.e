@@ -40,13 +40,13 @@ feature -- Access
 
 feature -- Utilities
 
-	new_promise (a_processor: like promise_processor): separate CP_SHARED_PROMISE
+	new_promise_on_processor (a_processor: like promise_processor): separate CP_SHARED_PROMISE
 			-- Create a new promise on `a_processor'.
 		do
 			Result := a_processor.new_promise
 		end
 
-	new_result_promise (a_processor: like result_promise_processor; a_template: CP_IMPORTABLE): separate CP_IMPORTABLE
+	new_result_promise_on_processor (a_processor: like result_promise_processor; a_template: CP_IMPORTABLE): separate CP_IMPORTABLE
 			-- Export `a_template' to `a_processor'.
 		do
 			Result := a_processor.import (a_template)

@@ -1,0 +1,62 @@
+note
+	description: "Summary description for {CP_TIMER_EXECUTOR}."
+	author: ""
+	date: "$Date$"
+	revision: "$Revision$"
+
+class
+	CP_TIMER_EXECUTOR
+
+--inherit
+--	CP_EXECUTOR
+
+--	CP_LAUNCHER
+
+--feature -- Constants
+
+--	nanoseconds_in_second: INTEGER_64 = 1_000_000_000
+
+--feature -- Access
+
+--	interval: INTEGER_64
+
+--feature -- Status report
+
+--	is_stopped: BOOLEAN
+
+--feature -- Basic operations
+
+--	set_interval_nanoseconds (nanoseconds: INTEGER_64)
+--			-- Set `interval' to `nanoseconds'.
+--		require
+--			positive: nanoseconds >= 0
+--		do
+--			interval := nanoseconds
+--		end
+
+--	set_interval_seconds (seconds: INTEGER_64)
+--			-- Set `interval' to `seconds'.
+--		require
+--			positive: seconds >= 0
+--			not_too_big: seconds * nanoseconds_in_second >= 0
+--		do
+--			interval := seconds * nanoseconds_in_second
+--		end
+
+--	stop
+--			-- <Precursor>
+--		do
+--			is_stopped := True
+--		end
+
+--	put (task: separate CP_TASK)
+--			-- Create a new timer that executes `task' repeatedly.
+--			-- The interval time for the new task will be `interval'.
+--		local
+--			timer: separate CP_TIMER
+--		do
+--			create timer.make (task, interval, Current)
+--			launch (timer)
+--		end
+
+end

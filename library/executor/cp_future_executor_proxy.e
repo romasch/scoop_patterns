@@ -23,24 +23,37 @@ feature -- Basic operations
 			l_importable: separate CP_IMPORTABLE
 			l_promise: separate CP_SHARED_RESULT_PROMISE [G, IMPORTER]
 		do
-				-- Create a promise on the global result processor.
+				-- Create the promise object on the global result processor.
+			Result := new_result_promise
+
+				-- Initialize the computation and the result.
+			a_computation.set_promise (Result.subject)
+
+				-- Submit the work to the worker pool.
+			put (a_computation)
+		ensure
+			same_promise: Result.subject = a_computation.promise
+		end
+
+feature -- Factory functions
+
+	new_result_promise: CP_RESULT_PROMISE_PROXY [G, IMPORTER]
+			-- Create a new result promise on the global processor.
+		local
+			l_template_promise: CP_SHARED_RESULT_PROMISE [G, IMPORTER]
+			l_importable: separate CP_IMPORTABLE
+			l_promise: separate CP_SHARED_RESULT_PROMISE [G, IMPORTER]
+		do
+				-- Create a template with correct types and ask the result processor to import it.
 			create l_template_promise.make
-			l_importable := new_result_promise (my_result_promise_processor, l_template_promise)
+			l_importable := new_result_promise_on_processor (my_result_promise_processor, l_template_promise)
 
 				-- Check must succeed because we're importing based on the dynamic type.
 			check attached {separate CP_SHARED_RESULT_PROMISE [G, IMPORTER]} l_importable as l_checked then
 				l_promise := l_checked
 			end
 
-				-- Initialize the computation and the result.
-			a_computation.set_promise (l_promise)
-
 			create Result.make (l_promise)
-
-				-- Submit the work to the worker pool.
-			put (a_computation)
-		ensure
-			same_promise: Result.subject = a_computation.promise
 		end
 
 feature {NONE} -- Implementation

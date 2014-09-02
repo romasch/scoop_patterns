@@ -21,7 +21,7 @@ create
 
 feature -- Access
 
-	subject: separate CP_RESULT_PROMISE [G]
+	subject: separate CP_SHARED_RESULT_PROMISE [G, IMPORTER]
 			-- <Precursor>
 
 	item: detachable like {IMPORTER}.import
