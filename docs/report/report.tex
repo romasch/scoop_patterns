@@ -510,8 +510,9 @@ Appendix \ref{sec:howto-separate-proxy} provides a general recipe on how to impl
 \subsection {Module overview}
 \label{sec:module-overview}
 % Describe available modules, which patterns they're implementing, and which modules they depend upon.
-
 The library consists of several modules which implement some of the patterns described in the overview (Section \ref{sec:pattern_overview}).
+The source code of the library is available on GitHub \cite{web:repository}.
+All file locations in the following section are relative to the root directory of the repository.
 
 One of the most basic modules is the import module in \dir{library/import}.
 It implements the Import \patternref{IMP} pattern  and is at the same time one of the core concepts of the library.
@@ -536,6 +537,7 @@ It makes use of the promise, executor and worker pool modules and introduces onl
 \lstinline!CP_COMPUTATION! and \lstinline!CP_FUTURE_EXECUTOR_PROXY!.
 
 The class \lstinline!CP_DELAYED_TASK! in \dir{libary/util} implements the Timer: Invoke Later pattern \patternref{TIL}.
+The same directory also contains the class \lstinline!CP_EVENT!, which implements the Publish / Subscribe pattern \patternref{P/S} in SCOOP.
 
 \input{modules}
 

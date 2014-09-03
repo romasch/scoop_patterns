@@ -171,7 +171,7 @@
   ,category={Program structuring}
   ,intent={Provide private heap data for each thread.}
   ,applicability={When multiple threads run the same code, but each one needs a different set of data, or when the synchronization overhead for shared heap objects is undesirable.}
-  ,status={Implemented language mechanism.}
+  ,status={Implemented language mechanism}
   ,example={Store the last exception raised in the current thread.}
  ,knownapps={Java and C\# both have a class \lstinline!ThreadLocal<T>!.}
  ,relation={ - }
@@ -184,7 +184,7 @@
   ,category={Program structuring}
   ,intent={Provide a hook to subscribe to events. In the concurrent context there's often an intermediate broker which receives events from a publisher and forwards them to all subscribers.}
   ,applicability={When the publisher doesn't need to know the subscribers, and vice versa with the broker solution.}
-  ,status={Possible library component}
+  ,status={Implemented library component}
   ,example={A GUI button has an event ``clicked''. The application logic can subscribe to it with a handler function.}
   ,knownapps={Event driven programming, GUI frameworks like Java Swing or EiffelVision.}
   ,relation={Similar to the Observer pattern by Gamma et al.\cite[p. 293]{book:design-patterns}, but events may come with arguments. The Eiffel agent mechanism may be used for Publish / Subscribe.}

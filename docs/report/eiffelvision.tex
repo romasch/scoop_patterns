@@ -1,21 +1,30 @@
-EiffelVision can be used in conjunction with SCOOP and our library.
-This might be surprising for many, because at the core of most GUI tooklits is an event dispatching thread (EDT) running an infinite loop - which means other SCOOP processor can't access GUI elements.
-EiffelVision however implements a variation of the Asynchronous Self-Call pattern \patternref{ASC}.
-The loop body is defined in \lstinline!{EV_APPLICATION_I}.process_event_queue!, whereas the actual loop is implemented in \lstinline!EV_APPLICATION_HANDLER!.
-Therefore, a user interface object can subscribe to events from separate processors just as well as it can subscribe to events on the same processor.
+At the core of most GUI toolkits is an event dispatching thread (EDT).
+The EDT is running an infinite loop where it listens for user input events.
+
+Only the EDT is allowed to modify user interface objects.
+Background threads therefore have to enqueue agents to be executed by the EDT if they want to update the GUI.
+
+EiffelVision also follows this design with the event dispatching code defined in \lstinline!EV_APPLICATION! and the enqueuing feature \lstinline!do_once_on_idle! in the same class.
+Due to this design one might think that combining SCOOP with EiffelVision is impossible.
+
+This is not true however.
+EiffelVision implements a variation of the Asynchronous Self-Call pattern \patternref{ASC}.
+The body of the loop is defined by the feature \lstinline!{EV_APPLICATION_I}.process_event_queue!, whereas the actual loop is implemented in \lstinline!EV_APPLICATION_HANDLER!.
+Therefore, a user interface object can subscribe to events from separate processors in the same manner as it can subscribe to events on the same processor.
 
 In fact the SCOOP model makes GUI programming a lot easier.
 In threaded languages programmers constantly have to worry that only the EDT manipulates user interface objects.
-SCOOP however gives this guarantee for free, totally eliminating a source of errors which are often very hard to find.
+SCOOP however gives this guarantee for free.
+This completely eliminates a source of randomly occurring errors which are usually very hard to find.
 
 We'll show a small example application which can download a file in the background.
 The application has a simple graphical user interface and uses the executor module from the library.
 Some highlights of the example are event propagation and the cancellation mechanism.
-The full source code can be found in \dir{examples/eiffelvision\_downloader}
+The full source code can be found in \dir{examples/eiffelvision\_downloader} in the repository \cite{web:repository}.
 
-Let's start with the background task.
+Let's first look at the background task.
 The class \lstinline!DOWNLOAD_TASK! shown in Listing \ref{code:download-task} defines the background download task.
-It inherits from \lstinline!CP_DEFAULT_TASK! such that it can be submitted to an executor.
+It is a descendant of \lstinline!CP_DEFAULT_TASK! such that it can be used in conjunction with an executor.
 
 \begin{lstlisting}[language=OOSC2Eiffel, label={code:download-task}, captionpos=b, caption={The background download task.}]
 class
@@ -24,7 +33,7 @@ class
 inherit
 	CP_DEFAULT_TASK
 
--- Initialization omitted.
+    -- Initialization omitted.
 
 feature -- Access
 
@@ -83,22 +92,20 @@ The code is structured such that the loop body only handles a small chunk of the
 This allows to check for a cancellation request in regular intervals, and to publish the current progress to the shared promise object.
 
 The rescue clause at the end ensures that the connection is correctly closed.
-Note that this is the only exception handling which needs to be done, and it's not necessary to ``catch'' it using retry.
+Note that this is the only exception handling which needs to be done, and it's not necessary to ``catch'' it with \lstinline!retry!.
 The user interface is still safe though because the exception gets caught later, transformed to an unsuccessful termination event, and the user interface will be informed automatically.
 
-The second major component is the class defining the main window.
-The class contains a lot of boring EiffelVision initialization code.
+Another major component is the class which defines the main window.
+It contains a lot of boring EiffelVision initialization code however.
 Listing \ref{code:main-window} therefore only shows the event handling part.
 
 \begin{lstlisting}[language=OOSC2Eiffel, label={code:main-window}, captionpos=b, caption={The main window.}]
 class
 	MAIN_WINDOW
-
 inherit
 	EV_TITLED_WINDOW
-		redefine create_interface_objects end
 
--- Initialization and GUI elements omitted.
+			-- Initialization and GUI elements omitted.
 
 feature -- Access
 
@@ -173,13 +180,65 @@ feature {NONE} -- Background download events
 			-- Handler for progress change events from download task.
 		do
 			if not is_cancelling then
-				status_text.set_text ("Download progress:" + f
-				    ormatter.formatted (progress * 100) + "%%")
+				status_text.set_text ("Download progress:" +
+				    formatter.formatted (progress * 100) + "%%")
 			end
 		end
-
 end
 \end{lstlisting}
 
 The most interesting feature is \lstinline!on_download_button_clicked!.
 It starts a background task and sets up all event handlers, such that the user interface can react to progress change or termination events.
+The events are predefined in \lstinline!CP_PROMISE! and sent automatically to all subscribers whenever the associated task changes the progress value or terminates.
+
+The \lstinline!on_terminated! handler function is used to receive an event that the background task has finished.
+% To inform the user that the background task has actually finished the user interface subscribes to the termination event with the \lstinline!on_terminated! handler.
+There are three cases that need to be distinguished: normal termination without cancellation, normal termination with cancellation, and exceptional termination due to an error.
+
+The last component is the class \lstinline!DOWNLOAD_APPLICATION!.
+
+\begin{lstlisting}[language=OOSC2Eiffel, label={code:download-application}, captionpos=b, caption={Download application root class.}]
+class
+	DOWNLOAD_APPLICATION
+
+create make
+
+feature {NONE} -- Initialization
+
+	make
+			-- Start the download application example.
+		local
+			app: EV_APPLICATION
+			main_window: MAIN_WINDOW
+			worker_pool: separate CP_TASK_WORKER_POOL
+		do
+				-- Create a worker pool which can be 
+				-- used to execute background downloads.
+			create worker_pool.make (10, 1)
+			create executor.make (worker_pool)
+
+				-- Create application and main window.
+			create app
+			create main_window.make (executor)
+
+				-- Don't forget to tear down the worker pool at the end.
+			app.destroy_actions.extend (agent executor.stop)
+
+				-- Start the GUI.
+			main_window.show
+			app.launch
+		end
+
+feature -- Access
+
+	executor: CP_EXECUTOR_PROXY
+			-- The worker pool for background tasks.
+
+end
+\end{lstlisting}
+
+The class just creates and starts the event loop, the worker pool and the main window.
+The most interesting part is how the worker pool gets stopped.
+As the statement \lstinline!app.launch! just kick-starts the event loop and then returns, we can't destroy the worker pool after this statement as in a sequential program.
+It is therefore necessary to install a handler to stop the executor when the event loop terminates.
+
