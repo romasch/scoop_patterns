@@ -15,13 +15,17 @@ feature -- Access
 	last_exception_trace: detachable READABLE_STRING_32
 			-- The exception trace of the last exception.
 		deferred
+		ensure
+			trace_implies_exceptional: attached Result implies is_exceptional
 		end
 
-	progress: REAL
+	progress: DOUBLE
 			-- The current progress of the asynchronous operation.
 			-- The result is a value between 0.0 and 1.0.
 			-- Note: Progress indication has to be supported by the asynchronous operation.
 		deferred
+		ensure
+			valid:0.0 <= progress and progress <= 1.0
 		end
 
 feature -- Status report
@@ -42,6 +46,8 @@ feature -- Status report
 	is_exceptional: BOOLEAN
 			-- Has there been an exception in the asynchronous call?
 		deferred
+		ensure
+			exception_implies_terminated: Result implies is_terminated
 		end
 
 	is_cancelled: BOOLEAN
@@ -55,12 +61,6 @@ feature -- Basic operations
 			-- Request a cancellation.
 			-- Note: Cacellation has to be supported by the asynchronous operation.
 		deferred
-		ensure
-			cancelled: is_cancelled
 		end
 
-invariant
-	trace_implies_exceptional: attached last_exception_trace implies is_exceptional
-	exception_implies_terminated: is_exceptional implies is_terminated
-	valid_progress: 0.0 <= progress and progress <= 1.0
 end

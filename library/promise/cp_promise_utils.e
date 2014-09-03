@@ -27,10 +27,22 @@ feature -- Access
 			correct: Result ~ a_promise.last_exception_trace
 		end
 
-	promise_progress (a_promise: separate CP_PROMISE): REAL
+	promise_progress (a_promise: separate CP_PROMISE): DOUBLE
 			-- Progress in `a_promise'.
 		do
 			Result := a_promise.progress
+		end
+
+	promise_progress_change_event (a_promise: separate CP_SHARED_PROMISE): separate CP_EVENT [TUPLE [DOUBLE]]
+			-- Progress change event in `a_promise'.
+		do
+			Result := a_promise.progress_change_event
+		end
+
+	promise_termination_event (a_promise: separate CP_SHARED_PROMISE): separate CP_EVENT [TUPLE [BOOLEAN]]
+			-- Termination event in `a_promise'.
+		do
+			Result := a_promise.termination_event
 		end
 
 feature -- Status report
@@ -73,7 +85,7 @@ feature -- Basic operations
 			a_promise.set_exception_and_terminate (a_exception)
 		end
 
-	promise_set_progress (a_promise: separate CP_SHARED_PROMISE; a_progress: REAL)
+	promise_set_progress (a_promise: separate CP_SHARED_PROMISE; a_progress: DOUBLE)
 			-- Set `a_progress' in `a_promise'.
 		require
 			valid: 0.0 <= a_progress and a_progress <= 1.0

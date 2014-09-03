@@ -23,10 +23,24 @@ feature -- Access
 			Result := utils.promise_imported_last_exception_trace (subject)
 		end
 
-	progress: REAL
+	progress: DOUBLE
 			-- <Precursor>
 		do
 			Result := utils.promise_progress (subject)
+		end
+
+	progress_change_event: CP_EVENT_PROXY [TUPLE [DOUBLE]]
+			-- Event source for progress changes.
+			-- The argument corresponds to the new progress value.
+		attribute
+			create Result.make (utils.promise_progress_change_event (subject))
+		end
+
+	termination_event: CP_EVENT_PROXY [TUPLE [BOOLEAN]]
+			-- Event source for termination.
+			-- The event argument is True if termination was successful, and False if an exception happened.
+		attribute
+			create Result.make (utils.promise_termination_event (subject))
 		end
 
 feature -- Status report
