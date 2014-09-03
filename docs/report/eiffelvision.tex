@@ -192,7 +192,6 @@ It starts a background task and sets up all event handlers, such that the user i
 The events are predefined in \lstinline!CP_PROMISE! and sent automatically to all subscribers whenever the associated task changes the progress value or terminates.
 
 The \lstinline!on_terminated! handler function is used to receive an event that the background task has finished.
-% To inform the user that the background task has actually finished the user interface subscribes to the termination event with the \lstinline!on_terminated! handler.
 There are three cases that need to be distinguished: normal termination without cancellation, normal termination with cancellation, and exceptional termination due to an error.
 
 The last component is the class \lstinline!DOWNLOAD_APPLICATION!.
