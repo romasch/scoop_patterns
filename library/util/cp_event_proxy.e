@@ -1,6 +1,6 @@
 note
-	description: "Summary description for {CP_EVENT_PROXY}."
-	author: ""
+	description: "Processor-local proxy to a {separate CP_EVENT} object."
+	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
 
