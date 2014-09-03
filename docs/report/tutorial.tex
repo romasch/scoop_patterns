@@ -2,6 +2,12 @@
 \section {API tutorial}
 \label{sec:tutorial}
 
+The library has several components which can be used for various tasks in concurrent programming.
+This API tutorial therefore consists of three, mostly unrelated sections.
+Each section describes a concurrency problem and how the library can be used to solve it.
+
+All programming code used in this section originally comes from the example applications in the repository \cite{web:repository}.
+
 \subsection{Producer / Consumer}
 
 The producer / consumer example is pretty common in concurrent programming.
@@ -29,20 +35,73 @@ end
 Note that there are two generic arguments:
 \begin{itemize}
 \item The first argument (\lstinline!STRING!) denotes the type of items in the queue.
-\item The second argument (\lstinline!CP_STRING_IMPORTER!) defines the import strategy.
+\item The second argument (\lstinline!CP_STRING_IMPORTER!) defines the import strategy (see Section \ref{sec:concepts:import}).
+  It teaches the queue how to import a string object.
 \end{itemize}
 
-The import strategy is an important concept of the library.
-An import in the SCOOP context means that an object on a separate processor should be copied to the local processor.
-This is done recursively for any non-separate reference, i.e. for  \lstinline!STRING! you also have to copy the \lstinline!area! attribute.
-The import strategy can be used to tell a component if a given object should be imported, and if yes, how it is done.
+% The import strategy is an important concept of the library.
+% An import in the SCOOP context means that an object on a separate processor should be copied to the local processor.
+% This is done recursively for any non-separate reference, i.e. for  \lstinline!STRING! you also have to copy the \lstinline!area! attribute.
+% The import strategy can be used to tell a component if a given object should be imported, and if yes, how it is done.
 
-In our example we're using the \lstinline!CP_STRING_IMPORTER! to import strings.
-An alternative would be to use \lstinline!CP_NO_IMPORTER [STRING]! if we want to disable imports.
+In our example we decided to import every string object.
+% In our example we're using the \lstinline!CP_STRING_IMPORTER! to import strings.
+An alternative would be to use \lstinline!CP_NO_IMPORTER [STRING]! and deal with separate references instead.
 
-The next step we need to do is to define the producer and consumer.
+The next step is to define the producer and consumer.
 
-\lstinputlisting [firstline=7] {../../examples/producer_consumer/producer.e}
+\begin{lstlisting}[language=OOSC2Eiffel, captionpos=b, caption={The producer class.}]
+class
+	PRODUCER
+
+inherit
+	CP_STARTABLE
+
+create
+	make
+
+feature {NONE} -- Initialization
+
+	make (a_queue: separate CP_QUEUE [STRING, CP_STRING_IMPORTER]; a_identifier: INTEGER; a_item_count: INTEGER)
+			-- Initialization for `Current'.
+		do
+			identifier := a_identifier
+			item_count := a_item_count
+			create queue_wrapper.make (a_queue)
+		end
+
+	queue_wrapper: CP_QUEUE_PROXY [STRING, CP_STRING_IMPORTER]
+			-- A wrapper object to a separate queue.
+
+	identifier: INTEGER
+			-- Identifier of `Current'.
+
+	item_count: INTEGER
+			-- Number of items to produce.
+
+feature -- Basic operations
+
+	start
+			-- Produce `item_count' items.
+		local
+			i: INTEGER
+			item: STRING
+		do
+			from
+				i := 1
+			until
+				i > item_count
+			loop
+					-- Note that there's no need to declare `item' as 
+					-- separate, because it will be imported anyway.
+				item := "Producer: " + identifier.out + ": item " + i.out
+				queue_wrapper.put (item)
+				i := i + 1
+			end
+		end
+
+end
+\end{lstlisting}
 
 You may notice three things in this example:
 
@@ -55,31 +114,39 @@ You may notice three things in this example:
 The classes \lstinline!CP_STARTABLE! and \lstinline!CP_STARTABLE_UTILS! are a useful combination.
 They allow to start some operation on a separate object without the need for a specialized wrapper function.
 
-Another nice utility is the \lstinline!CP_QUEUE_PROXY!.
-It is part of a pattern which is often used throughout the library - the separate proxy \todo{add reference}.
-Basically it allows to access a separate queue without the need to deal with separate references.
+\lstinline!CP_QUEUE_PROXY! is part of the Separate Proxy pattern \patternref{SP} (see Section \ref{sec:separate-proxy}).
+It is usefulto access a separate object without having to deal with separate references.
 
-The really interesting thing however is that the producer can generate strings on its local processor.
-Usually this is not possible, because if the string is later passed to a consumer object, the latter needs to lock the producer in order to get access to the string.
-But in this case we instructed the queue object to import all string objects. During a call to \lstinline!queue_wrapper.put(item)! the following happens:
-\begin{itemize}
- \item The producer waits until it gets exclusive access to the queue.
- \item The separate call is executed. Because \lstinline!item! is a non-separate reference, the call is synchronous and lock passing happens.
- \item The queue object imports the separate string, creating a local copy.
- \item The separate call terminates, both processors can proceed autonomously.
-\end{itemize}
-Creating the strings on a separate processor is therefore unnecessary.
+The fact that strings can be generated on the local processor is probably the most interesting observation.
+Usually it is necessary when using SCOOP to create shared data on its own processor.
+As we're using the import mechanism however this is not necessary and would be even wasteful.
 
-The import trick avoids a lot of unnecessary thread creation:
-Instead of creating a new processor for every single produced item we just copy it, which is much faster for small objects.
+% Usually this is not possible, because if the string is later passed to a consumer object, the latter needs to lock the producer in order to get access to the string.
+% But in this case we instructed the queue object to import all string objects. During a call to \lstinline!queue_wrapper.put(item)! the following happens:
+% \begin{itemize}
+%  \item The producer waits until it gets exclusive access to the queue.
+%  \item The separate call is executed. Because \lstinline!item! is a non-separate reference, the call is synchronous and lock passing happens.
+%  \item The queue object imports the separate string, creating a local copy.
+%  \item The separate call terminates, both processors can proceed autonomously.
+% \end{itemize}
+% Creating the strings on a separate processor is therefore unnecessary.
 
-The consumer is basically the same as the producer, except for the feature \lstinline!start!:
+% The import trick avoids a lot of unnecessary thread creation:
+% Instead of creating a new processor for every single produced item we just copy it, which is much faster for small objects.
 
-\begin{lstlisting}
+The consumer is the same as the producer except for the feature \lstinline!start!:
+
+\begin{lstlisting}[language=OOSC2Eiffel, captionpos=b, caption={The consumer class.}]
 class
   CONSUMER
---...
   
+inherit
+  CP_STARTABLE
+
+  -- Initialization omitted...
+
+feature -- Basic operations
+
 	start
 			-- Consume `item_count' items.
 		local
@@ -95,10 +162,10 @@ class
 
 				check attached queue_wrapper.last_consumed_item as l_item then
 
-						-- Note that `item' is not declared as separate, because it has been
-						-- imported automatically.
+						-- Note that `item' is not declared as separate
 					item := l_item
-					print (item + " // Consumer " + identifier.out + ": item " + i.out + "%N")
+					print (item + " // Consumer " + identifier.out 
+					  + ": item " + i.out + "%N")
 				end
 				i := i + 1
 			end
@@ -106,13 +173,63 @@ class
 end
 \end{lstlisting}
 
-You might notice again that the consumed string is not declared as separate.
-This is again because of the import mechanism within \lstinline!CP_QUEUE!.
+Again, there's no need to declare the consumed string as separate, thanks to the import mechanism.
 
-The last thing we need to do is to create and launch the producers and consumers in the main application:
+% You might notice again that the consumed string is not declared as separate.
+% This is again because of the import mechanism within \lstinline!CP_QUEUE!.
 
-\lstinputlisting [firstline=7] {../../examples/producer_consumer/producer_consumer.e}
+The only thing left now is to create and launch the producers and consumers in the main application.
+Note that \lstinline!PRODUCER_CONSUMER! inherits from \lstinline!CP_STARTABLE_UTILS! such that it can use \lstinline!async_start! to start both the consumer and producer threads.
 
+\begin{lstlisting}[language=OOSC2Eiffel, captionpos=b, caption={The producer / consumer application root class.}]
+class
+	PRODUCER_CONSUMER
+
+inherit
+	CP_STARTABLE_UTILS
+
+create
+	make
+
+feature {NONE} -- Initialization
+
+	make
+			-- Launch the producer and consumers.
+		local
+			l_queue: separate CP_QUEUE [STRING, CP_STRING_IMPORTER]
+			l_producer: separate PRODUCER
+			l_consumer: separate CONSUMER
+		do
+			print ("%NStarting producer/consumer example. %N%N")
+
+				-- Create a shared bounded queue for data exchange.
+			create l_queue.make_bounded (queue_size)
+
+				-- Create and launch the consumers.
+			across 1 |..| consumer_count as i loop
+				create l_consumer.make (l_queue, i.item, items_per_consumer)
+				async_start (l_consumer)
+			end
+
+				-- Create and launch the producers.
+			across 1 |..| producer_count as i loop
+				create l_producer.make (l_queue, i.item, items_per_producer)
+				async_start (l_producer)
+			end
+		end
+
+feature -- Constants
+
+	queue_size: INTEGER = 5
+	producer_count: INTEGER = 10
+	consumer_count: INTEGER = 10
+	items_per_producer: INTEGER = 20
+	items_per_consumer: INTEGER = 20
+
+invariant
+	equal_values: producer_count * items_per_producer = consumer_count * items_per_consumer
+end
+\end{lstlisting}
 
 \subsection{Server thread}
 
@@ -121,19 +238,93 @@ In a SCOOP environment it is not hard to create such a processor, but it is hard
 The main problem is that the server processor will run its own main loop, and other threads ususally never get exclusive access to call some feature \lstinline!stop!.
 
 The library addresses this issue with the \lstinline!CP_INTERMITTENT_PROCESS!.
-This class defines a special main loop, where other processors can access the object after every iteration.
+This class defines a special main loop using the Asynchronous Self-Call pattern \patternref{ASC}.
 
 To use \lstinline!CP_INTERMITTENT_PROCESS! you need to inherit from it and implement the deferred feature \lstinline!step!.
-The following example defines a simple echo server that just listens and replies with the same string:
+The following example defines a simple echo server that just listens on a socket and replies with the same string:
 
-\lstinputlisting [firstline=7] {../../examples/echo_server/echo_server.e}
+\begin{lstlisting}[language=OOSC2Eiffel, captionpos=b, caption={The echo server class.}]
+class
+	ECHO_SERVER
 
-To break out of the main loop, you need to set \lstinline!is_stopped! to \lstinline!True!.
-This can be done from within the \lstinline!CP_INTERMITTENT_PROCESS! or from a separate processor by calling \lstinline!stop!.
+inherit
 
-To start the echo server you can use \lstinline!CP_STARTABLE_UTILS! and the feature \lstinline!asynch_start!:
+	CP_INTERMITTENT_PROCESS
+		redefine
+			cleanup
+		end
 
-\lstinputlisting [firstline=7] {../../examples/echo_server/echo_application.e}
+create
+	make
+
+feature {NONE} -- Initialization
+
+	make
+			-- Initialization for `Current'.
+		do
+				-- Create the socket on the specified port.
+			create socket.make_server_by_port (2000)
+				-- Set an accept timeout.
+			socket.set_accept_timeout (500)
+				-- Enable the socket.
+			socket.listen (5)
+		end
+
+feature -- Basic operations
+
+	cleanup
+			-- <Precursor>
+		do
+			socket.cleanup
+		end
+
+	stop
+			-- Stop the current processor.
+		do
+			is_stopped := True
+		end
+
+	step
+			-- <Precursor>
+		local
+			l_received: STRING
+		do
+				-- Accept a new message.
+			socket.accept
+			
+				-- In case of an accept timeout `accepted' is Void.
+			if attached socket.accepted as l_answer_socket then
+
+					-- Read the message.
+				l_answer_socket.read_line
+				l_received := l_answer_socket.last_string
+
+					-- Generate and send the answer.
+				l_answer_socket.put_string (l_received)
+				l_answer_socket.put_new_line
+				l_answer_socket.close
+			end
+		end
+
+feature {NONE} -- Implementation
+
+	socket: NETWORK_STREAM_SOCKET
+			-- The server network socket.
+
+end
+\end{lstlisting}
+The accept timeout is important in this example.
+It ensures that the server processor periodically breaks free of its wait condition while listening and therefore has a chance to finish the \lstinline!step! feature.
+
+The echo server can be started with \lstinline!{STARTABLE_UTILS}.async_start! and stopped with the feature \lstinline!stop!.
+Thanks to the special loop construct used in \lstinline!CP_INTERMITTENT_PROCESS!, stopping the echo server also works when called from another processor.
+
+% To break out of the main loop, you need to set \lstinline!is_stopped! to \lstinline!True!.
+% This can be done from within the \lstinline!CP_INTERMITTENT_PROCESS! or from a separate processor by calling \lstinline!stop!.
+% 
+% To start the echo server you can use \lstinline!CP_STARTABLE_UTILS! and the feature \lstinline!asynch_start!:
+% 
+% \lstinputlisting [firstline=7] {../../examples/echo_server/echo_application.e}
 
 \subsection{Futures}
 

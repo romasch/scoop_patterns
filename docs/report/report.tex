@@ -476,6 +476,7 @@ The \lstinline!like! statement fixes the type based on the chosen import strateg
 This makes the handling of imported objects a lot easier.
 
 \subsubsection{Separate Proxy}
+\label{sec:separate-proxy}
 
 The Separate Proxy pattern \patternref{SP} simplifies access to a separate reference by providing a processor-local proxy object wich forwards all requests to the actual object.
 The main advantage is that clients don't need to write extra ``wrapper'' feature to control the separate object.
@@ -664,10 +665,10 @@ SCOOP itself also provides a rich offering of possible improvements.
 
 \newpage
 \begin{appendices}
-% \input{tutorial}
 \input{separate_proxy}
 \section{SCOOP and EiffelVision}
 \input{eiffelvision}
+\input{tutorial}
 \end{appendices}
 
 \todos
