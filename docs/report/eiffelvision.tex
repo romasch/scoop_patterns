@@ -1,0 +1,185 @@
+EiffelVision can be used in conjunction with SCOOP and our library.
+This might be surprising for many, because at the core of most GUI tooklits is an event dispatching thread (EDT) running an infinite loop - which means other SCOOP processor can't access GUI elements.
+EiffelVision however implements a variation of the Asynchronous Self-Call pattern \patternref{ASC}.
+The loop body is defined in \lstinline!{EV_APPLICATION_I}.process_event_queue!, whereas the actual loop is implemented in \lstinline!EV_APPLICATION_HANDLER!.
+Therefore, a user interface object can subscribe to events from separate processors just as well as it can subscribe to events on the same processor.
+
+In fact the SCOOP model makes GUI programming a lot easier.
+In threaded languages programmers constantly have to worry that only the EDT manipulates user interface objects.
+SCOOP however gives this guarantee for free, totally eliminating a source of errors which are often very hard to find.
+
+We'll show a small example application which can download a file in the background.
+The application has a simple graphical user interface and uses the executor module from the library.
+Some highlights of the example are event propagation and the cancellation mechanism.
+The full source code can be found in \dir{examples/eiffelvision\_downloader}
+
+Let's start with the background task.
+The class \lstinline!DOWNLOAD_TASK! shown in Listing \ref{code:download-task} defines the background download task.
+It inherits from \lstinline!CP_DEFAULT_TASK! such that it can be submitted to an executor.
+
+\begin{lstlisting}[language=OOSC2Eiffel, label={code:download-task}, captionpos=b, caption={The background download task.}]
+class
+	DOWNLOAD_TASK
+
+inherit
+	CP_DEFAULT_TASK
+
+-- Initialization omitted.
+
+feature -- Access
+
+	url: STRING
+
+feature -- Basic operations
+
+	run
+			-- <Precursor>
+		local
+			download_fragments: ARRAYED_LIST [STRING]
+			http_downloader: detachable HTTP_PROTOCOL
+			size: INTEGER
+		do
+			create download_fragments.make (50)
+			create http_downloader.make (create {HTTP_URL}.make(url))
+
+			from
+					-- Start the download
+				http_downloader.set_read_mode
+				http_downloader.open
+				http_downloader.initiate_transfer
+				size := http_downloader.count
+			until
+					-- Terminate when the download is finished 
+					-- or the user cancels the download manually.
+				http_downloader.bytes_transferred = size 
+				or attached promise as l_promise 
+				and then is_promise_cancelled (l_promise)
+			loop
+					-- Receive a single packet.
+				http_downloader.read
+				if attached http_downloader.last_packet as l_packet then
+					download_fragments.extend (l_packet)
+				end
+					-- Update the progress information in the UI.
+				if attached promise as l_promise then
+					promise_set_progress (l_promise, 
+					  http_downloader.bytes_transferred / size)
+				end
+			end
+
+				-- Discard result. A real application would
+				-- probably write it to a file
+			download_fragments.wipe_out
+			http_downloader.close
+		rescue
+			if attached http_downloader as dl and then dl.is_open then
+				dl.close
+			end
+		end
+end
+\end{lstlisting}
+
+The code is structured such that the loop body only handles a small chunk of the total download.
+This allows to check for a cancellation request in regular intervals, and to publish the current progress to the shared promise object.
+
+The rescue clause at the end ensures that the connection is correctly closed.
+Note that this is the only exception handling which needs to be done, and it's not necessary to ``catch'' it using retry.
+The user interface is still safe though because the exception gets caught later, transformed to an unsuccessful termination event, and the user interface will be informed automatically.
+
+The second major component is the class defining the main window.
+The class contains a lot of boring EiffelVision initialization code.
+Listing \ref{code:main-window} therefore only shows the event handling part.
+
+\begin{lstlisting}[language=OOSC2Eiffel, label={code:main-window}, captionpos=b, caption={The main window.}]
+class
+	MAIN_WINDOW
+
+inherit
+	EV_TITLED_WINDOW
+		redefine create_interface_objects end
+
+-- Initialization and GUI elements omitted.
+
+feature -- Access
+
+	executor: CP_EXECUTOR_PROXY
+			-- An executor to submit background tasks to.
+
+	download_handle: detachable CP_PROMISE_PROXY
+			-- A handle to a possible background download.
+
+	formatter: FORMAT_DOUBLE
+			-- A formatter for progress values.
+
+feature -- Status report
+
+	is_cancelling: BOOLEAN
+			-- Is the download about to terminate?
+			
+feature {NONE} -- Button press events
+
+	on_download_button_clicked
+			-- Handler for clicks on download button.
+		local
+			downloader: DOWNLOAD_TASK
+			l_promise: CP_PROMISE_PROXY
+		do
+			if not attached download_handle then
+
+				create downloader.make (url_text.text)
+				l_promise := executor.new_promise
+				download_handle := l_promise
+
+				l_promise.progress_change_event.subscribe (agent on_progress)
+				l_promise.termination_event.subscribe (agent on_terminated)
+
+				downloader.set_promise (l_promise.subject)
+				executor.put (downloader)
+			end
+		end
+
+	on_cancel_button_clicked
+			-- Handler for clicks on cancel button.
+		do
+			if 
+			   not is_cancelling and 
+			   attached download_handle as l_download
+			then
+				l_download.cancel
+				is_cancelling := True
+				status_text.set_text ("Cancelling download...")
+			end
+		end
+
+feature {NONE} -- Background download events
+
+	on_terminated (is_successful: BOOLEAN)
+			-- Handler for termination events from download task.
+		do
+			if not is_successful then
+				result_text.set_text ("Download aborted.")
+			elseif is_cancelling then
+				result_text.set_text ("Download cancelled.")
+				is_cancelling := False
+			else
+				result_text.set_text ("Download finished.")
+			end
+
+			status_text.set_text ("No download in progress.")
+			download_handle := Void
+		end
+
+	on_progress (progress: DOUBLE)
+			-- Handler for progress change events from download task.
+		do
+			if not is_cancelling then
+				status_text.set_text ("Download progress:" + f
+				    ormatter.formatted (progress * 100) + "%%")
+			end
+		end
+
+end
+\end{lstlisting}
+
+The most interesting feature is \lstinline!on_download_button_clicked!.
+It starts a background task and sets up all event handlers, such that the user interface can react to progress change or termination events.

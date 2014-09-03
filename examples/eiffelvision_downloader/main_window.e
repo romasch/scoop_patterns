@@ -120,11 +120,6 @@ feature {NONE} -- UI elements
 
 	result_text: EV_TEXT_FIELD
 
-feature -- Status report
-
-	is_cancelling: BOOLEAN
-			-- Is the download about to terminate?
-
 feature -- Access
 
 	executor: CP_EXECUTOR_PROXY
@@ -135,6 +130,11 @@ feature -- Access
 
 	formatter: FORMAT_DOUBLE
 			-- A formatter for progress values.
+
+feature -- Status report
+
+	is_cancelling: BOOLEAN
+			-- Is the download about to terminate?
 
 feature {NONE} -- Button press events
 
