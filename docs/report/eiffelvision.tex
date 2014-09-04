@@ -22,9 +22,9 @@ The application has a simple graphical user interface and uses the executor modu
 Some highlights of the example are event propagation and the cancellation mechanism.
 The full source code can be found in \dir{examples/eiffelvision\_downloader} in the repository \cite{web:repository}.
 
-Let's first look at the background task.
-The class \lstinline!DOWNLOAD_TASK! shown in Listing \ref{code:download-task} defines the background download task.
-It is a descendant of \lstinline!CP_DEFAULT_TASK! such that it can be used in conjunction with an executor.
+Let's first look at the business logic.
+The class \lstinline!DOWNLOAD_TASK! in Listing \ref{code:download-task} defines the background downloader.
+It inherits from \lstinline!CP_DEFAULT_TASK! such that it can be used in conjunction with an executor.
 
 \begin{lstlisting}[language=OOSC2Eiffel, label={code:download-task}, captionpos=b, caption={The background download task.}]
 class
@@ -92,8 +92,8 @@ The code is structured such that the loop body only handles a small chunk of the
 This allows to check for a cancellation request in regular intervals, and to publish the current progress to the shared promise object.
 
 The rescue clause at the end ensures that the connection is correctly closed.
-Note that this is the only exception handling which needs to be done, and it's not necessary to ``catch'' it with \lstinline!retry!.
-The user interface is still safe though because the exception gets caught later, transformed to an unsuccessful termination event, and the user interface will be informed automatically.
+Note that this is the only exception handling which needs to be done, and it's not necessary to ``catch'' an exception with \lstinline!retry!.
+The user interface is still safe though because the exception gets caught later, transformed to an unsuccessful termination event, and the GUI will be informed automatically.
 
 Another major component is the class which defines the main window.
 It contains a lot of boring EiffelVision initialization code however.
@@ -236,8 +236,8 @@ feature -- Access
 end
 \end{lstlisting}
 
-The class just creates and starts the event loop, the worker pool and the main window.
-The most interesting part is how the worker pool gets stopped.
+The class just creates and launches the event loop, the worker pool and the main window.
+The most interesting part is how the worker pool can be stopped.
 As the statement \lstinline!app.launch! just kick-starts the event loop and then returns, we can't destroy the worker pool after this statement as in a sequential program.
 It is therefore necessary to install a handler to stop the executor when the event loop terminates.
 

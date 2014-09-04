@@ -35,7 +35,7 @@ feature -- Status report
 				end
 				l_index := l_index + 1
 			variant
-				l_count + 1 - l_index
+				l_count + 2 - l_index
 			end
 		end
 

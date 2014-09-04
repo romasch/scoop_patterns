@@ -115,7 +115,7 @@ The classes \lstinline!CP_STARTABLE! and \lstinline!CP_STARTABLE_UTILS! are a us
 They allow to start some operation on a separate object without the need for a specialized wrapper function.
 
 \lstinline!CP_QUEUE_PROXY! is part of the Separate Proxy pattern \patternref{SP} (see Section \ref{sec:separate-proxy}).
-It is usefulto access a separate object without having to deal with separate references.
+It is useful to access a separate object without having to deal with separate references.
 
 The fact that strings can be generated on the local processor is probably the most interesting observation.
 Usually it is necessary when using SCOOP to create shared data on its own processor.
@@ -233,12 +233,12 @@ end
 
 \subsection{Server thread}
 
-In networking you often need a dedicated thread that listens on a socket.
+In network server programming it is common to have a dedicated thread listening on a socket.
 In a SCOOP environment it is not hard to create such a processor, but it is hard to stop it.
-The main problem is that the server processor will run its own main loop, and other threads ususally never get exclusive access to call some feature \lstinline!stop!.
+The main problem is that the server will run its own main loop, and other processors never get exclusive access to call a feature like \lstinline!stop!.
 
-The library addresses this issue with the \lstinline!CP_INTERMITTENT_PROCESS!.
-This class defines a special main loop using the Asynchronous Self-Call pattern \patternref{ASC}.
+The library addresses this issue with \lstinline!CP_INTERMITTENT_PROCESS!.
+The class defines a special main loop using the Asynchronous Self-Call pattern \patternref{ASC}.
 
 To use \lstinline!CP_INTERMITTENT_PROCESS! you need to inherit from it and implement the deferred feature \lstinline!step!.
 The following example defines a simple echo server that just listens on a socket and replies with the same string:
@@ -284,6 +284,7 @@ feature -- Basic operations
 			is_stopped := True
 		end
 
+		
 	step
 			-- <Precursor>
 		local
@@ -327,7 +328,7 @@ The classes to represent these operations are \lstinline!FILE_APPENDER_TASK! and
 
 The file reader task is implemented with the future module from the library.
 The library has the class \lstinline!CP_COMPUTATION! which represents futures, i.e. asynchronous tasks that return a result.
-The \lstinline!FILE_READER_TASK! therefore needs to inherit from \lstinline!CP_COMPUTATION!
+The \lstinline!FILE_READER_TASK! therefore needs to inherit from \lstinline!CP_COMPUTATION!.
 
 The file appender task doesn't return a result.
 Therefore it has to inherit from \lstinline!CP_DEFAULT_TASK!.
@@ -410,7 +411,7 @@ feature -- Basic operations
 end
 \end{lstlisting}
 
-The main algorithm for both tasks needs to be defined in \lstinline!computed! or \lstinline!run!, respectively.
+The main algorithm needs to be defined in \lstinline!computed! or \lstinline!run!, respectively.
 Additionally, the feature \lstinline!make_from_separate! has to be defined.
 This feature is required to import task objects from the client to the worker pool processor (see Section \ref{sec:concepts:import} for the import concept).
 
@@ -508,9 +509,9 @@ end
 Submitting tasks to the executor and dealing with the asynchronous result is pretty straightforward.
 Some calls to the promise object are blocking however, e.g. \lstinline!await_termination! or \lstinline!item!, if the asynchronous task has not finished yet.
 
-The library ensures that no exception can escape the task object crash the worker pool or the client code.
+The library ensures that no exception can escape the task object and crash the worker pool or the client code.
 Clients can check if an exception happened with the query \lstinline!is_exceptional! on the promise object.
-The exception trace, if any, is also available to the client in the feature \lstinline!last_exception_trace!.
+The exception trace, if any, is also available to the client with the query \lstinline!last_exception_trace!.
 
 An important measure is to stop the executor when the application wants to terminate.
-Otherwise the workers will continue to wait for incoming tasks, preventing the process to shut down gracefully.
+Otherwise the workers will continue to wait for incoming tasks, preventing the process to shut down.

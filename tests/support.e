@@ -22,4 +22,14 @@ feature
 			Result := [obj]
 		end
 
+feature -- Test agents
+
+	failing_agent
+		local
+			l_exception: DEVELOPER_EXCEPTION
+		do
+			create l_exception
+			l_exception.set_description ("failing_task_test")
+			l_exception.raise
+		end
 end

@@ -11,7 +11,8 @@
 % Source code listings.
 \usepackage{listings}
 % Appendix with extra title.
-\usepackage [toc, page] {appendix}
+% \usepackage [toc, page] {appendix}
+\usepackage [page] {appendix}
 % To include PNG files.
 \usepackage{graphicx}
 % Nice looking captions.
@@ -655,13 +656,7 @@ SCOOP itself also provides a rich offering of possible improvements.
 \end{description}
 
 
-\newpage
-\begin{flushleft}
-{{{
-\bibliographystyle {plain}
-\bibliography {./references}
-}}}
-\end{flushleft}
+
 
 \newpage
 \begin{appendices}
@@ -670,6 +665,16 @@ SCOOP itself also provides a rich offering of possible improvements.
 \input{eiffelvision}
 \input{tutorial}
 \end{appendices}
+
+\newpage
+\phantomsection
+\addcontentsline{toc}{section}{References}
+\begin{flushleft}
+{{{
+\bibliographystyle {plain}
+\bibliography {./references}
+}}}
+\end{flushleft}
 
 \todos
 

@@ -50,12 +50,16 @@ feature -- Status report
 			if is_unsafe_importable (a_routine) then
 
 					-- All closed arguments must be either of a basic type or truly separate.
-				l_separate_closed_args := tuple_importer.is_importable (routine_access.get_closed_operands (a_routine))
+				if attached routine_access.get_closed_operands (a_routine) as l_operands then
+					l_separate_closed_args := tuple_importer.is_importable (l_operands)
+				end
 
 					-- The type of the target should not define any attributes.
 				l_type_id := {ISE_RUNTIME}.dynamic_type (a_routine)
+				l_type_id := reflector.generic_dynamic_type_of_type (l_type_id, 1)
 				l_no_attributes := reflector.field_count_of_type (l_type_id) = 0
 
+					-- Do we actually have a restriction on the return type? I guess it can just be imported.
 					-- The return type, if any, must be a basic type or separate.
 				l_correct_return_type := to_implement_assertion ("TODO: At the moment there is a limitation in the runtime.")
 
@@ -79,7 +83,11 @@ feature -- Status report
 			l_target_open := not a_routine.is_target_closed
 
 				-- There should not be a result from a previous invocation.
-			l_no_result := to_implement_assertion ("Make sure {FUNCTION}.last_result is Void")
+			if attached {separate FUNCTION [ANY, TUPLE, ANY]} a_routine as a_function then
+				l_no_result := is_function_result_void (a_function)
+			else
+				l_no_result := True
+			end
 
 			Result := l_operands_void and l_target_open and l_no_result
 		ensure
@@ -122,6 +130,24 @@ feature {NONE} -- Implementation
 	reflected_agent: REFLECTED_REFERENCE_OBJECT
 			-- A reflector to initialize newly created agents.
 
+	is_function_result_void (a_function: separate FUNCTION [ANY, TUPLE, ANY]): BOOLEAN
+			-- Is `a_function.last_result' Void?
+		do
+			if attached a_function.last_result as res then
+					-- It may be an expanded type.
+				Result := is_expanded_default (res)
+			else
+				Result := True
+			end
+
+		end
+
+	is_expanded_default (object: separate ANY): BOOLEAN
+			-- Is `object' of a basic type containing the default value?
+		do
+			Result := object.generating_type.is_expanded and then object = object.default
+		end
+
 	do_import (routine: separate ROUTINE [ANY, TUPLE]): ROUTINE [ANY, TUPLE]
 			-- Import `routine'.
 		require
@@ -139,7 +165,7 @@ feature {NONE} -- Implementation
 		do
 			fixme ("It may be possible to weaken the harsh precondition a bit: %
 				% {ROUTINE}.operands and {FUNCTION}.last_result may be attached - we can just ignore them. %
-				% However, this probably implies that some string comparison is necessary here.")
+				% However, this implies that we need to compare attribute names (i.e. strings) here.")
 
 			type_id := {ISE_RUNTIME}.dynamic_type (routine)
 

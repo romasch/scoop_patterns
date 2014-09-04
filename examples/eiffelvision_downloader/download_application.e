@@ -30,7 +30,8 @@ feature {NONE} -- Initialization
 				-- Don't forget to tear down the worker pool at the end.
 			app.destroy_actions.extend (agent executor.stop)
 
-				-- This prevents that the main window suddenly vanishes... A garbage collection issue?
+				-- This prevents a bug where the main window suddenly vanishes...
+				-- A garbage collection issue?
 			app.destroy_actions.extend (agent main_window.do_nothing)
 
 				-- Start the GUI.
