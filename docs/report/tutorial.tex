@@ -319,35 +319,198 @@ It ensures that the server processor periodically breaks free of its wait condit
 The echo server can be started with \lstinline!{STARTABLE_UTILS}.async_start! and stopped with the feature \lstinline!stop!.
 Thanks to the special loop construct used in \lstinline!CP_INTERMITTENT_PROCESS!, stopping the echo server also works when called from another processor.
 
-% To break out of the main loop, you need to set \lstinline!is_stopped! to \lstinline!True!.
-% This can be done from within the \lstinline!CP_INTERMITTENT_PROCESS! or from a separate processor by calling \lstinline!stop!.
-% 
-% To start the echo server you can use \lstinline!CP_STARTABLE_UTILS! and the feature \lstinline!asynch_start!:
-% 
-% \lstinputlisting [firstline=7] {../../examples/echo_server/echo_application.e}
+\subsection{Worker Pool and Futures}
 
-\subsection{Futures}
+This section describes how to use a worker pool for I/O tasks.
+The application defines two operations on text files: reading a file and appending a string to a file.
+The classes to represent these operations are \lstinline!FILE_APPENDER_TASK! and \lstinline!FILE_READER_TASK!.
 
-A future is a computation which may run asynchronously, possibly returning a result.
-The future is a very popular pattern in other languages like Java.
+The file reader task is implemented with the future module from the library.
+The library has the class \lstinline!CP_COMPUTATION! which represents futures, i.e. asynchronous tasks that return a result.
+The \lstinline!FILE_READER_TASK! therefore needs to inherit from \lstinline!CP_COMPUTATION!
 
-The idea is that the computation is encapsulated in an object which may be executed by another thread.
-If there's a result to the computation, the client thread also gets a token back to access the result at some point in the future.
-This token is usually called ``Future'' or ``Promise''.
+The file appender task doesn't return a result.
+Therefore it has to inherit from \lstinline!CP_DEFAULT_TASK!.
+This inheritance is necessary to be able to submit it to a worker pool later.
 
-The library mechanism to support futures are the class hierarchies rooted at \lstinline!CP_TASK!, \lstinline!CP_BROKER! and \lstinline!CP_EXECUTOR!.
+The two classes are shown in Listing \ref{code:file-tasks}.
 
-The \lstinline!CP_DEFAULT_TASK! class is used to define the operation.
-To use it you need to inherit from it and implement \lstinline!run! and \lstinline!make_from_separate!.
-The latter is needed because SCOOP doesn't allow shared access to objects, which is why a \lstinline!CP_TASK! needs to be imported from one processor to another.
-If the operation is returning a result, it is necessary to inherit from \lstinline!CP_COMPUTATION! and implement \lstinline!computed!.
+\begin{lstlisting}[language=OOSC2Eiffel, label={code:file-tasks}, captionpos=b, caption={The file reader and appender classes.}]
+class
+	FILE_READER_TASK
+inherit
+	CP_COMPUTATION [STRING]
 
-\lstinline!CP_EXECUTOR! is used to submit a task to be executed.
-The main implementation is \lstinline!CP_TASK_WORKER_POOL!, which is using a worker pool to execute \lstinline!CP_TASK! objects.
-The executor shoud be accessed using a local \lstinline!CP_EXECUTOR_PROXY! and \lstinline!CP_FUTURE_EXECUTOR_PROXY!, which simplify access to the \lstinline!separate CP_EXECUTOR! and also initialize the Promise object.
+create
+	make, make_from_separate
 
-The \lstinline!CP_BROKER! serves as the token to store the status of the computation and a possible result.
-It is created on a separate processor, such that both the client and the task object can access it without the risk of a deadlock.
-If you use \lstinline!CP_EXECUTOR_PROXY!, you can submit a task and receive a token object by using \lstinline!put_with_broker!.
+feature {NONE} -- Initialization
 
-\todo{integrate example} 
+	make (a_path: STRING)
+			-- Create a new task to read the content from `a_path'.
+		do
+			path := a_path
+		end
+
+feature {CP_DYNAMIC_TYPE_IMPORTER} -- Initialization
+
+	make_from_separate (other: separate like Current)
+			-- <Precursor>
+		do
+			create path.make_from_separate (other.path)
+			promise := other.promise
+		end
+
+feature -- Access
+
+	path: STRING
+			-- The path of the file to read from.
+
+feature -- Basic operations
+
+	computed: STRING
+			-- <Precursor>
+		local
+			l_file: PLAIN_TEXT_FILE
+			l_content: STRING
+		do
+			create l_file.make_open_read (path)
+			l_file.read_stream (l_file.count)
+			Result := l_file.last_string
+			l_file.close
+		end
+end
+
+class
+	FILE_APPENDER_TASK
+inherit
+	CP_DEFAULT_TASK
+
+    -- Initialization similar to FILE_READER_TASK.
+	
+feature -- Access
+
+	path: STRING
+			-- The path of the file to write to.
+
+	content: STRING
+			-- The content to be written.
+
+feature -- Basic operations
+
+	run
+			-- <Precursor>
+		local
+			l_file: PLAIN_TEXT_FILE
+		do
+			create l_file.make_open_append (path)
+			l_file.put_string (content)
+			l_file.close
+		end
+end
+\end{lstlisting}
+
+The main algorithm for both tasks needs to be defined in \lstinline!computed! or \lstinline!run!, respectively.
+Additionally, the feature \lstinline!make_from_separate! has to be defined.
+This feature is required to import task objects from the client to the worker pool processor (see Section \ref{sec:concepts:import} for the import concept).
+
+\lstinline!CP_EXECUTOR! defines an interface to submit and execute task objects.
+The main implementation is \lstinline!CP_TASK_WORKER_POOL!.
+The executor is shipped with a Separate Proxy \patternref{SP}, which means users can access it via \lstinline!CP_EXECUTOR_PROXY! or \lstinline!CP_FUTURE_EXECUTOR_PROXY!.
+These two proxy classes also initialize the promise object, which is a handle to the asynchronous operation that can be used to wait for its termination or to retrieve the result when it's available.
+
+Listing \ref{code:io-worker-pool} shows how a worker pool is used to submit file read and append tasks.
+
+\begin{lstlisting}[language=OOSC2Eiffel, label={code:io-worker-pool}, captionpos=b, caption={Using a worker pool for futures and asynchronous tasks.}]
+class
+	IO_WORKER_POOL
+
+create
+	make
+
+feature -- Constants
+
+	path: STRING = "a.txt"
+	
+	hello_world: STRING = "Hello World%N"
+
+feature {NONE} -- Initialization
+
+	make
+			-- Initialization for `Current'.
+		do
+				-- Create the worker pools.
+			create worker_pool.make (100, 4)
+			create executor.make (worker_pool)
+
+				-- Run the example
+			single_read_write
+
+				-- Stop the executor. This is necessary such that 
+				-- the application can terminate.
+			executor.stop
+		end
+
+feature -- Basic operations
+
+	single_read_write
+			-- Perform a single write operation on a file.
+		local
+			write_task: FILE_APPENDER_TASK
+			write_task_promise: CP_PROMISE_PROXY
+
+			read_task: FILE_READER_TASK
+			read_task_promise: CP_RESULT_PROMISE_PROXY [STRING, CP_STRING_IMPORTER]
+
+			l_result: detachable STRING
+		do
+				-- Execute a file append task first.
+			create write_task.make (path, hello_world)
+
+				-- Submit the task and get a promise object.
+			write_task_promise := executor.put_with_promise(write_task)
+
+				-- Wait for the task to finish.
+			write_task_promise.await_termination
+
+				-- It is possible to check for IO exceptions.
+			check no_exception: 
+			  not write_task_promise.is_exceptional 
+			end
+
+
+				-- Now execute a read task.
+			create read_task.make (path)
+
+				-- Submit the task and get a promise.
+			read_task_promise := executor.put_future (read_task)
+
+				-- The promise can be used to retrieve the result.
+				-- Note that the statement may block if the result
+				-- is not ready yet.
+			l_result := read_task_promise.item
+
+				-- Check if the read-write cycle worked as expected.
+% 			check correct_result: l_result ~  hello_world end
+		end
+
+feature {NONE} -- Implementation
+
+	worker_pool: separate CP_TASK_WORKER_POOL
+			-- The worker pool that executes the IO tasks.
+
+	executor: CP_FUTURE_EXECUTOR_PROXY[STRING, CP_STRING_IMPORTER]
+			-- The executor proxy for to submit tasks.
+
+end
+\end{lstlisting}
+
+Submitting tasks to the executor and dealing with the asynchronous result is pretty straightforward.
+Some calls to the promise object are blocking however, e.g. \lstinline!await_termination! or \lstinline!item!, if the asynchronous task has not finished yet.
+
+The library ensures that no exception can escape the task object crash the worker pool or the client code.
+Clients can check if an exception happened with the query \lstinline!is_exceptional! on the promise object.
+The exception trace, if any, is also available to the client in the feature \lstinline!last_exception_trace!.
+
+An important measure is to stop the executor when the application wants to terminate.
+Otherwise the workers will continue to wait for incoming tasks, preventing the process to shut down gracefully.
