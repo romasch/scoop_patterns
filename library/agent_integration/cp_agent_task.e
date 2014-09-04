@@ -2,24 +2,28 @@ note
 	description: "[
 		Task object that execute an agent. 
 		
-		Note: The agent will be moved across processor boundaries via reflection and thus
-		has to fulfill some requirements:
+		Note: There are several restrictions imposed on the imported agent.
+		The first three items originate from {CP_AGENT_IMPORTER}:
 		
 		1)  Every closed argument has to be either truly separate or a basic
 			expanded type. It is NOT sufficient to just declare the argument 
 			as separate, as this cannot	be checked due to a runtime limitation.
 			
-		2)  The target must be open. It will be reflectively created after the import.
+		2)  The target must be open.
 		
-		3)  The type of the target must not declare any attributes.
-		
-		4)  There must not be any leftovers from a previous call, 
+		3)  There must not be any leftovers from a previous call, 
 			i.e. `operands' and {FUNCTION}.last_result must be Void.
+
+		4)  The type of the target must not declare any attributes.
+			This is because the target has to be created reflectively
+			and provided to the agent uninitialized.
 		
-		The creation procedure `make_unsafe' does not check 
-		rules 1) and 3). If you use it, make sure that every closed
+		5)  Except for the target, the agent must not have open arguments.
+		
+		The creation procedure `make_unsafe' does not check rules 1)
+		and 4). If you want to use it, make sure that every closed
 		argument is declared as	separate, and that the agent never 
-		accesses an attribute in `Current' (implicitly or explicitly).
+		touches an attribute of its target (implicitly or explicitly).
 		]"
 	author: "Roman Schmocker"
 	date: "$Date$"
@@ -32,6 +36,8 @@ inherit
 
 	CP_DEFAULT_TASK
 
+	CP_IMPORT_VALIDATOR
+
 	REFACTORING_HELPER
 
 create
@@ -43,7 +49,9 @@ feature {NONE} -- Initialization
 			-- Initialize `Current' with `a_routine'.
 			-- Check out the class header for restrictions on `a_routine'.
 		require
-			importable: (create {CP_AGENT_IMPORTER}).is_importable (a_routine)
+			importable: is_agent_importable (a_routine)
+			no_attributes: not is_defining_attributes (a_routine)
+			no_open_arguents: not has_open_arguments (a_routine)
 		do
 			routine := a_routine
 		end
@@ -55,8 +63,8 @@ feature {NONE} -- Initialization
 			--- All closed arguments are either expanded or declared as separate.
 			--- The agent must never access its target (i.e. no implicit or explicit use of Current).
 		require
-			open_target: (create {CP_AGENT_IMPORTER}).is_unsafe_importable (a_routine)
-			no_open_args: to_implement_assertion ("TODO")
+			unsafe_importable: is_agent_unsafe_importable (a_routine)
+			no_open_arguents: not has_open_arguments (a_routine)
 		do
 			routine := a_routine
 		end
@@ -105,6 +113,29 @@ feature -- Basic operations
 			l_target := l_reflector.new_instance_of (l_type_id)
 
 			routine.call ([l_target])
+		end
+
+feature -- Contract support
+
+	is_defining_attributes (a_routine: like routine): BOOLEAN
+			-- Does the target of `a_routine' define attributes?
+		local
+			l_type_id: INTEGER
+		do
+				-- The type of the target should not define any attributes.
+			l_type_id := {ISE_RUNTIME}.dynamic_type (a_routine)
+			l_type_id := reflector.generic_dynamic_type_of_type (l_type_id, 1)
+			Result := reflector.field_count_of_type (l_type_id) /= 0
+		end
+
+	has_open_arguments (a_routine: like routine): BOOLEAN
+			-- Does `a_routine' have an open argument (except for a target)?
+		do
+			if a_routine.is_target_closed then
+				Result := a_routine.open_count > 0
+			else
+				Result := a_routine.open_count > 1
+			end
 		end
 
 end

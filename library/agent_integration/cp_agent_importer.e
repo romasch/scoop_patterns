@@ -1,5 +1,24 @@
 note
-	description: "Importer for agents."
+	description:
+		"[
+		Importer for agent objects.
+		
+		Note: Due to the use of reflection, the agent has tu fulfill 
+		some requiremets:
+
+		1)  Every closed argument has to be either truly separate or a basic
+			expanded type. It is NOT sufficient to just declare the argument
+			as separate, as this cannot	be checked due to a runtime limitation.
+
+		2)  The target must be open. A target always has to be non-separate,
+			and we can't import arbitrary reference objects.
+
+		3)  There must not be any leftovers from a previous call,
+			i.e. `operands' and {FUNCTION}.last_result must be Void.
+		
+		The creation procedure `make_unsafe' does not check rule (1). If you 
+		use it, make sure that every closed argument is declared as separate.
+		]"
 	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
@@ -10,90 +29,17 @@ class
 inherit
 
 	CP_IMPORTER [ROUTINE [ANY, TUPLE]]
-		redefine
-			is_importable,
-			default_create
+		undefine
+			is_importable
+		end
+
+	CP_IMPORT_VALIDATOR
+		rename
+			is_agent_importable as is_importable,
+			is_agent_unsafe_importable as is_unsafe_importable
 		end
 
 	REFLECTOR_CONSTANTS
-		undefine
-			default_create
-		end
-
-	REFACTORING_HELPER
-		undefine
-			default_create
-		end
-
-feature {NONE} -- Initialization
-
-	default_create
-			-- <Precursor>
-		do
-			create routine_access
-			create tuple_importer
-			create reflector
-			create reflected_agent.make (Current)
-		end
-
-feature -- Status report
-
-	is_importable (a_routine: separate ROUTINE [ANY, TUPLE]): BOOLEAN
-			-- Is `a_routine' importable?
-		local
-			l_separate_closed_args: BOOLEAN
-			l_no_attributes: BOOLEAN
-			l_correct_return_type: BOOLEAN
-			l_type_id: INTEGER
-		do
-				-- First check if the basic requirements hold.
-			if is_unsafe_importable (a_routine) then
-
-					-- All closed arguments must be either of a basic type or truly separate.
-				if attached routine_access.get_closed_operands (a_routine) as l_operands then
-					l_separate_closed_args := tuple_importer.is_importable (l_operands)
-				end
-
-					-- The type of the target should not define any attributes.
-				l_type_id := {ISE_RUNTIME}.dynamic_type (a_routine)
-				l_type_id := reflector.generic_dynamic_type_of_type (l_type_id, 1)
-				l_no_attributes := reflector.field_count_of_type (l_type_id) = 0
-
-					-- Do we actually have a restriction on the return type? I guess it can just be imported.
-					-- The return type, if any, must be a basic type or separate.
-				l_correct_return_type := to_implement_assertion ("TODO: At the moment there is a limitation in the runtime.")
-
-				Result := l_separate_closed_args and l_no_attributes and l_correct_return_type
-			end
-		ensure then
-			correct_relation: Result implies is_unsafe_importable (a_routine)
-		end
-
-	is_unsafe_importable (a_routine: separate ROUTINE [ANY, TUPLE]): BOOLEAN
-			-- Is `a_routine' ready for an unsafe import?
-		local
-			l_operands_void: BOOLEAN
-			l_target_open: BOOLEAN
-			l_no_result: BOOLEAN
-		do
-				-- There should not be any open operands from a previous invocation.
-			l_operands_void := not attached a_routine.operands
-
-				-- The target must be open.
-			l_target_open := not a_routine.is_target_closed
-
-				-- There should not be a result from a previous invocation.
-			if attached {separate FUNCTION [ANY, TUPLE, ANY]} a_routine as a_function then
-				l_no_result := is_function_result_void (a_function)
-			else
-				l_no_result := True
-			end
-
-			Result := l_operands_void and l_target_open and l_no_result
-		ensure
-			no_open_operands: Result implies a_routine.operands = Void
-			open_target: Result implies not a_routine.is_target_closed
-		end
 
 feature -- Basic operations
 
@@ -118,41 +64,14 @@ feature -- Basic operations
 
 feature {NONE} -- Implementation
 
-	tuple_importer: CP_TUPLE_IMPORTER
-			-- Importer object for TUPLEs
-
-	routine_access: CP_ROUTINE_ACCESS
-			-- Object with privileged access for a routine's attributes.
-
-	reflector: REFLECTOR
-			-- Reflection object to create a new agent on the current processor.
-
-	reflected_agent: REFLECTED_REFERENCE_OBJECT
-			-- A reflector to initialize newly created agents.
-
-	is_function_result_void (a_function: separate FUNCTION [ANY, TUPLE, ANY]): BOOLEAN
-			-- Is `a_function.last_result' Void?
-		do
-			if attached a_function.last_result as res then
-					-- It may be an expanded type.
-				Result := is_expanded_default (res)
-			else
-				Result := True
-			end
-
-		end
-
-	is_expanded_default (object: separate ANY): BOOLEAN
-			-- Is `object' of a basic type containing the default value?
-		do
-			Result := object.generating_type.is_expanded and then object = object.default
-		end
-
 	do_import (routine: separate ROUTINE [ANY, TUPLE]): ROUTINE [ANY, TUPLE]
 			-- Import `routine'.
 		require
 			unsafe_importable: is_unsafe_importable (routine)
 		local
+			reflected_agent: REFLECTED_REFERENCE_OBJECT
+			tuple_importer: CP_TUPLE_IMPORTER
+
 			type_id: INTEGER
 			i: INTEGER
 
@@ -175,7 +94,8 @@ feature {NONE} -- Implementation
 			end
 
 			from
-				reflected_agent.set_object (Result)
+				create reflected_agent.make (Result)
+				create tuple_importer
 				i := 1
 			until
 				i > reflector.field_count_of_type (type_id)

@@ -1,5 +1,24 @@
 note
-	description: "Importer for TUPLE objects."
+	description:
+		"[
+			Importer for TUPLE objects.
+			
+			Note: The importer is using reflection. It does not support
+			reference objects or user-defined expanded types.
+			
+			The precondition of `import' will only accept tuples with
+			basic expanded types or truly separate references.
+			
+			Due to a limitation of the runtime, `is_importable' will
+			also reject objects which are only declared as separate
+			but actually belong to the same processor as the tuple object.
+			
+			
+			The feature `unsafe_import' does not check the validity of
+			its argument. It may be used to circumvent the above limitation.
+			However, if you pass it a tuple with non-separate objects, you
+			will get a traitor!
+		]"
 	author: "Roman Schmocker"
 	date: "$Date$"
 	revision: "$Revision$"
@@ -8,35 +27,15 @@ class
 	CP_TUPLE_IMPORTER
 
 inherit
-	CP_IMPORTER [TUPLE]
-		redefine
-			is_importable
+
+	CP_IMPORT_VALIDATOR
+		rename
+			is_tuple_importable as is_importable
 		end
 
-feature -- Status report
-
-	is_importable (tuple: separate TUPLE): BOOLEAN
-			-- Is `tuple' importable?
-			-- A tuple is safely importable if it only contains
-			-- basic types or truly separate references.
-		local
-			l_index: INTEGER
-			l_count: INTEGER
-		do
-			from
-				l_index := 1
-				l_count := tuple.count
-				Result := True
-			until
-				l_index > l_count or not Result
-			loop
-				if tuple.is_reference_item (l_index) then
-					Result := Result and c_is_tuple_item_separate (tuple, l_index)
-				end
-				l_index := l_index + 1
-			variant
-				l_count + 2 - l_index
-			end
+	CP_IMPORTER [TUPLE]
+		undefine
+			is_importable
 		end
 
 feature -- Duplication
@@ -70,46 +69,13 @@ feature {NONE} -- Implementation
 			-- Import `tuple' using some reflection.
 		local
 			l_tuple_type_id: INTEGER
-			l_reflector: REFLECTOR
 		do
 			l_tuple_type_id := {ISE_RUNTIME}.dynamic_type (tuple)
-			create l_reflector
 
 				-- This tuple creation should always succeed, because the type is exactly the same.
-			check attached l_reflector.new_tuple_from_tuple (l_tuple_type_id, tuple) as l_result then
+			check attached reflector.new_tuple_from_tuple (l_tuple_type_id, tuple) as l_result then
 				Result := l_result
 			end
-		end
-
-	c_is_tuple_item_separate (a_tuple: separate TUPLE; a_index: INTEGER): BOOLEAN
-			-- Is `a_tuple[a_index]' truly separate from  `a_tuple'?
-		require
-			valid_index: 1 <= a_index and a_index <= a_tuple.count
-			reference_item: a_tuple.is_reference_item (a_index)
-		external
-			"C inline use  %"eif_rout_obj.h%", %"eif_macros.h%""
-		alias
-			"[
-				EIF_REFERENCE l_tuple;
-				EIF_REFERENCE l_item;
-				EIF_BOOLEAN l_result;
-				
-					/* Get the unprotected reference to `a_tuple' */
-				l_tuple = eif_access ($a_tuple);
-				
-					/* Load the Eiffel object at `a_tuple[index]' */
-				l_item = eif_reference_item(l_tuple, $a_index);
-
-					/* l_item may be Void */
-				if (l_item) {
-						/* Check if the processor ID is different. */
-					l_result = EIF_IS_DIFFERENT_PROCESSOR (l_tuple, l_item);
-				}
-				else {
-					l_result = EIF_FALSE;
-				}
-				return l_result;
-			]"
 		end
 
 end
