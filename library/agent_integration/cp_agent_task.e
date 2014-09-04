@@ -12,7 +12,7 @@ note
 		2)  The target must be open.
 		
 		3)  There must not be any leftovers from a previous call, 
-			i.e. `operands' and {FUNCTION}.last_result must be Void.
+			i.e. `operands' must be Void.
 
 		4)  The type of the target must not declare any attributes.
 			This is because the target has to be created reflectively
