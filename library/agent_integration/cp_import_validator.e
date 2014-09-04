@@ -99,20 +99,17 @@ feature {NONE} -- Implementation
 
 	is_function_result_void (a_function: separate FUNCTION [ANY, TUPLE, ANY]): BOOLEAN
 			-- Is `a_function.last_result' Void?
+		local
+			l_type_id: INTEGER
 		do
 			if attached a_function.last_result as res then
 					-- It may be an expanded type.
-				Result := is_expanded_default (res)
+				l_type_id := {ISE_RUNTIME}.dynamic_type (res)
+				Result := reflector.type_of_type (l_type_id).is_expanded
 			else
 				Result := True
 			end
 
-		end
-
-	is_expanded_default (object: separate ANY): BOOLEAN
-			-- Is `object' of a basic type containing the default value?
-		do
-			Result := object.generating_type.is_expanded and then object = object.default
 		end
 
 	c_is_tuple_item_separate (a_tuple: separate TUPLE; a_index: INTEGER): BOOLEAN

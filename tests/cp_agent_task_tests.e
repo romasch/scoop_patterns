@@ -56,6 +56,31 @@ feature
 			assert ("executor_count_wrong", executor.worker_count = {CP_GLOBAL_PROCESSORS}.worker_count)
 		end
 
+	test_fibonacci
+		local
+			task: CP_AGENT_COMPUTATION [INTEGER_64]
+			future_executor: CP_FUTURE_EXECUTOR_PROXY [INTEGER_64, CP_NO_IMPORTER [INTEGER_64]]
+			promise: CP_RESULT_PROMISE_PROXY [INTEGER_64, CP_NO_IMPORTER [INTEGER_64]]
+
+			res: INTEGER_64
+		do
+			create future_executor.make (executor.subject)
+			create task.make_safe (agent {SUPPORT}.fibonacci (50))
+			assert ("has_promise", not attached task.promise)
+
+			promise := future_executor.put_future (task)
+
+			assert ("different_promise", task.promise = promise.subject)
+
+			res := promise.item
+
+			assert ("result_wrong", res = 12586269025)
+
+			assert ("has_exception", not promise.is_exceptional)
+			assert ("not_terminated", promise.is_terminated)
+			assert ("executor_count_wrong", executor.worker_count = {CP_GLOBAL_PROCESSORS}.worker_count)
+		end
+
 feature {NONE}  -- Implementation
 
 	on_prepare

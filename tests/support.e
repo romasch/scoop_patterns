@@ -32,4 +32,25 @@ feature -- Test agents
 			l_exception.set_description ("failing_task_test")
 			l_exception.raise
 		end
+
+
+	fibonacci (input: INTEGER_64): INTEGER_64
+			-- Compute the fibonacci number.
+		local
+			i, last, tmp: INTEGER_64
+		do
+			from
+				i := 3
+				last := 1
+				Result := 1
+			until
+				i > input
+			loop
+				tmp := Result
+				Result := Result + last
+				last := tmp
+				i := i + 1
+			end
+		end
+
 end
