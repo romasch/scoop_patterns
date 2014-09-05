@@ -3,9 +3,9 @@
 
 % Handmade package to define patterns.
 \usepackage{pattern}
-
 % For the \todo{} command.
 % \usepackage{todo}
+
 % Nice fonts
 \usepackage{palatino}
 % Needed for Listings package with Eiffel.
@@ -18,6 +18,8 @@
 \usepackage{graphicx}
 % Nice looking captions.
 \usepackage[font={footnotesize,sl}, labelfont=bf] {caption}
+% Include PDF pages.
+\usepackage{pdfpages}
 
 % Clickable links. Has to be the last package:
 \usepackage [hidelinks] {hyperref}
@@ -28,7 +30,6 @@
 \setlength{\headheight}{28pt}
 \lstset{escapechar=\$}
 
-% \newcommand{\dir} [1] [] {\emph{#1}} 
 \newcommand{\dir}{\emph}
 \newcommand{\todoref}{\todo{ref}}
 
@@ -38,29 +39,21 @@
 
 
 \begin{document}
-
-
-
 \pagenumbering{roman}
-\maketitle
-\thispagestyle{empty}
-\newpage
+\includepdf {resources/titlepage}
 
 \begin{abstract}
 \thispagestyle{plain}
 \setcounter{page}{2}
 The wide distribution of multi-core processors increasingly forces programmers to deal with concurrency.
 Parallel programming is not easy, but there are many well-known patterns at hand to help developers.
-% Parallel programming is not easy, but it can be simplified with the use of well-known patterns.
 
 SCOOP, an extension to the Eiffel programming language, provides an alternative approach to concurrent programming compared to the threading mo\-del used in many other languages.
 There is little experience in implementing and using concurrency patterns in SCOOP however.
 
-% In SCOOP, an extension to the Eiffel programming language, there's neither a library nor experience in using concurrency patterns.
 We have investigated which patterns are used in practice and compiled an exhaustive list of pattern descriptions.
 From this list we selected several popular concurrency patterns and implemented them as a reusable Eiffel library.
 A small performance comparison shows that the new library is more robust and faster for large data sets than a raw SCOOP solution.
-% Some of these patterns were then implemented as a reusable library for Eiffel.
 We also describe some of the challenges when programming in SCOOP for the first time and provide solutions.
 \end{abstract}
 
