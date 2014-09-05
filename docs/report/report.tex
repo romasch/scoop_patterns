@@ -1,9 +1,11 @@
 \documentclass[a4paper,10pt,titlepage]{article}
 \usepackage[utf8]{inputenc}
 
+% Handmade package to define patterns.
 \usepackage{pattern}
-\usepackage{todo}
 
+% For the \todo{} command.
+% \usepackage{todo}
 % Nice fonts
 \usepackage{palatino}
 % Needed for Listings package with Eiffel.
@@ -11,7 +13,6 @@
 % Source code listings.
 \usepackage{listings}
 % Appendix with extra title.
-% \usepackage [toc, page] {appendix}
 \usepackage [page] {appendix}
 % To include PNG files.
 \usepackage{graphicx}
@@ -380,10 +381,6 @@ but it is often possible to hide them in a \lstinline!fetch! function, as shown 
 
 \section {Library}
 \label{sec:library}
-
-% The library is designed as a set of modules which simplify concurrent programming in SCOOP.
-% Section ~\ref{sec:tutorial} explains how to use the library for commonly used patterns,
-% while Section ~\ref{sec:modules} concentrates on the design of the library itself.
  
 \subsection{Goals}
 \label{sec:goals}
@@ -576,8 +573,6 @@ Matrix Size & Future & Raw SCOOP & Sequential\\
 \label{table:perf-results}
 \end{table}
 
-\todo{Maybe add small data plot.}
-
 We can get several observations from the results:
 
 \begin{itemize}
@@ -603,7 +598,6 @@ If both the worker pool and the promise processor could be declared passive the 
 % Say that import was developed to overcome language limitation
 % Also: Future work
 
-%Applications using multiple processor cores are increasingly becoming the norm, despite the difficulties of dealing with parallelism.
 Concurrent programming is increasingly becoming the norm despite its difficulties.
 The SCOOP model provides a solid foundation to concurrent programming in Eiffel, 
 but it is hard to learn for developers due to the paradigm shift and the lack of a concurrency library.
@@ -611,8 +605,6 @@ but it is hard to learn for developers due to the paradigm shift and the lack of
 In this thesis we've worked out many methods that simplify concurrent programming in SCOOP.
 We did a broad survey of popular concurrency patterns and present our findings in a detailed list.
 The list can be used to search for a pattern that fits a particular problem, which may even be useful to programmers of threaded languages.
-% We've done a survey of concurrency patterns and described them in an extensive list.
-% This list can be used by anyone searching for a particular pattern.
 
 From our survey we selected some patterns which we thought to be especially useful.
 The selection was based on the study of other concurrency libraries as well as some input from the Software Engineering research group at ETH.
@@ -633,15 +625,11 @@ The library provides several opportunities for future work.
  It may be useful to include Pipeline or Dataflow Network.
  \item [Separate Proxies] The Separate Proxy pattern may be applied to some EiffelBase classes, such as \lstinline!ARRAYED_LIST!, \lstinline!HASH_TABLE! or \lstinline!ROUTINE!.
  \item [Separate Proxy Wizard] Writing a Separate Proxy is tedious. Most of it could be automated with a wizard however.
-% \item [EiffelVision support] \todo{maybe?}
-% \item [Agent integration] \todo{maybe?}
  \item [Concurrent Datastructures] Sometimes it may be useful to have truly concurrent data structures for performance reasons.
 The Array Slicing technique \cite{paper:array-slicing} is an example how arrays with concurrent read access can be implemented in SCOOP.
 \end{description}
 
 SCOOP itself also provides a rich offering of possible improvements.
-% A important step is to improve SCOOP itself.
-% There are various ways to do it, most of them related to performance improvements.
 
 \begin{description}
  \item [Faster runtime] The SCOOP runtime needs to become faster. 
@@ -655,13 +643,9 @@ SCOOP itself also provides a rich offering of possible improvements.
  Some syntactic sugar would be really helpful.
 \end{description}
 
-
-
-
 \newpage
 \begin{appendices}
 \input{separate_proxy}
-\section{SCOOP and EiffelVision}
 \input{eiffelvision}
 \input{tutorial}
 \end{appendices}
@@ -675,7 +659,5 @@ SCOOP itself also provides a rich offering of possible improvements.
 \bibliography {./references}
 }}}
 \end{flushleft}
-
-\todos
 
 \end{document}          

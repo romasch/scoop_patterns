@@ -381,13 +381,15 @@ The interface to execute tasks is provided by the class \lstinline!CP_EXECUTOR!.
 It defines the feature \lstinline!put! which takes a \lstinline!separate CP_TASK! object as its argument.
 As an executor instance is usually placed on its own separate processor we applied the Separate Proxy pattern \patternref{SP} on \lstinline!CP_EXECUTOR!.
 
-\todo {Tell about agent integration?}
-
 The executor framework is pretty useless on its own, as it essentially consists of only two deferred classes.
 Therefore it is shipped with a worker pool implementation.
 The \lstinline!CP_TASK_WORKER_POOL! implements the executor interface and is itself a descendant of the more basic \lstinline!CP_WORKER_POOL!.
 The associated \lstinline!CP_TASK_WORKER! then just fetches \lstinline!CP_TASK! objects and executes them.
 
+In some cases it may also be possible to use agents in conjunction with the executor module.
+The library has implemented a mechanism to import agents with the help of reflection.
+The restrictions imposed on the agent are quite harsh however, e.g. it only works with basic expanded or truly separate closed arguments.
+The functionality is provided by \lstinline!CP_AGENT_TASK! (and \lstinline!CP_AGENT_COMPUTATION! for the future module, see Section \ref{sec:futures}) in \dir{library/agent\_integration}.
 
 \subsection{Futures}
 \label{sec:futures}
@@ -423,20 +425,17 @@ Instead of just forwarding the computation object to the execution service, it a
 
 The implementation of the future pattern hits two challenges:
 \begin{itemize}
- \item Object Migration (see Section \ref{sec:object-migration}): Operations can't be easily moved from the client to an execution service.
+ \item Object Migration (see Section \ref{sec:object-migration}):
+ Operations can't be easily moved from the client to an execution service.
  The same is also true for the result of a computation in the reverse direction.
- \item Processor Communication (see Section \ref{sec:processor-communication}): The promise object should neither be placed on the client processor nor on the executor service.
-% The reason in both cases is that one processor may execute a main loop, which means the other processor never gets access to the promise object.
+ \item Processor Communication (see Section \ref{sec:processor-communication}):
+ The promise object should neither be placed on the client processor nor on the executor service.
 \end{itemize}
 
 The first problem is already solved by the executor module. 
 Just like a \lstinline!CP_TASK! object, a \lstinline!CP_COMPUTATION! is movable across processor boundaries.
 To bring the result back to the client the promise module makes use of the import concept.
 
-% (Section \ref{sec:concepts:import}.
-% This means that both the Executor service and the Promise object have a generic argument to define the \lstinline!CP_IMPORT_STRATEGY!.
-% The executor service always uses \lstinline!CP_DYNAMIC_TYPE_IMPORTER!, because \lstinline!CP_COMPUTATION! inherits from \lstinline!CP_IMPORTABLE!.
-% The import strategy of the Promise object however is user-defined.
 The second problem is more interesting however.
 As we've seen in Section \ref{sec:processor-communication}, the promise object needs to be placed on a third processor.
 However, starting a new processor for every computation introduces a huge overhead.
