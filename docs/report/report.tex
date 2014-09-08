@@ -55,7 +55,7 @@ There is little experience in implementing and using concurrency patterns in SCO
 
 We have investigated which patterns are used in practice and compiled an exhaustive list of pattern descriptions.
 From this list we selected several popular concurrency patterns and implemented them as a reusable Eiffel library.
-A small performance comparison shows that the new library is more robust and faster for large data sets than a raw SCOOP solution.
+A small performance comparison shows that the new library is faster and more robust for large data sets than a raw SCOOP solution.
 We also describe some of the challenges when programming in SCOOP for the first time and provide solutions.
 \end{abstract}
 
@@ -64,7 +64,7 @@ We also describe some of the challenges when programming in SCOOP for the first 
 \thispagestyle{plain}
 \setcounter{page}{4}
 I would like to thank Alexey Kolesnichenko very much for his great support and helpful advice throughout my thesis.
-Many thanks go to Prof. Bertrand Meyer for his insightful comments and for giving me the opportunity to work on this project.
+Many thanks go to Prof. Dr. Bertrand Meyer for his insightful comments and for giving me the opportunity to work on this project.
 I would also like to thank Julian Tschannen, Mischael Schill, Scott West, Sebastian Nanz and others at the Chair of Software Engineering for their useful input.
 
 \emph{Roman Schmocker}
@@ -85,7 +85,7 @@ I would also like to thank Julian Tschannen, Mischael Schill, Scott West, Sebast
 \label{sec:introduction}
 
 
-Due to the advent of multicore processors, concurrent programming has become an important part in software engineering.
+Concurrent programming has become an important part in software engineering due to the advent of multicore processors.
 Dealing with parallelism isn't easy however.
 There are many pitfalls, such as race conditions and deadlocks.
 
@@ -103,7 +103,7 @@ The main contributions are:
  \item A broad survey of known concurrency patterns.
  \item The identification of common SCOOP challenges and advice on how to solve them.
  \item A new library which provides implementations for some selected concurrency patterns.
- This selection was mainly based on input from the Software Engineering group at ETH Zürich and the study of Java \cite{web:java-concurrency} and C\# \cite{web:ms-tpl} concurrency libraries.
+ The selection was mainly based on input from the Software Engineering group at ETH Zürich and the study of Java \cite{web:java-concurrency} and C\# \cite{web:ms-tpl} concurrency libraries.
 \end{itemize}
 
 \subsection{Overview}
@@ -111,7 +111,7 @@ The main contributions are:
 Section \ref{sec:pattern_overview} introduces a list of concurrency patterns which we found and categorized by studying literature and the standard libraries.
 A brief introduction of the SCOOP model is given in Section \ref{sec:scoop-model}.
 Section \ref{sec:scoop-challenges} describes some challenges when programming in SCOOP and how to solve them.
-The latter two sections may be interesting for programmers having experience in threaded programming and who wish to learn SCOOP.
+The latter two sections may be interesting for programmers having experience in thread programming and who wish to learn SCOOP.
 
 The focus of Section \ref{sec:library} is on the goals and concepts of the concurrency patterns library.
 It also provides an overview over the available modules and describes which patterns are implemented by which modules.
@@ -129,7 +129,7 @@ Finally, Section \ref{sec:evaluation} provides a small performance evaluation of
 
 To evaluate the library we did a small performance benchmark.
 We implemented the Gaussian elimination algorithm in three different ways: sequentially, with SCOOP only, and using the future module (see Section \ref{sec:futures}) from our library.
-We chose to use the future module because it indirectly also measures many other parts of the library like the worker pool or import mechanism.
+We chose to use the future module because it indirectly also measures many other parts of the library, like the worker pool or import mechanism.
 
 We ran the tests with randomly generated square matrices.
 The order of a matrix was always a power of two in the range from 32 to 1024.
@@ -166,7 +166,7 @@ We can get several observations from the results:
  The library solution doesn't suffer from this problem because it's using a fixed amount of processors.
  \item Futures are faster than raw SCOOP for large data sets.
  \item For smaller data sets, raw SCOOP beats the library.
- \item Sequential execution is much faster than SCOOP.
+ \item Sequential execution is a lot faster than SCOOP.
 \end{itemize}
 
 The last observation is probably the most fundamental.
@@ -175,7 +175,7 @@ Fortunately an improved version \cite{thesis:scottwest} is being developed at th
 It will probably be integrated into a future EiffelStudio release.
 
 Another improvement which might be useful for the library is the Passive Processor concept \cite{paper:passive-processors}.
-If both the worker pool and the promise processor could be declared passive the computation speed up a lot.
+If both the worker pool and the promise processor could be declared passive, the computation might speed up a lot.
 
 \section{Conclusion}
 % Explain what is the impact of the selected patterns, and why they were selected.
@@ -197,8 +197,8 @@ Besides the pattern implementations, the library also provides some workarounds 
 
 Performance measurements for the Future pattern showed that the library is actually faster for large data sets and uses less threads than the native SCOOP approach.
 
-Finally, we also described some challenges when programming in SCOOP and how to solve them.
-This is especially useful to developers experienced in threaded programming who want to use SCOOP for the first time.
+Finally, we also described some challenges when programming in SCOOP for the first time and how to solve them.
+This is especially useful to developers experienced in thread programming who want to try SCOOP out.
 
 \subsection{Future work}
 
@@ -208,8 +208,8 @@ The library provides several opportunities for future work.
  \item [More patterns] The library can be extended with additional patterns.
  It may be useful to include Pipeline or Dataflow Network.
  \item [Separate Proxies] The Separate Proxy pattern may be applied to some EiffelBase classes, such as \lstinline!ARRAYED_LIST!, \lstinline!HASH_TABLE! or \lstinline!ROUTINE!.
- \item [Separate Proxy Wizard] Writing a Separate Proxy is tedious. Most of it could be automated with a wizard however.
- \item [Concurrent Datastructures] Sometimes it may be useful to have truly concurrent data structures for performance reasons.
+ \item [Separate Proxy Wizard] Writing a Separate Proxy is tedious. Most of it can be automated with a wizard however.
+ \item [Concurrent Data Structures] Sometimes it may be useful to have truly concurrent data structures for performance reasons.
 The Array Slicing technique \cite{paper:array-slicing} is an example how arrays with concurrent read access can be implemented in SCOOP.
 \end{description}
 

@@ -1,6 +1,6 @@
 \section {Pattern overview}
 \label{sec:pattern_overview}
-% Overview of all patterns, maybe tabular
+% Overview of all patterns
 
 \subsection{Data-centric patterns}
 
@@ -12,7 +12,7 @@
   ,status={Implemented library component}
   ,example={A logger service where many producers submit log messages to a buffer and a single consumer writes them to a file.}
   ,knownapps={Very widely used. E.g. logging, input processing, buffering web server requests.}
-  ,relation={The worker pool uses this pattern for its task queue. Pipeline \patternref{PL} and Dataflow Networks \patternref {DFN} are chained Producer / Consumer instances.}
+  ,relation={The Worker Pool \patternref{WP} uses this pattern for its task queue. Pipeline \patternref{PL} and Dataflow Networks \patternref {DFN} are chained Producer / Consumer instances.}
  ,references={\cite[p. 87]{book:java-concurrency}, \cite[p. 53]{book:ppl}}
 ]
 
@@ -53,7 +53,6 @@
 ]
 
 \subsection{Task-centric patterns}
-
 
 \pattern [name={Worker Pool}
   ,label={WP}
@@ -123,8 +122,8 @@
   ,category={Program structuring}
   ,intent={Simplify asynchronous event handling. A thread or an interrupt handler listens for incoming messages and puts them in a synchronized queue. Worker threads then retrieve and handle the messages.}
   ,applicability={When the application must react to several event sources at the same time.}
-  ,status={Uncovered}
-  ,example={The networking stack in most UNIX system is implemented like this. A network socket is the ``queue'' which gets filled by interrupt handlers. Application threads take care of handling the data.}
+  ,status={not covered}
+  ,example={The network stack in most UNIX system is implemented like this. A network socket is the ``queue'' which gets filled by interrupt handlers. Application threads take care of handling the data.}
   ,knownapps={Network sockets, web servers.}
   ,relation={ - }
   ,references={\cite[p. 423]{book:posa2}}
@@ -135,7 +134,7 @@
   ,category={Performance, Program structuring}
   ,intent={Reduce synchronization overhead when using a thread pool to handle requests on I/O sockets. A leader thread receives a request, promotes the next leader, and then handles the request.}
   ,applicability={When there are hundreds of I/O sockets.}
-  ,status={Uncovered}
+  ,status={not covered}
   ,example={A web server for a high volume website serving thousands of connections at the same time.}
   ,knownapps={Online Transaction Processing (OLTP) applications.}
   ,relation={Compared to Half-Sync / Half-Async \patternref{HS/HA} it avoids the synchronization overhead of a shared queue.}
@@ -147,7 +146,7 @@
   ,category={Performance, Program structuring}
   ,intent={Provide a high-performance ring buffer with a single producer and multiple readers, each assigned to a thread. Readers can have dependencies to other readers and change buffer entries.}
   ,applicability={When very high throughput in an I/O application is required.}
-  ,status={Uncovered}
+  ,status={not covered}
   ,example={An OLTP system where the producer listens on a socket for new requests. Then there's a reader for each of the following tasks: logging, unmarshalling, request handling.}
   ,knownapps={LMAX Exchange uses this pattern for their trading platform.}
   ,relation={Similar to Half-Synch/Half-Asynch \patternref{HS/HA}, but buffer entries may be modified in place and accessed by several threads.}
@@ -165,7 +164,7 @@
   ,status={Implemented language mechanism. Implemented library component.}
   ,example={A logging service may be implemented as an active object. Clients call \lstinline!log ("something")! on the proxy which forwards the message to the active object.}
   ,knownapps={The Java Timer class is implemented as an active object. SCOOP separate calls correspond to feature invocation on an active object.}
-  ,relation={The Future pattern \patternref{FUT} is usually used for active object features that return a result.}
+  ,relation={The Future pattern \patternref{FUT} is usually used for active object functions that return a result.}
   ,references={\cite[p. 369]{book:posa2}, \cite[p. 367]{book:cpj}}
 ]
 
@@ -206,8 +205,6 @@
  ,references={\cite[p. 249]{book:cpj}}
 ]
 
-
-
 \subsection{SCOOP patterns}
 
 \pattern [ name={Import}
@@ -229,7 +226,7 @@
   ,applicability={When a processor is running its own code, but others need to access data on it from time to time.}
   ,status={Implemented library component}
   ,example={A network socket listener that may be stopped by another processor.}
-  ,knownapps={The Timer: Periodic \patternref{TP} implementation and the echo server example use asynchronous self-calls.}
+  ,knownapps={The Timer: Periodic \patternref{TP} implementation and the echo server example (see Appendix \ref{sec:echo-server}) use asynchronous self-calls.}
   ,relation={Similar to the Active Object pattern \patternref{AO}, but the Asynchronous Self-Call pattern lets other processors manipulate its data directly.}
   ,references={\cite[p. 217]{Nienaltowski07}}
 ]
@@ -272,114 +269,85 @@
   ,comment={The new language mechanism will probably be a statement like:\newline \lstinline!separate a as l_a then l_a.do_something end!}
 ]
 
-
-% \pattern [name={EiffelVision support \todo{EV support}}
-%   ,label={EV}
-% %   ,category={}
-% %   ,intent={}
-% %   ,applicability={}
-% %   ,status={}
-% %   ,example={}
-% %   ,knownapps={}
-% %   ,relation={}
-% %  ,references={}
-% ]
-
 \subsection{Synchronization primitives}
 
 
 \syncpattern [name={Atomic Operations}
   ,category={Synchronization primitive}
   ,intent={Avoid the use of locks by using hardware-supported atomic operations.}
-%   ,applicability={Shared memory systems}
-  ,status={unsolved}
+  ,status={not covered}
   ,example={A lock-free queue using CompareAndSwap.}
   ,knownapps={Low-level primitive which is used to implement lock-free data structures or other synchronization primitives.}
-%   ,relation={}
   ,references={\cite[p. 319]{book:java-concurrency}, \cite[p. 140]{book:cpj}}
 ]
   
 \syncpattern [name={Locks}
   ,category={Synchronization primitive}
   ,intent={An object where only one thread at a time succeeds in calling \lstinline!lock!, and others have to wait.}
-%   ,applicability={}
   ,status={Possible library component}
   ,example={Provide exclusive access on a certain section of code.}
   ,knownapps={Low-level primitive which is often used to implement other synchronization primitives.}
-%   ,relation={}
   ,references={\cite[p. 277]{book:java-concurrency}, \cite[p. 148]{book:cpj}}
 ]
 
 \syncpattern [name={Try Lock}
   ,category={Synchronization primitive}
   ,intent={Try to acquire a lock with the option to back off after a certain amount of time.}
-%   ,applicability={}
   ,status={Possible library component}
   ,example={Database transactions may get aborted due to a timeout if they can't lock a resource after a certain amount of time.}
   ,knownapps={Applications with real-time requirements.}
-%   ,relation={}
   ,references={\cite[p. 277]{book:java-concurrency}, \cite[p. 148]{book:cpj}}
 ]
 
 \syncpattern [name={Read / Write lock}
   ,category={Synchronization primitive}
   ,intent={Allow multiple concurrent readers but provide exclusive access to a writer.}
-%   ,applicability={}
   ,status={Language limitation}
   ,example={An array with frequent concurrent reads can make use of a read / write lock.}
   ,knownapps={Shared, read-mostly data structures.}
-%   ,relation={}
   ,references={\cite[p. 286]{book:java-concurrency}, \cite[p. 157]{book:cpj}}
 ]
 
 \syncpattern [name={Semaphore}
   ,category={Synchronization primitive}
   ,intent={Make sure that only a certain amount of threads can execute a section of code.}
-%   ,applicability={}
   ,status={Possible library component}
   ,example={The dining philosophers pattern, where at most (N-1) philosophers can eat.}
   ,knownapps={Can be used to implement other synchronization primitives.}
-%   ,relation={Similar to a barrier.}
   ,references={\cite[p. 98]{book:java-concurrency}, \cite[p. 220]{book:cpj}}
 ]
 
 \syncpattern [ name={Single Exclusive Access}
   ,category={Synchronization Primitive}
   ,intent={Make sure that at most one thread has access to exactly one shared object or resource.}
-%  ,applicability={Shared memory systems}
   ,status={Implemented language mechanism}
   ,example={A counter variable that shold only be incremented by one thread at a time to avoid lost updates.}
-  ,knownapps={The Java \lstinline!synchronized! and C\# \lstinline!lock! blocks implement single exclusive access for sections of code.}
-%   ,relation={Usually implemented with some kind of locking mechanism.}
+  ,knownapps={The Java \lstinline!synchronized! and C\# \lstinline!lock! statements implement single exclusive access for sections of code.}
   ,references={\cite[p. 25]{book:java-concurrency}, \cite[p. 76]{book:cpj}}
   ]
 
 \syncpattern [ name={Multiple Exclusive Access}
   ,category={Synchronization Primitive}
   ,intent={Make sure that at most one thread has access to several shared objects or resources.}
-%  ,applicability={Shared memory systems}
   ,status={Implemented language mechanism}
   ,example={A money transfer between two bank accounts.}
   ,knownapps={Databases can provide exclusive access over all data items previously used in the same transaction.}
-%   ,relation={It is possible to use nested single exclusive access to provide multiple exclusive access, but special care has to be taken with deadlocks.}
+%   ,comment={It is possible to use nested single exclusive access to provide multiple exclusive access, but special care has to be taken with deadlocks.}
   ,references={ - }
   ]
 
 \syncpattern [name={Barrier}
   ,category={Synchronization primitive}
   ,intent={Provide a synchronization point where several threads have to meet before continuing.}
-%   ,applicability={}
   ,status={Possible library component}
   ,example={If the computation of a matrix multiplication is divided among threads, a barrier can be used to make sure that all threads finish before the result is used.}
   ,knownapps={Parallel matrix operations, parallel loop processing.}
-%   ,relation={}
   ,references={\cite[p. 99]{book:java-concurrency}, \cite[p. 362]{book:cpj}}
 ]
 
 \syncpattern [name={Monitor}
   ,category={Synchronization primitive}
   ,intent={Ensure that only one thread has access to an object. The thread may also wait for a condition to become true.}
-%   ,applicability={}
   ,status={Implemented language mechanism}
   ,example={A shared buffer with conditions \lstinline!is_empty! and \lstinline!is_full!.}
   ,knownapps={Java with a combination of \lstinline!synchronized!, \lstinline!wait()! and \lstinline!notifiyAll()!}
@@ -390,21 +358,17 @@
 \syncpattern [name={Condition Variables}
   ,category={Synchronization primitive}
   ,intent={Wait for a certain condition to become true.}
-%   ,applicability={}
   ,status={Implemented language feature, possible library component}
   ,example={When a buffer is empty, consumers can wait on the \lstinline!is_not_empty! conditon variable. Producers will send a signal on this variable when a new item is available.}
   ,knownapps={Preconditions in SCOOP are effectively condition variables due to their wait semantics.}
-%   ,relation={}
   ,references={\cite[p. 298 and 306]{book:java-concurrency}}
 ]
 
 \syncpattern [name={Synchronous Message Passing}
   ,category={Synchronization primitive}
   ,intent={Send a message from a sender to a receiver synchronously, where both have to wait until the operation has completed.}
-%  ,applicability={When the sender needs a delievery guarantee.}
   ,status={Possible library component}
   ,example={Make a flight reservation with the implicit guarantee that the booking system has received the message.}
   ,knownapps={Main synchronizaton mechanism in message passing systems.}
-%   ,relation={}
   ,references={\cite[p. 369]{book:cpj}}
 ]

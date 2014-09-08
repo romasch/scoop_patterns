@@ -56,18 +56,18 @@ end
 %\lstinputlisting [firstline=7] {../../library/import/cp_import_strategy.e}
 
 The class has two descendants.
-\lstinline!CP_NO_IMPORTER[G]! can be used for the Data Processor strategy. 
+\lstinline!CP_NO_IMPORTER [G]! can be used for the Data Processor strategy. 
 It just perform a reference copy of the object.
 The class \lstinline!CP_IMPORTER [G]! on the other hand narrows the return type of \lstinline!import! to a non-separate \lstinline!G!, meaning that it actually performs an import.
 
-As there's no general-purpose import feature available in SCOOP at the moment, users have to implement their own import features for every class that needs this facility.
+As there's no general-purpose import available in SCOOP at the moment users have to implement their own import features for every class that needs this facility.
 Descendants of \lstinline!CP_IMPORTER! simplify this task and provide predefined implementations for some standard classes such as \lstinline!STRING!.
 Those mechanisms are described in detail in Section \ref{sec:modules:import}.
 
-Components that want to make use of the import mechanism need to have an instance of \lstinline!CP_IMPORT_STRATEGY! on the same processor.
+Components that want to make use of the import mechanism need an instance of \lstinline!CP_IMPORT_STRATEGY! on the same processor.
 There are several ways how this object can be supplied to a library component.
 The most obvious solution - passing it as an argument in a constructor - has a big drawback in the SCOOP world:
-It is impossible to instantiate the component on a separate processor without writing an extra factory class.
+It is impossible to instantiate the component on a separate processor without having to write an extra factory class.
 
 A better solution is to exploit the constrained genericity mechanism in Eiffel.
 A component that needs to import objects has to declare an additional generic argument for the import strategy.
@@ -101,7 +101,7 @@ It is applied to all classes in the library which are meant to be shared among p
 
 The pattern consists of three classes:
 \begin{description}
- \item [Protégé] The actual business class whose objects are usually separate.
+ \item [Protégé] The actual business class whose objects are usually shared.
  \item [Helper] A class that provides helper functions to access a separate protégé.
   The helper class is usually ending on \lstinline!_UTILS!.
  \item [Proxy] A proxy class with a similar interface as the protégé class, usually ending on \lstinline!_PROXY!.

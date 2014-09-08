@@ -34,7 +34,7 @@ Therefore SCOOP turns preconditions into wait conditions if they reference a sep
 
 There are many advantages to the SCOOP model, such as easier reasoning and absence of data races, but it also has some shortcomings.
 It is for example often necessary to write lots of little helper functions that just take a separate object and perform a single call on it,
-because SCOOP enforces taht every target of a separate call needs to be controlled.
+because SCOOP enforces that every target of a separate call needs to be controlled.
 
 SCOOP also has performance problems because it transforms every separate call into a message to another processor.
 This is rather expensve, especially for small functions like array access.
@@ -50,11 +50,11 @@ The SCOOP model however encourages the creation of many processors which is not 
 \label{sec:object-migration}
 
 Passing data from one processor to another is often necessary when programming in SCOOP.
-The most obvious example is the Producer / Consumer pattern \patternref{P/C}, but it also applies to other situations like providing some arguments to an asynchronous command.
+The most obvious example is the Producer / Consumer pattern \patternref{P/C}, but it also applies to other situations like providing an argument to an asynchronous command.
 
 There are two categories of objects which can be passed as arguments: expanded and reference types.
 Passing expanded objects, which also includes basic types such as \lstinline!INTEGER!, is not a problem in SCOOP due to their copy-semantics property.
-However, passing a reference object from one processor to another is a bit more tricky
+However, passing a reference object from one processor to another is a bit more tricky,
 because bad things such as starvation or unintentional lock passing may happen if done wrong.
 
 There are essentially three ways to safely move reference objects from a sender to a receiver processor.
@@ -151,17 +151,17 @@ class RECEIVER feature
 end
 \end{lstlisting}
 The \lstinline!import! feature copies its argument along with all non-separate references to the local processor.
-It is somewhat similar to \lstinline!{ANY}.deep_copy!, except that it doesn't follow separate references.
+It is somewhat similar to \lstinline!{ANY}.deep_clone!, except that it doesn't follow separate references.
 
 The import solution has several advantages.
-There is no need for a new processor, and the receiver can keep the data and do the operation asynchronously.
+There is no need for a new processor and the receiver can also keep the argument and do the operation asynchronously.
 The drawback is that the data needs to be copied.
-However, for small data items this is actually faster than creating a new thread.
+However, for small data items this is usually faster than creating a new processor.
 
 Note that \lstinline!receive_args! is executed synchronously just as in the Lock Passing approach.
 To execute \lstinline!do_something! asynchronously it has therefore been divided into an execution and argument receiving part.
 
-The feature \lstinline!import! was first described in \cite[p. 106]{Nienaltowski07}, but unfortunately it is not implemented in current SCOOP.
+The feature \lstinline!import! was first described in \cite[p. 106]{Nienaltowski07}, but unfortunately it is currently not implemented in SCOOP.
 It is possible however to implement it manually with some user support.
 
 \subsection{Processor communication}
