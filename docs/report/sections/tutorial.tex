@@ -2,8 +2,8 @@
 \section {API tutorial}
 \label{sec:tutorial}
 
-The library has several components which can be used for various tasks in concurrent programming.
-This API tutorial therefore consists of three, mostly unrelated sections.
+The library has several independent components which can be used for various tasks in concurrent programming.
+This tutorial therefore consists of three unrelated sections.
 Each section describes a concurrency problem and how the library can be used to solve it.
 
 All programming code used in this section originally comes from the example applications in the repository \cite{web:repository}.
@@ -11,11 +11,11 @@ All programming code used in this section originally comes from the example appl
 \subsection{Producer / Consumer}
 
 The producer / consumer example is pretty common in concurrent programming.
-At its core is usually a shared buffer.
+At its core is a shared buffer.
 A producer can add items to the buffer, whereas a consumer removes items from the buffer.
 
-The library class \lstinline!CP_QUEUE! can be used as a shared buffer.
-If we want to use \lstinline!STRING! objects to be passed from producer to consumer, we have to declare the queue like this:
+The library class \lstinline!CP_QUEUE! can be used for the shared buffer.
+If we want to pass \lstinline!STRING! objects from producers to consumers, we have to declare the queue like this:
 
 \begin{lstlisting}
 class PRODUCER_CONSUMER feature
@@ -48,7 +48,7 @@ In our example we decided to import every string object.
 % In our example we're using the \lstinline!CP_STRING_IMPORTER! to import strings.
 An alternative would be to use \lstinline!CP_NO_IMPORTER [STRING]! and deal with separate references instead.
 
-The next step is to define the producer and consumer.
+The next step is to define the producer and consumer classes.
 
 \begin{lstlisting}[language=OOSC2Eiffel, captionpos=b, caption={The producer class.}]
 class
@@ -107,7 +107,7 @@ You may notice three things in this example:
 
 \begin{itemize}
  \item \lstinline!PRODUCER! inherits from \lstinline!CP_STARTABLE!.
- \item The \lstinline!PRODUCER! uses a \lstinline!CP_QUEUE_PROXY! instead of the \lstinline!CP_QUEUE!.
+ \item The \lstinline!PRODUCER! uses a \lstinline!CP_QUEUE_PROXY! instead of \lstinline!CP_QUEUE!.
  \item The generated strings are not separate.
 \end{itemize}
 
@@ -115,11 +115,11 @@ The classes \lstinline!CP_STARTABLE! and \lstinline!CP_STARTABLE_UTILS! are a us
 They allow to start some operation on a separate object without the need for a specialized wrapper function.
 
 \lstinline!CP_QUEUE_PROXY! is part of the Separate Proxy pattern \patternref{SP} (see Section \ref{sec:separate-proxy}).
-It is useful to access a separate object without having to deal with separate references.
+It is useful to access a separate queue without having to write a lot of small wrapper functions.
 
 The fact that strings can be generated on the local processor is probably the most interesting observation.
-Usually it is necessary when using SCOOP to create shared data on its own processor.
-As we're using the import mechanism however this is not necessary and would be even wasteful.
+Usually it is necessary when using SCOOP to create shared data on a dedicated processor.
+As we're using the import mechanism however this is not necessary and would even be wasteful.
 
 % Usually this is not possible, because if the string is later passed to a consumer object, the latter needs to lock the producer in order to get access to the string.
 % But in this case we instructed the queue object to import all string objects. During a call to \lstinline!queue_wrapper.put(item)! the following happens:
@@ -236,7 +236,7 @@ end
 
 In network server programming it is common to have a dedicated thread listening on a socket.
 In a SCOOP environment it is not hard to create such a processor, but it is hard to stop it.
-The main problem is that the server will run its own main loop, and other processors never get exclusive access to call a feature like \lstinline!stop!.
+The main problem is that the server will run an infinite loop, and other processors never get exclusive access to call a feature like \lstinline!stop!.
 
 The library addresses this issue with \lstinline!CP_INTERMITTENT_PROCESS!.
 The class defines a special main loop using the Asynchronous Self-Call pattern \patternref{ASC}.
@@ -319,16 +319,16 @@ The accept timeout is important in this example.
 It ensures that the server processor periodically breaks free of its wait condition while listening and therefore has a chance to finish the \lstinline!step! feature.
 
 The echo server can be started with \lstinline!{STARTABLE_UTILS}.async_start! and stopped with the feature \lstinline!stop!.
-Thanks to the special loop construct used in \lstinline!CP_INTERMITTENT_PROCESS!, stopping the echo server also works when called from another processor.
+Thanks to the special loop construct used in \lstinline!CP_INTERMITTENT_PROCESS! stopping the echo server also works when called from another processor.
 
 \subsection{Worker Pool and Futures}
 
 This section describes how to use a worker pool for I/O tasks.
-The application defines two operations on text files: reading a file and appending a string to a file.
+The example application defines two operations: reading a file and appending a string to a text file.
 The classes to represent these operations are \lstinline!FILE_APPENDER_TASK! and \lstinline!FILE_READER_TASK!.
 
 The file reader task is implemented with the future module from the library.
-The library has the class \lstinline!CP_COMPUTATION! which represents futures, i.e. asynchronous tasks that return a result.
+The library has the class \lstinline!CP_COMPUTATION! to represent futures, i.e. asynchronous tasks that return a result.
 The \lstinline!FILE_READER_TASK! therefore needs to inherit from \lstinline!CP_COMPUTATION!.
 
 The file appender task doesn't return a result.
@@ -413,15 +413,15 @@ end
 \end{lstlisting}
 
 The main algorithm needs to be defined in \lstinline!computed! or \lstinline!run!, respectively.
-Additionally, the feature \lstinline!make_from_separate! has to be defined.
+Additionally, the feature \lstinline!make_from_separate! has to be implemented.
 This feature is required to import task objects from the client to the worker pool processor (see Section \ref{sec:concepts:import} for the import concept).
 
 \lstinline!CP_EXECUTOR! defines an interface to submit and execute task objects.
-The main implementation is \lstinline!CP_TASK_WORKER_POOL!.
-The executor is shipped with a Separate Proxy \patternref{SP}, which means users can access it via \lstinline!CP_EXECUTOR_PROXY! or \lstinline!CP_FUTURE_EXECUTOR_PROXY!.
+The most important implementation is \lstinline!CP_TASK_WORKER_POOL!.
+The executor class is shipped with a Separate Proxy \patternref{SP}, which means that clients can access it via \lstinline!CP_EXECUTOR_PROXY! or \lstinline!CP_FUTURE_EXECUTOR_PROXY!.
 These two proxy classes also initialize the promise object, which is a handle to the asynchronous operation that can be used to wait for its termination or to retrieve the result when it's available.
 
-Listing \ref{code:io-worker-pool} shows how a worker pool is used to submit file read and append tasks.
+Listing \ref{code:io-worker-pool} shows how a worker pool is used to submit the previously defined file reader and appender tasks.
 
 \begin{lstlisting}[language=OOSC2Eiffel, label={code:io-worker-pool}, captionpos=b, caption={Using a worker pool for futures and asynchronous tasks.}]
 class
@@ -488,7 +488,7 @@ feature -- Basic operations
 			read_task_promise := executor.put_future (read_task)
 
 				-- The promise can be used to retrieve the result.
-				-- Note that the statement may block if the result
+				-- Note that the statement blocks if the result
 				-- is not ready yet.
 			l_result := read_task_promise.item
 
@@ -499,10 +499,10 @@ feature -- Basic operations
 feature {NONE} -- Implementation
 
 	worker_pool: separate CP_TASK_WORKER_POOL
-			-- The worker pool that executes the IO tasks.
+			-- The worker pool to execute tasks.
 
 	executor: CP_FUTURE_EXECUTOR_PROXY[STRING, CP_STRING_IMPORTER]
-			-- The executor proxy for to submit tasks.
+			-- The executor proxy used to submit tasks.
 
 end
 \end{lstlisting}

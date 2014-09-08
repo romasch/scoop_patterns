@@ -12,7 +12,7 @@ Due to this design one might think that combining SCOOP with EiffelVision is imp
 This is not true however.
 EiffelVision implements a variation of the Asynchronous Self-Call pattern \patternref{ASC}.
 The body of the loop is defined by the feature \lstinline!{EV_APPLICATION_I}.process_event_queue!, whereas the actual loop is implemented in \lstinline!EV_APPLICATION_HANDLER!.
-Therefore, a user interface object can subscribe to events from separate processors in the same manner as it can subscribe to events on the same processor.
+Therefore, a user interface object can subscribe to events from separate processors in the same manner as it can subscribe to events from the same processor.
 
 In fact the SCOOP model makes GUI programming a lot easier.
 In threaded languages programmers constantly have to worry that only the EDT manipulates user interface objects.
@@ -190,7 +190,7 @@ end
 \end{lstlisting}
 
 The most interesting feature is \lstinline!on_download_button_clicked!.
-It starts a background task and sets up all event handlers, such that the user interface can react to progress change or termination events.
+It starts a background task and sets up all event handlers such that the user interface can react to progress change or termination events.
 The events are predefined in \lstinline!CP_PROMISE! and sent automatically to all subscribers whenever the associated task changes the progress value or terminates.
 
 The \lstinline!on_terminated! handler function is used to receive an event that the background task has finished.
@@ -240,6 +240,6 @@ end
 
 The class just creates and launches the event loop, the worker pool and the main window.
 The most interesting part is how the worker pool can be stopped.
-As the statement \lstinline!app.launch! just kick-starts the event loop and then returns, we can't destroy the worker pool after this statement as in a sequential program.
+As the statement \lstinline!app.launch! just kick-starts the event loop and then returns we can't destroy the worker pool after this statement as in a sequential program.
 It is therefore necessary to install a handler to stop the executor when the event loop terminates.
 

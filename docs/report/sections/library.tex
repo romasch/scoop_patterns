@@ -113,7 +113,7 @@ There's an inconsistency however:
 All preconditions in the protégé class that reference \lstinline!Current! (explicitly or implicitly) need to be weakened (i.e. \lstinline!require else True!) in the proxy, and turned into wait conditions in the helper class.
 Furthermore, not all features in the business class may be necessary in the proxy, and the proxy itself may add some more features such as compound actions.
 
-\begin{figure}[h]
+\begin{figure}[ht]
 \label{fig:separate-proxy}
 \includegraphics[width=\textwidth]{resources/separate_proxy.png}
 \caption{The class relations in the Separate Proxy pattern.}
