@@ -102,7 +102,7 @@ It is applied to all classes in the library which are meant to be shared among p
 The pattern consists of three classes:
 \begin{description}
  \item [Protégé] The actual business class whose objects are usually shared.
- \item [Helper] A class that provides helper functions to access a separate protégé.
+ \item [Helper] A class that provides wrapper functions to access a separate protégé.
   The helper class is usually ending on \lstinline!_UTILS!.
  \item [Proxy] A proxy class with a similar interface as the protégé class, usually ending on \lstinline!_PROXY!.
     The proxy forwards every call to its protégé, using the helper class.

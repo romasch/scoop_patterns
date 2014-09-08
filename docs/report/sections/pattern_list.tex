@@ -212,7 +212,7 @@
   ,category={Language limitation}
   ,intent={Copy an object structure from a separate processor to the local processor.}
   ,applicability={When it's cheaper to clone the object instead of placing it on its own processor.}
-  ,status={Implemented library component; future language mechanism}
+  ,status={Implemented library component. Future language mechanism.}
   ,example={Copy the HTTP request string from the network socket listener to a request handler, such that the listener can continue.}
   ,knownapps={The library developed in this thesis makes heavy use of this pattern.}
   ,relation={ - }
@@ -247,7 +247,7 @@
   ,label={FA}
   ,category={Language limitation}
   ,intent={Perform an operation completely asynchronously.}
-  ,applicability={When an operation can be run in parallel and there's no need to wait for a result.}
+  ,applicability={When an operation can be executed in parallel and there's no need to wait for a result.}
   ,status={Future language mechanism}
   ,example={A logger service where clients just want to send a log message without having to wait.}
   ,knownapps={A workaround is described in \cite[p. 215]{Nienaltowski07}, but it is currently broken in SCOOP.}
@@ -321,7 +321,7 @@
   ,category={Synchronization Primitive}
   ,intent={Make sure that at most one thread has access to exactly one shared object or resource.}
   ,status={Implemented language mechanism}
-  ,example={A counter variable that shold only be incremented by one thread at a time to avoid lost updates.}
+  ,example={A counter variable that should only be incremented by one thread at a time to avoid lost updates.}
   ,knownapps={The Java \lstinline!synchronized! and C\# \lstinline!lock! statements implement single exclusive access for sections of code.}
   ,references={\cite[p. 25]{book:java-concurrency}, \cite[p. 76]{book:cpj}}
   ]
@@ -358,7 +358,7 @@
 \syncpattern [name={Condition Variables}
   ,category={Synchronization primitive}
   ,intent={Wait for a certain condition to become true.}
-  ,status={Implemented language feature, possible library component}
+  ,status={Implemented language mechanism. Possible library component.}
   ,example={When a buffer is empty, consumers can wait on the \lstinline!is_not_empty! conditon variable. Producers will send a signal on this variable when a new item is available.}
   ,knownapps={Preconditions in SCOOP are effectively condition variables due to their wait semantics.}
   ,references={\cite[p. 298 and 306]{book:java-concurrency}}

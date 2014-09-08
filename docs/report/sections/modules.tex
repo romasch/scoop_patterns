@@ -313,7 +313,7 @@ The promise module contains a set of classes which can be used to monitor the st
 It is mostly used in conjunction with the executor or future module.
 
 The main class is \lstinline!CP_PROMISE!, which defines queries like \lstinline!is_terminated! or \lstinline!is_exceptional!.
-It also defines the interface to cancel an operation or to get the progress percentage (e.g. for a download task), but these queries need to be supported by the asynchronous operation as well.
+It also defines the interface to cancel an operation or to get the progress percentage (e.g. for a download task), but these mechanisms need to be supported by the asynchronous operation as well.
 
 The Separate Proxy \patternref{SP} is available for promise objects because they are usually declared separate to the client.
 In this case the pattern is implemented with four classes, i.e.
@@ -393,7 +393,7 @@ It is a descendant of \lstinline!CP_TASK! introduced in Section \ref{sec:executo
 Due to the fact that \lstinline!CP_COMPUTATION! inherits from \lstinline!CP_TASK! we can just use the executor module (see Section \ref{sec:executor}) as the execution service for the future pattern.
 
 The ``frontend'' part is provided by the two classes \lstinline!CP_EXECUTOR_PROXY! and \lstinline!CP_FUTURE_EXECUTOR_PROXY!.
-This is an example for a proxy object where the responsability has been expanded:
+This is an example for a separate proxy where the responsability has been expanded:
 Instead of just forwarding the computation object to the execution service, it also initializes the promise and returns it to the user.
 
 The implementation of the future pattern hits two challenges:

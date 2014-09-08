@@ -85,7 +85,7 @@ I would also like to thank Julian Tschannen, Mischael Schill, Scott West, Sebast
 \label{sec:introduction}
 
 
-Concurrent programming has become an important part in software engineering due to the advent of multicore processors.
+Concurrent programming has become an important part in software engineering due to the advent of multi-core processors.
 Dealing with parallelism isn't easy however.
 There are many pitfalls, such as race conditions and deadlocks.
 
@@ -175,7 +175,7 @@ Fortunately an improved version \cite{thesis:scottwest} is being developed at th
 It will probably be integrated into a future EiffelStudio release.
 
 Another improvement which might be useful for the library is the Passive Processor concept \cite{paper:passive-processors}.
-If both the worker pool and the promise processor could be declared passive, the computation might speed up a lot.
+If both the worker pool and the promise processor could be declared as passive, the computation might speed up a lot.
 
 \section{Conclusion}
 % Explain what is the impact of the selected patterns, and why they were selected.
@@ -208,7 +208,7 @@ The library provides several opportunities for future work.
  \item [More patterns] The library can be extended with additional patterns.
  It may be useful to include Pipeline or Dataflow Network.
  \item [Separate Proxies] The Separate Proxy pattern may be applied to some EiffelBase classes, such as \lstinline!ARRAYED_LIST!, \lstinline!HASH_TABLE! or \lstinline!ROUTINE!.
- \item [Separate Proxy Wizard] Writing a Separate Proxy is tedious. Most of it can be automated with a wizard however.
+ \item [Separate Proxy Wizard] Writing a Separate Proxy is tedious. Most of it could be automated with a wizard however.
  \item [Concurrent Data Structures] Sometimes it may be useful to have truly concurrent data structures for performance reasons.
 The Array Slicing technique \cite{paper:array-slicing} is an example how arrays with concurrent read access can be implemented in SCOOP.
 \end{description}
