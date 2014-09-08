@@ -42,9 +42,11 @@
 \pagenumbering{roman}
 \includepdf {resources/titlepage}
 
+\includepdf {resources/declaration_of_originality_signed}
+
 \begin{abstract}
 \thispagestyle{plain}
-\setcounter{page}{2}
+\setcounter{page}{3}
 The wide distribution of multi-core processors increasingly forces programmers to deal with concurrency.
 Parallel programming is not easy, but there are many well-known patterns at hand to help developers.
 
@@ -60,7 +62,7 @@ We also describe some of the challenges when programming in SCOOP for the first 
 \renewcommand{\abstractname}{Acknowledgements}
 \begin{abstract}
 \thispagestyle{plain}
-\setcounter{page}{3}
+\setcounter{page}{4}
 I would like to thank Alexey Kolesnichenko very much for his great support and helpful advice throughout my thesis.
 Many thanks go to Prof. Bertrand Meyer for his insightful comments and for giving me the opportunity to work on this project.
 I would also like to thank Julian Tschannen, Mischael Schill, Scott West, Sebastian Nanz and others at the Chair of Software Engineering for their useful input.
@@ -69,8 +71,12 @@ I would also like to thank Julian Tschannen, Mischael Schill, Scott West, Sebast
 \end{abstract}
 
 
-\setcounter{page}{4}
+\setcounter{page}{5}
 \tableofcontents
+
+% Blank page to make sure introduction starts on the right.
+\newpage
+\mbox{}
 
 \newpage
 \pagenumbering{arabic}
