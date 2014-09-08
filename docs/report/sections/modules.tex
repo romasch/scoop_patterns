@@ -209,14 +209,15 @@ The class also introduces the simple command \lstinline!stop!, which can be used
 \subsection{Worker pool}
 \label{sec:worker_pool} 
 
-A worker pool is a set of threads that are ready to execute tasks.
-The intention of the worker pool is to make use of parallelism while avoiding the overhead of expensive thread creation.
+The worker pool module provides an implementation for the pattern of the same name.
+% A worker pool is a set of threads that are ready to execute tasks.
+The intention of the Worker Pool pattern \patternref{WP} is to exploit the performance advantages of parallel execution while avoiding the overhead of expensive thread creation.
 
-The main component of the worker pool is a shared buffer where clients can insert tasks to be executed.
+The main component of a worker pool is a shared buffer where clients can insert tasks to be executed.
 A set of worker threads then continuously retrieve tasks from the buffer and execute them.
-The worker pool module makes use of the queue module, which provides the shared buffer.
+% The worker pool module makes use of the queue module, which provides the shared buffer.
 
-The representation of a task to be executed varies between different languages.
+The representation of a task varies between different languages.
 In Java for instance a Runnable object is used, whereas in C\# the task is represented as a delegate.
 SCOOP however has to deal with the problem of object migration, as described in Section \ref{sec:object-migration}.
 
@@ -225,10 +226,10 @@ With the Lock Passing approach a task object will be executed on the processor t
 This only leaves the import mechanism as a sensible solution.
 
 The library supports two flavors of a worker pool.
-The first and more basic one is to have a deferred class \lstinline!CP_WORKER! where clients can directly implement an operation.
-The object submitted to the worker pool then corresponds to the arguments of the operation.
-
-The second solution uses a special class to encapsulate an operation.
+% The first and more basic one is to have a deferred class \lstinline!CP_WORKER! where clients can directly implement an operation.
+% The object submitted to the worker pool then corresponds to the arguments of the operation.
+The first and more basic one leaves the choice on how to represent a task object open to the user through a generic argument.
+The second solution on the other hand defines a new class to encapsulate an operation.
 It is described in Section \ref{sec:executor}.
 
 The basic worker pool module has three important classes:
@@ -245,7 +246,7 @@ The type of the task object alongside its import strategy can be specified with 
 The deferred class \lstinline!CP_WORKER! corresponds to the worker thread in other languages.
 Users need to implement the feature \lstinline!do_run!, which receives a task object and executes some operation on it.
 The exact type of the task object depends on the generic arguments of \lstinline!CP_WORKER!, which must be the same as in \lstinline!CP_WORKER_POOL!.
-The non-deferred part of \lstinline!CP_WORKER! is the main loop itself, which fetches a new task, calls \lstinline!do_run!, and checks if the worker needs to terminate.
+The non-deferred part of \lstinline!CP_WORKER! is the main loop itself, which fetches a new task, calls \lstinline!do_run!, and checks if the worker has to terminate.
 
 The last class, \lstinline!CP_WORKER_FACTORY!, just provides a deferred factory function for a new worker.
 The factory class is necessary because the exact type of \lstinline!CP_WORKER! is not known to the library in advance.
@@ -302,7 +303,7 @@ To decrease the amount of workers however the module needs to apply the processo
 The Separate Proxy pattern \patternref{SP} is applied to \lstinline!CP_WORKER_POOL! to make the handling of a separate worker pool object more convenient.
 
 The basic worker pool module is very flexible.
-It is for example possible to use it just as an advanced producer / consumer module where consumers are automatically created and destroyed.
+It is for example possible to use it just as an advanced producer / consumer module, where consumers are automatically created and destroyed.
 The drawback however is that clients need to implement two classes, the worker and the factory, to make use of the module.
 Section \ref{sec:executor} therefore introduces a more specialized version of the worker pool which can be used to execute arbitrary operations.
 
