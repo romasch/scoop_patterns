@@ -65,7 +65,7 @@ Therefore the module makes heavy use of the import concept.
 This means that, along with a generic argument for the data type, it is also necessary for clients to provide a \lstinline!CP_IMPORT_STRATEGY!.
 The import strategy basically ``teaches'' the queue how to import a given object.
 
-Internally the class \lstinline!CP_QUEUE! uses an \lstinline!ARRAYED_LIST! to store its elements.
+Internally the class \lstinline!CP_QUEUE! uses an \lstinline!ARRAYED_QUEUE! to store its elements.
 
 % It uses the separate proxy pattern, which means that it consists of three classes:
 % 
