@@ -2,23 +2,27 @@
 \label{sec:pattern_overview}
 % Overview of all patterns
 
-This section provides a list of all patterns that we found in the initial survey.
+The following section provides an overview over all patterns found during the initial survey.
+We introduce five categories of concurrency patterns: data-centric, task-centric, I/O-centric, SCOOP patterns and synchronization primitives.
 
-We introduce five categories of concurrency patterns, each one with their own subsection.
 The data-centric patterns all solve the general problem on how to move data from one thread to another.
-Task-centric patterns all share the abstract notion of a task.
-The patterns then define when and on which thread a task shall be executed.
+
+Task-centric patterns share the abstract notion of a task.
+The individual patterns define when and on which thread a task shall be executed.
 
 The I/O patterns are mostly used in server programming.
 They solve the problem how to distribute asynchronous requests from an I/O socket to a set of worker threads.
 
-The SCOOP patterns form a category simply because they're only applicable in SCOOP, and the synchronization primitives are some very basic building blocks which can be used to build concurrent data structures or higher-level patterns.
+The SCOOP patterns form a category just because they are only applicable in SCOOP.
+Most of them were first described in Piotr Nienaltowski's PhD thesis  \cite{Nienaltowski07}.
 
-Finally, the section Miscellaneous Patterns contains several patterns which don't really fit into one of the above categories.
+The patterns categorized as synchronization primitives are some very basic building blocks which can be used to build concurrent data structures or higher-level patterns.
 
-The structure loosely follows the one used in the book by Gamma et al \cite{book:design-patterns}, although the descriptions are a lot shorter.
+Finally, the section Miscellaneous Patterns contains several high-level patterns which don't really fit into one of the above categories.
+
+The structure loosely follows the one used in the book by Gamma et al \cite{book:design-patterns}, although the description for each pattern is a lot shorter.
 We also don't show any implementation details here, because the implementation may differ significantly between languages and a detailed description may take a lot of space, which is not suited for an overview chapter.
-However, for most patterns there are references to existing books and articles which can be used to look up the implementation.
+We provide references to books and articles instead which can be used to look up an implementation.
 
 
 \subsection{Data-centric patterns}
@@ -134,7 +138,7 @@ However, for most patterns there are references to existing books and articles w
   ,references={\cite[p. 123]{book:java-concurrency}, \cite[p. 297]{book:cpj}}
 ]
 
-\subsection{I/O patterns}
+\subsection{I/O-centric patterns}
 
 \pattern [name={Half-Sync / Half-Async}
   ,label={HS/HA}

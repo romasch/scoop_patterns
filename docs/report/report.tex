@@ -132,10 +132,11 @@ We implemented the Gaussian elimination algorithm in three different ways: seque
 We chose to use the future module because it indirectly also measures many other parts of the library, like the worker pool or import mechanism.
 
 We ran the tests with randomly generated square matrices.
-The order of a matrix was always a power of two in the range from 32 to 1024.
+The matrix dimensions were always a power of two in the range from 32 to 1024.
 Additionally, there was one more column for the result vector in the system of linear equations.
 Each test was repeated 5 times.
 The test system was a quad-core AMD Phenom II X4 955 processor with 6 GB of RAM.
+
 The results are shown Table \ref{table:perf-results}.
 
 \begin{table} [h]
@@ -160,10 +161,11 @@ Matrix Size & Future & Raw SCOOP & Sequential\\
 We can get several observations from the results:
 
 \begin{itemize}
- \item The raw SCOOP solution fails for the biggest matrix.
+ \item The raw SCOOP solution fails for the matrix with dimensions 1024x1024.
  This is a known bug \cite{web:scoop-issues}:
  The algorithm uses more than the maximum number of processors.
  The library solution doesn't suffer from this problem because it's using a fixed amount of processors.
+ To nevertheless get a comparable result the test was repeated with a slightly smaller matrix.
  \item Futures are faster than raw SCOOP for large data sets.
  \item For smaller data sets, raw SCOOP beats the library.
  \item Sequential execution is a lot faster than SCOOP.
