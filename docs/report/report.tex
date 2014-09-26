@@ -137,6 +137,9 @@ Additionally, there was one more column for the result vector in the system of l
 Each test was repeated 5 times.
 The test system was a quad-core AMD Phenom II X4 955 processor with 6 GB of RAM.
 
+The raw SCOOP solution failed for a matrix with dimensions 1024x1024.
+To nevertheless get a comparable result this particular test configuration was repeated with a slightly smaller square matrix of order 1000.
+
 The results are shown Table \ref{table:perf-results}.
 
 \begin{table} [h]
@@ -151,7 +154,7 @@ Matrix Size & Future & Raw SCOOP & Sequential\\
 256 & 26.45 & 66.56 & 0.33\\
 512 & 102.28 & 515.11 & 2.62\\
 1000 & - &  3937.2 & - \\
-1024 & 424.32 & error & 20.79 \\
+1024 & 424.32 & Error & 20.79 \\
 \hline
 \end{tabular}
 \caption{Average time in seconds for different algorithms.}
@@ -161,11 +164,10 @@ Matrix Size & Future & Raw SCOOP & Sequential\\
 We can get several observations from the results:
 
 \begin{itemize}
- \item The raw SCOOP solution fails for the matrix with dimensions 1024x1024.
+ \item As already mentioned, the raw SCOOP solution fails for the biggest matrix.
  This is a known bug \cite{web:scoop-issues}:
  The algorithm uses more than the maximum number of processors.
  The library solution doesn't suffer from this problem because it's using a fixed amount of processors.
- To nevertheless get a comparable result the test was repeated with a slightly smaller matrix.
  \item Futures are faster than raw SCOOP for large data sets.
  \item For smaller data sets, raw SCOOP beats the library.
  \item Sequential execution is a lot faster than SCOOP.
@@ -236,7 +238,7 @@ SCOOP itself also provides a rich offering of possible improvements.
 \input{sections/tutorial}
 \end{appendices}
 
-\newpage
+%\newpage
 \phantomsection
 \addcontentsline{toc}{section}{References}
 \begin{flushleft}
