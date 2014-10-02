@@ -31,7 +31,7 @@ feature
 
 --			test_partitioned_future
 			test_future
-			test_scoop_raw
+--			test_scoop_raw
 			test_sequential
 
 			emitter.annotate ("is_singular", is_singular.out)
