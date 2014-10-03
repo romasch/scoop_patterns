@@ -67,7 +67,7 @@ feature -- Advanced operations
 						k > count
 					loop
 						create task.make (equations [pivot], equations [k], pivot)
-						promises.put (executor.put_future (task))
+						promises.put (executor.put_and_get_result_promise (task))
 						k := k + 1
 					end
 

@@ -31,7 +31,7 @@ feature -- Tests
 			assert ("has_promise", not attached task.promise)
 
 
-			promise := executor.put_with_promise (task)
+			promise := executor.put_and_get_promise (task)
 
 			assert ("different_promise", task.promise = promise.subject)
 
@@ -59,7 +59,7 @@ feature -- Tests
 			create failure
 			assert ("has_promise", not attached failure.promise)
 
-			promise := executor.put_with_promise (failure)
+			promise := executor.put_and_get_promise (failure)
 
 			assert ("different_promise", failure.promise = promise.subject)
 
@@ -83,7 +83,7 @@ feature -- Tests
 
 			assert ("has_promise", not attached task.promise)
 
-			promise := executor.put_with_promise (delayer)
+			promise := executor.put_and_get_promise (delayer)
 
 			assert ("promise_missing", attached task.promise)
 			assert ("different_promise", task.promise = delayer.promise and promise.subject = delayer.promise)
@@ -113,7 +113,7 @@ feature -- Tests
 
 			assert ("has_promise", not attached task.promise)
 
-			promise := executor.put_with_promise (delayer)
+			promise := executor.put_and_get_promise (delayer)
 
 			assert ("promise_missing", attached task.promise)
 			assert ("different_promise", task.promise = delayer.promise and promise.subject = delayer.promise)

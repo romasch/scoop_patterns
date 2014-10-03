@@ -38,14 +38,13 @@ feature -- Basic operations
 			utils.executor_put (subject, a_task)
 		end
 
-	put_with_promise (a_task: separate CP_TASK): CP_PROMISE_PROXY
+	put_and_get_promise (a_task: separate CP_TASK): CP_PROMISE_PROXY
 			-- Execute `a_task' asynchronously and return a promise.
 		local
 			l_promise: separate CP_SHARED_PROMISE
 		do
-			l_promise := new_promise_on_processor (my_promise_processor)
-			a_task.set_promise (l_promise)
-			create Result.make (l_promise)
+			Result := new_promise
+			a_task.set_promise (Result.subject)
 			put (a_task)
 		ensure
 			same_promise: Result.subject = a_task.promise

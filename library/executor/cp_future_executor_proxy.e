@@ -16,12 +16,8 @@ create
 
 feature -- Basic operations
 
-	put_future (a_computation: separate CP_COMPUTATION [G]): CP_RESULT_PROMISE_PROXY [G, IMPORTER]
-			-- <Precursor>
-		local
-			l_template_promise: CP_SHARED_RESULT_PROMISE [G, IMPORTER]
-			l_importable: separate CP_IMPORTABLE
-			l_promise: separate CP_SHARED_RESULT_PROMISE [G, IMPORTER]
+	put_and_get_result_promise (a_computation: separate CP_COMPUTATION [G]): CP_RESULT_PROMISE_PROXY [G, IMPORTER]
+			-- Execute `a_computation' asynchronously and return a promise to later fetch the result.
 		do
 				-- Create the promise object on the global result processor.
 			Result := new_result_promise

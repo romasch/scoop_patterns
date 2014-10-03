@@ -21,7 +21,7 @@ feature
 			create l_starter.make_global
 			create l_computation.make (6)
 
-			l_future := l_starter.put_future (l_computation)
+			l_future := l_starter.put_and_get_result_promise (l_computation)
 
 			assert ("wrong_result", l_future.item = 8)
 		end
@@ -54,7 +54,7 @@ feature {NONE} -- Helpers
 				create l_starter.make_global
 
 				create l_computation.make (n-1)
-				l_future := l_starter.put_future (l_computation)
+				l_future := l_starter.put_and_get_result_promise (l_computation)
 
 				second := fib (n-2)
 				first := l_future.item

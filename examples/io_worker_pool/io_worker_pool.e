@@ -90,7 +90,7 @@ feature -- Basic operations
 			create write_task.make (paths [1], hello_world)
 
 				-- The next statment submits the task and returns a promise object which can be used to control the asynchronous task.
-			write_task_promise := executor.put_with_promise (write_task)
+			write_task_promise := executor.put_and_get_promise (write_task)
 
 				-- Let's wait for the task to finish.
 			write_task_promise.await_termination
@@ -102,7 +102,7 @@ feature -- Basic operations
 			create read_task.make (paths [1])
 
 				-- Again, this statement submits the task and returns a promise.
-			read_task_promise := executor.put_future (read_task)
+			read_task_promise := executor.put_and_get_result_promise (read_task)
 
 				-- The promise can be used to get the result of the asynchronous computation.
 				-- Note that the statement blocks if the result is not yet available.
@@ -127,7 +127,7 @@ feature -- Basic operations
 				create task.make (path_cursor.item, content)
 
 					-- Submit the task and store the promise.
-				promises.extend (executor.put_with_promise (task))
+				promises.extend (executor.put_and_get_promise (task))
 			end
 
 				-- All three files are being written concurrently now.
@@ -158,7 +158,7 @@ feature -- Basic operations
 				create task.make (path_cursor.item)
 
 					-- Submit the task and store the promise.
-				promises.extend (executor.put_future (task))
+				promises.extend (executor.put_and_get_result_promise (task))
 			end
 
 				-- All three files are being read concurrently now.

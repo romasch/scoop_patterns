@@ -470,7 +470,8 @@ feature -- Basic operations
 			create write_task.make (path, hello_world)
 
 				-- Submit the task and get a promise object.
-			write_task_promise := executor.put_with_promise(write_task)
+			write_task_promise := 
+				executor.put_and_get_promise (write_task)
 
 				-- Wait for the task to finish.
 			write_task_promise.await_termination
@@ -485,7 +486,8 @@ feature -- Basic operations
 			create read_task.make (path)
 
 				-- Submit the task and get a promise.
-			read_task_promise := executor.put_future (read_task)
+			read_task_promise := 
+				executor.put_and_get_result_promise (read_task)
 
 				-- The promise can be used to retrieve the result.
 				-- Note that the statement blocks if the result

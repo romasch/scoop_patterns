@@ -47,7 +47,7 @@ feature -- Basic operations
 			else
 				create l_starter.make_global
 				create l_computation.make (input - 2)
-				l_future := l_starter.put_future (l_computation)
+				l_future := l_starter.put_and_get_result_promise (l_computation)
 
 				input := input - 1
 				Result := computed + l_future.item

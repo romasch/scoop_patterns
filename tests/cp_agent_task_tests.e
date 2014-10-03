@@ -24,7 +24,7 @@ feature
 			create task.make_safe (agent {SUPPORT}.do_nothing)
 			assert ("has_promise", not attached task.promise)
 
-			promise := executor.put_with_promise (task)
+			promise := executor.put_and_get_promise (task)
 
 			assert ("different_promise", task.promise = promise.subject)
 
@@ -44,7 +44,7 @@ feature
 			create task.make_safe (agent {SUPPORT}.failing_agent)
 			assert ("has_promise", not attached task.promise)
 
-			promise := executor.put_with_promise (task)
+			promise := executor.put_and_get_promise (task)
 
 			assert ("different_promise", task.promise = promise.subject)
 
@@ -68,7 +68,7 @@ feature
 			create task.make_safe (agent {SUPPORT}.fibonacci (50))
 			assert ("has_promise", not attached task.promise)
 
-			promise := future_executor.put_future (task)
+			promise := future_executor.put_and_get_result_promise (task)
 
 			assert ("different_promise", task.promise = promise.subject)
 
