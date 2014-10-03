@@ -1,0 +1,10 @@
+This project contains a library for concurrency patterns for Eiffel
+with the SCOOP extension. It was developed as part of my master thesis.
+
+This repository is now a static snapshot. Further changes should go to:
+https://svn.eiffel.com/eiffelstudio/branches/eth/eve/Src/unstable/library/scoop_patterns/
+
+These commits are important for some milestones:
+463becd -> Commit for code review.
+27efc84 -> Commit when thesis was turned in.
+2dc1202 -> Final code change before repository was moved.
